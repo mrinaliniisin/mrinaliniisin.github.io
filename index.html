@@ -11,39 +11,32 @@
     .wrap { max-width: 880px; margin: 0 auto; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 16px; }
-    /* translateZ(0) forces each card onto its own compositing layer so that
-       overflow:hidden actually clips the rotated ribbon (a transformed child
-       otherwise escapes an un-composited ancestor's clip in WebKit/Blink). */
     .card { display: block; background: white; border: 1px solid #d9d6cf;
             border-radius: 12px; padding: 24px; text-decoration: none; color: inherit;
             position: relative; overflow: hidden; min-height: 168px;
-            transform: translateZ(0);
             transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; }
-    .card:hover { transform: translateY(-2px) translateZ(0); box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.06);
                   border-color: #2d5a27; }
     .card h2 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
     .card:hover h2 { color: #2d5a27; }
     .card .desc { font-size: 14px; color: #4a4540; }
 
     /* Stretched-link pattern: overlay makes the whole card clickable while
-       letting the credit line keep its own independent link. */
+       letting the credit line and source link keep their own independent links. */
     .card-link { position: absolute; inset: 0; z-index: 1; }
     .credit { position: relative; z-index: 2; margin-top: 12px;
               font-size: 12px; color: #6b6560; }
     .credit a { color: #2d5a27; text-decoration: underline; }
 
-    /* GitHub-style "Fork me on GitHub" corner ribbon, recreated in CSS
-       (https://github.blog/news-insights/the-library/github-ribbons/) */
-    .ribbon { position: absolute; top: 60px; right: -30px; width: 200px;
-              transform: rotate(45deg);
-              background: #aa0000; color: #fff; text-decoration: none;
-              font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
-              text-transform: uppercase; text-align: center; padding: 4px 0;
-              box-shadow: 0 1px 4px rgba(0,0,0,0.25); z-index: 2; }
-    .ribbon--green { background: #2d5a27; }
-    .ribbon--github { text-transform: none; font-size: 10px;
-                      border-top: 1px dashed rgba(255,255,255,0.7);
-                      border-bottom: 1px dashed rgba(255,255,255,0.7); }
+    /* "View source on GitHub" icon-button: sits after the description and
+       layers above the stretched card link so it stays independently clickable. */
+    .gh { position: relative; z-index: 2; display: inline-flex;
+          align-items: center; justify-content: center;
+          width: 30px; height: 30px; margin-top: 14px; margin-left: -6px;
+          border-radius: 8px; color: #a8a29e;
+          transition: color 0.15s ease, background 0.15s ease; }
+    .gh:hover { color: #2d5a27; background: #eceae4; }
+    .gh svg { width: 18px; height: 18px; display: block; }
     footer { margin-top: 48px; font-size: 12px; color: #a8a29e; text-align: center; }
   </style>
 </head>
@@ -58,21 +51,27 @@
       </div>
       <div class="card">
         <a class="card-link" href="jpeterman/index.html" aria-label="JPeterman"></a>
-        <a class="ribbon ribbon--github" href="https://github.com/mrinalinisin/jpeterman" target="_blank" rel="noopener">Fork me on GitHub</a>
         <h2>JPeterman</h2>
         <div class="desc">Browse JPeterman women's catalogue</div>
+        <a class="gh" href="https://github.com/mrinalinisin/jpeterman" target="_blank" rel="noopener" aria-label="View JPeterman source on GitHub" title="View source on GitHub">
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+        </a>
       </div>
       <div class="card">
         <a class="card-link" href="/hot_or_not_menu_bar_apps/" aria-label="The Menu Bar Catalogue"></a>
-        <a class="ribbon ribbon--github" href="https://github.com/mrinalinisin/hot_or_not_menu_bar_apps" target="_blank" rel="noopener">Fork me on GitHub</a>
         <h2>Menu Bar Catalogue</h2>
         <div class="desc">Swipe hot or not through a catalogue of Mac menu bar apps.</div>
+        <a class="gh" href="https://github.com/mrinalinisin/hot_or_not_menu_bar_apps" target="_blank" rel="noopener" aria-label="View Menu Bar Catalogue source on GitHub" title="View source on GitHub">
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+        </a>
       </div>
       <div class="card">
         <a class="card-link" href="tv-plot-maps/index.html" aria-label="TV Plot Maps"></a>
-        <a class="ribbon ribbon--github" href="https://github.com/mrinalinisin/TV-Plot-Maps" target="_blank" rel="noopener">Fork me on GitHub</a>
         <h2>TV Plot Maps</h2>
         <div class="desc">Interactive who's-who diagrams for classic detective TV, starting with Agatha Christie's Poirot.</div>
+        <a class="gh" href="https://github.com/mrinalinisin/TV-Plot-Maps" target="_blank" rel="noopener" aria-label="View TV Plot Maps source on GitHub" title="View source on GitHub">
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+        </a>
       </div>
       <div class="card">
         <a class="card-link" href="blog/" aria-label="Blog"></a>
