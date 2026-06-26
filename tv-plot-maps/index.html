@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Detective Series — Interactive Plot Maps</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+  --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --color-text-primary: #1a1915;
+  --color-text-secondary: #6b6a64;
+  --color-text-tertiary: #9a988f;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f5f4ee;
+  --color-border-tertiary: rgba(0,0,0,0.10);
+  --color-border-secondary: rgba(0,0,0,0.20);
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --color-text-primary: #ebe9e0;
+    --color-text-secondary: #9a988f;
+    --color-text-tertiary: #6b6a64;
+    --color-background-primary: #2a2925;
+    --color-background-secondary: #1f1e1b;
+    --color-border-tertiary: rgba(255,255,255,0.10);
+    --color-border-secondary: rgba(255,255,255,0.20);
+  }
+}
+body{margin:0;padding:1.5rem;background:var(--color-background-secondary);font-family:var(--font-sans);max-width:900px;margin:0 auto;color:var(--color-text-primary)}
+header{padding:1rem 0 1.5rem}
+h1{font-size:24px;font-weight:500;margin:0 0 6px;letter-spacing:-0.01em}
+.subtitle{font-size:13px;color:var(--color-text-secondary);margin:0 0 0;line-height:1.6}
+.subtitle a{color:var(--color-text-secondary);text-decoration:underline;text-decoration-color:var(--color-border-secondary)}
+.subtitle a:hover{color:var(--color-text-primary)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:1rem}
+.card{display:block;padding:1.1rem 1.25rem;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);text-decoration:none;color:inherit;transition:border-color .15s, transform .15s}
+.card[href]:hover{border-color:var(--color-border-secondary);transform:translateY(-1px)}
+.card.soon{opacity:0.62}
+.eyebrow{font-size:11px;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px}
+.title{font-size:16px;font-weight:500;margin:0 0 8px;line-height:1.3}
+.blurb{font-size:12.5px;color:var(--color-text-secondary);line-height:1.55;margin:0}
+.status{display:inline-block;margin-top:10px;font-size:11px;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em}
+.status.ready{color:var(--color-text-secondary)}
+footer{margin-top:2rem;padding-top:1rem;border-top:0.5px solid var(--color-border-tertiary);font-size:12px;color:var(--color-text-tertiary);line-height:1.6}
+footer a{color:var(--color-text-tertiary);text-decoration:underline;text-decoration-color:var(--color-border-tertiary)}
+footer a:hover{color:var(--color-text-secondary)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Detective Series — Interactive Plot Maps</h1>
+  <p class="subtitle">Click-through who's-who diagrams for classic detective television. Each series collects per-episode maps that arrange the cast in concentric orbits around the victim, colour-coded by role, with a full plot walkthrough below.</p>
+</header>
+
+<div class="grid">
+
+  <a class="card" href="poirot.html">
+    <p class="eyebrow">ITV · 1989–2013</p>
+    <h2 class="title">Agatha Christie's Poirot</h2>
+    <p class="blurb">David Suchet as the fastidious Belgian detective across the complete 70-episode canon.</p>
+    <span class="status ready">4 maps available →</span>
+  </a>
+
+  <div class="card soon">
+    <p class="eyebrow">ITV · 1984–1992</p>
+    <h2 class="title">Agatha Christie's Miss Marple</h2>
+    <p class="blurb">Joan Hickson as the deceptively gentle spinster sleuth of St Mary Mead.</p>
+    <span class="status">Coming soon</span>
+  </div>
+
+  <div class="card soon">
+    <p class="eyebrow">NBC / ABC · 1968–2003</p>
+    <h2 class="title">Columbo</h2>
+    <p class="blurb">Peter Falk as the rumpled LAPD lieutenant who already knows whodunit — the question is how.</p>
+    <span class="status">Coming soon</span>
+  </div>
+
+  <div class="card soon">
+    <p class="eyebrow">CBS · 1984–1996</p>
+    <h2 class="title">Murder, She Wrote</h2>
+    <p class="blurb">Angela Lansbury as mystery novelist Jessica Fletcher, forever near a fresh corpse in Cabot Cove.</p>
+    <span class="status">Coming soon</span>
+  </div>
+
+  <div class="card soon">
+    <p class="eyebrow">ABC (AU) · 2012–2015</p>
+    <h2 class="title">Miss Fisher's Murder Mysteries</h2>
+    <p class="blurb">Essie Davis as the glamorous Phryne Fisher, lady detective of 1920s Melbourne.</p>
+    <span class="status">Coming soon</span>
+  </div>
+
+</div>
+
+<footer>
+  Series with maps so far: 1 of 5. The Poirot collection covers 4 of its 70 episodes.
+</footer>
+</body>
+</html>

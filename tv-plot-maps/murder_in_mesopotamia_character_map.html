@@ -1,0 +1,235 @@
+<style>
+:root{
+  --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --color-text-primary: #1a1915;
+  --color-text-secondary: #6b6a64;
+  --color-text-tertiary: #9a988f;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f5f4ee;
+  --color-border-tertiary: rgba(0,0,0,0.10);
+  --color-border-secondary: rgba(0,0,0,0.20);
+  --color-background-info: rgba(55,138,221,0.20);
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --color-text-primary: #ebe9e0;
+    --color-text-secondary: #9a988f;
+    --color-text-tertiary: #6b6a64;
+    --color-background-primary: #2a2925;
+    --color-background-secondary: #1f1e1b;
+    --color-border-tertiary: rgba(255,255,255,0.10);
+    --color-border-secondary: rgba(255,255,255,0.20);
+  }
+}
+body{margin:0;padding:1.5rem;background:var(--color-background-secondary);font-family:var(--font-sans);max-width:1000px;margin:0 auto}
+.mim-wrap{font-family:var(--font-sans);padding:1rem 0;color:var(--color-text-primary)}
+.mim-legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem;font-size:12px}
+.mim-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:0.5px solid var(--color-border-tertiary);cursor:pointer;user-select:none;transition:background .15s, border-color .15s}
+.mim-chip:hover{border-color:var(--color-border-secondary);background:var(--color-background-primary)}
+.mim-chip.active{background:var(--color-background-primary);border-color:var(--color-text-primary)}
+.mim-node.dimmed{opacity:0.18;pointer-events:none}
+.mim-dot{width:8px;height:8px;border-radius:50%}
+.mim-stage{position:relative;width:100%;aspect-ratio:1/1;max-width:900px;margin:0 auto;background:var(--color-background-secondary);border-radius:var(--border-radius-lg);overflow:hidden}
+.mim-ring{position:absolute;border:1.5px dashed var(--color-border-secondary);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
+.mim-ring-label{position:absolute;font-size:10px;color:var(--color-text-tertiary);background:var(--color-background-secondary);padding:0 6px;letter-spacing:.04em;text-transform:lowercase}
+.mim-node{position:absolute;transform:translate(-50%,-50%);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .15s ease, opacity .25s ease}
+.mim-node:hover{transform:translate(-50%,-50%) scale(1.08);z-index:10}
+.mim-node.active{z-index:20}
+.mim-photo{width:54px;height:54px;border-radius:50%;border:2px solid var(--color-border-tertiary);transition:box-shadow .15s;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:18px;color:#fff;letter-spacing:.5px}
+.mim-node.active .mim-photo{box-shadow:0 0 0 3px var(--color-background-info)}
+.mim-name{font-size:10px;font-weight:500;color:var(--color-text-primary);text-align:center;background:var(--color-background-primary);padding:1px 6px;border-radius:var(--border-radius-md);max-width:88px;line-height:1.25}
+.t-victim{border-color:#A32D2D;background:#A32D2D}
+.t-killer{border-color:#26215C;background:#26215C}
+.t-redherring{border-color:#BA7517;background:#BA7517}
+.t-innocent{border-color:#0F6E56;background:#0F6E56}
+.t-detective{border-color:#185FA5;background:#185FA5}
+.mim-detail{margin:1.5rem auto 0;max-width:680px;padding:1rem 1.25rem;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);min-height:140px;display:none}
+.mim-detail.visible{display:block}
+.mim-plot{margin-top:2rem;padding:1.5rem 1.75rem;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);color:var(--color-text-primary);line-height:1.7;font-size:14px}
+.mim-plot h3{font-size:18px;font-weight:500;margin:0 0 1rem;color:var(--color-text-primary)}
+.mim-plot h4{font-size:15px;font-weight:500;margin:1.5rem 0 0.5rem;color:var(--color-text-primary)}
+.mim-plot p{margin:0 0 0.85rem}
+.mim-plot p:last-child{margin-bottom:0}
+.mim-plot em{color:var(--color-text-secondary);font-style:italic}
+.mim-plot ol{margin:0 0 0.85rem;padding-left:1.5rem}
+.mim-plot ol li{margin-bottom:0.4rem}
+.mim-detail-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.mim-detail-photo{width:56px;height:56px;border-radius:50%;border:2px solid var(--color-border-tertiary);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:500;font-size:18px;letter-spacing:.5px}
+.mim-detail-titles{flex:1}
+.mim-detail-name{font-size:15px;font-weight:500;margin:0;line-height:1.3}
+.mim-detail-actor{font-size:12px;color:var(--color-text-secondary);margin:2px 0 0}
+.mim-tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;font-weight:500;margin-top:4px}
+.tag-victim{background:#FCEBEB;color:#791F1F}
+.tag-killer{background:#EEEDFE;color:#3C3489}
+.tag-redherring{background:#FAEEDA;color:#854F0B}
+.tag-innocent{background:#E1F5EE;color:#085041}
+.tag-detective{background:#E6F1FB;color:#0C447C}
+.mim-role{font-size:13px;color:var(--color-text-secondary);margin:0 0 8px}
+.mim-desc{font-size:13px;line-height:1.6;color:var(--color-text-primary);margin:0}
+.back-link{margin:0 0 1rem;font-size:13px}
+.back-link a{color:var(--color-text-secondary);text-decoration:none;transition:color .15s}
+.back-link a:hover{color:var(--color-text-primary)}
+</style>
+<p class="back-link"><a href="poirot.html">← All plot maps</a></p>
+<h2 class="sr-only">Interactive who's-who map for Murder in Mesopotamia.</h2>
+<div class="mim-wrap">
+  <div class="mim-legend">
+    <span class="mim-chip" data-tag="victim"><span class="mim-dot" style="background:#A32D2D"></span>Victim</span>
+    <span class="mim-chip" data-tag="killer"><span class="mim-dot" style="background:#26215C"></span>Killer</span>
+    <span class="mim-chip" data-tag="redherring"><span class="mim-dot" style="background:#BA7517"></span>Red herring</span>
+    <span class="mim-chip" data-tag="innocent"><span class="mim-dot" style="background:#0F6E56"></span>Innocent</span>
+    <span class="mim-chip" data-tag="detective"><span class="mim-dot" style="background:#185FA5"></span>Detective</span>
+  </div>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin:0 0 1rem;line-height:1.5">Three orbits around the victim: <strong style="color:var(--color-text-primary);font-weight:500">dig staff</strong> (inner) → <strong style="color:var(--color-text-primary);font-weight:500">observers</strong> (middle) → <strong style="color:var(--color-text-primary);font-weight:500">outsiders</strong> (outer). Click any face for their role.</p>
+  <div class="mim-stage" id="mim-stage"></div>
+  <div class="mim-detail" id="mim-detail"></div>
+  <div class="mim-plot">
+    <h3>The plot, walked through</h3>
+
+    <h4>Opening — Tell Yarimjah</h4>
+    <p>An American-funded archaeological expedition is digging in northern Iraq, led by the gentle, scholarly Dr. Eric Leidner. His beautiful second wife Louise has joined him on site for the season. The atmosphere in the expedition house is poisonous: jealousies, infatuations, addictions, and Louise herself — magnetic, unsettling, and convinced someone is trying to kill her.</p>
+    <p>Nurse Amy Leatheran is hired as Louise's companion. She is the audience's eyes. Louise tells her she has been receiving threatening letters — letters that, she claims, started arriving years ago, then stopped, and have now begun again.</p>
+
+    <h4>The letters</h4>
+    <p>Louise's first husband was Frederick Bosner, a young man unmasked as a German spy during the First World War. He was supposedly killed in a train wreck while being transported. But ever since, whenever Louise has looked at marrying again, threatening letters have arrived in his handwriting: <em>"You belong to me. If you marry another, you will die."</em> Two earlier suitors were warned off. Then she married Eric Leidner — and the letters stopped. Now they have started again.</p>
+
+    <h4>The murder</h4>
+    <p>One hot afternoon, while everyone on the dig is accounted for in the courtyard or out in the field, Louise is found dead in her bedroom. She has been struck on the head with a heavy blunt object. The room opens onto a courtyard that was under more or less constant observation. No stranger could have entered. The killer must be one of the household.</p>
+
+    <h4>The misdirections</h4>
+    <ol>
+      <li>Father Lavigny, the visiting French monk and epigraphist, is behaving oddly — slipping out at night, his Arabic suspiciously poor for a scholar. He is in fact <strong>Raoul Menier</strong>, an antiquities thief in disguise, swapping genuine finds for clever fakes. A real criminal — but not Louise's killer.</li>
+      <li>Richard Carey, the architect, was having an affair with Louise. Plenty of motive, plenty of guilt.</li>
+      <li>Marie Mercado is jealous of Louise; her husband Joseph is a morphine addict whom Louise has been quietly threatening to expose.</li>
+      <li>Bill Coleman has the same flamboyant handwriting as the threatening letters — and admits to having forged one of them as a stupid joke. Not all of them. Just one.</li>
+      <li>Anne Johnson, the senior assistant, is silently in love with Leidner and resents Louise.</li>
+    </ol>
+
+    <h4>The second death</h4>
+    <p>Anne Johnson works it out. Late one night she gasps to Nurse Leatheran: <em>"I've seen how someone could have come in from outside — and yet not from outside."</em> Before she can name the killer she is poisoned with hydrochloric acid swapped into her water glass. As she dies she manages one word: <strong>"window."</strong></p>
+
+    <h4>The trick</h4>
+    <p>The murderer was inside Louise's room when she was killed, and never had to enter from the courtyard at all. Louise was struck through the open window from the flat roof above — but the simpler, deeper trick is the identity question. The threatening letters were not posted from outside. Most of them were written by the killer himself, planted in the household, and timed to make Louise terrified of a phantom from her past.</p>
+
+    <h4>The reveal</h4>
+    <p>Dr. Eric Leidner <strong>is</strong> Frederick Bosner. He survived the train wreck, returned years later under a new identity as a respected archaeologist, and courted and married his own former wife — who never recognised him. He had the perfect access, the perfect cover, and the perfect motive when Louise — who had begun to suspect — became dangerous to him. He killed her himself, in the room, and used the letters and the window to conceal both the method and the identity. Anne Johnson realised the truth and had to be silenced.</p>
+
+    <h4>The motive</h4>
+    <p>Possessive, obsessive love that curdled into the original threatening letters years before. <em>"You belong to me. If you marry another, you will die."</em> When Louise — even married to him under his new face — began to drift toward someone else, and worse, began to sense who he really was, the original threat had to be carried out.</p>
+
+    <h4>The denouement</h4>
+    <p>Poirot reconstructs the case in the dining room of the expedition house. Leidner does not deny it. The Lavigny / Menier antiquities-fraud side plot is wound up separately by Captain Maitland's men. Nurse Leatheran returns to England carrying the story.</p>
+
+    <h4>The structural pattern</h4>
+    <p>Three "obvious" suspect pools are paraded for the audience — the jealous wife and the addict husband, the secret lover Carey, the suspicious foreign monk. Each gets ruled out. The killer comes from the <em>one place no one was looking</em>: the gentle, devoted husband whose connection to the victim's past is invisible to everyone, including the victim herself.</p>
+    <p>This is the same trick as Appointment with Death: Dame Westholme is the prisoner Lady Boynton once held; Dr. Leidner is the first husband Louise long since buried. Different mechanism, same sleight of hand — <strong>the killer is the one person whose connection to the victim's past is invisible to everyone else.</strong></p>
+  </div>
+</div>
+<script>
+const SHORT = {louise:'Louise',leidner:'Dr. Leidner',johnson:'Anne Johnson',carey:'Carey',coleman:'Coleman',emmott:'Emmott',reiter:'Reiter',mercadoJ:'J. Mercado',mercadoM:'M. Mercado',leatheran:'Nurse Leatheran',maitland:'Capt. Maitland',lavigny:'Father Lavigny',poirot:'Poirot'};
+const CHARS = {
+  louise:{name:"Louise Leidner",actor:"Barbara Barnes",role:"The victim",desc:"Dr. Leidner's beautiful, magnetic second wife. Has been receiving threatening letters for years from her supposedly-dead first husband, Frederick Bosner. Found bludgeoned in her bedroom at the dig house.",tag:"victim"},
+  leidner:{name:"Dr. Eric Leidner",actor:"Ron Berglas",role:"Husband — the killer",desc:"Gentle, devoted, scholarly head of the expedition. Secretly Frederick Bosner, Louise's presumed-dead first husband. Survived the WWI train wreck, reinvented himself, courted and married his own former wife under a new face. When she began to drift and to sense who he was, he killed her.",tag:"killer"},
+  johnson:{name:"Anne Johnson",actor:"Pandora Clifford",role:"Senior assistant — second victim",desc:"Devoted to Leidner, quietly resents Louise. Works out how the murder was done and the killer's identity. Murdered with acid in her water glass before she can name him. Dies gasping the word 'window'.",tag:"innocent"},
+  carey:{name:"Richard Carey",actor:"Christopher Hunter",role:"Architect — the lover",desc:"Quiet, brooding architect of the dig. Was having an affair with Louise — a powerful motive that turns out to mean nothing. A red herring with real guilt.",tag:"redherring"},
+  coleman:{name:"Bill Coleman",actor:"Jeremy Turner-Welch",role:"Young assistant",desc:"Cheerful Englishman with flamboyant handwriting that matches the threatening letters. Admits to having forged one letter as a stupid joke — but only one. The handwriting coincidence is a clean misdirection.",tag:"redherring"},
+  emmott:{name:"David Emmott",actor:"Alex Reid",role:"American assistant",desc:"Steady, observant young American on the dig staff. One of the few people on site with no obvious entanglement with Louise.",tag:"innocent"},
+  reiter:{name:"Carl Reiter",actor:"Iain Mitchell",role:"Photographer",desc:"Shy expedition photographer, bullied by Louise for his awkwardness. Had every reason to dislike her, no real motive to kill her.",tag:"innocent"},
+  mercadoJ:{name:"Joseph Mercado",actor:"Pip Torrens",role:"Chemist — addict",desc:"Expedition chemist with a morphine habit. Louise had been quietly letting him know she knew — a slow, cruel form of blackmail. Looks like a strong suspect; isn't.",tag:"redherring"},
+  mercadoM:{name:"Marie Mercado",actor:"Georgina Sowerby",role:"Jealous wife",desc:"Joseph's wife. Openly hostile to Louise, who she believes is destroying her marriage and her husband's reputation. Pure red herring.",tag:"redherring"},
+  leatheran:{name:"Nurse Amy Leatheran",actor:"Anna Calder-Marshall",role:"Companion — the narrator",desc:"English nurse hired to look after Louise. The audience's eyes onto the expedition house. Discovers Anne Johnson dying and reports the word 'window' to Poirot.",tag:"innocent"},
+  maitland:{name:"Captain Maitland",actor:"Hugh Fraser",role:"Police",desc:"Local British police authority. Runs the official side of the investigation. Wraps up the antiquities-fraud arrest of Father Lavigny.",tag:"innocent"},
+  lavigny:{name:"Father Lavigny",actor:"Dinos Karydis",role:"Visiting French monk",desc:"Visiting epigraphist whose Arabic is suspiciously bad for a scholar. Slips out at night. Actually Raoul Menier, an antiquities thief swapping the dig's genuine finds for fakes. A real criminal — and a complete red herring for Louise's murder.",tag:"redherring"},
+  poirot:{name:"Hercule Poirot",actor:"David Suchet",role:"Detective",desc:"Passing through Iraq on his way home from the East. Diverted to Tell Yarimjah by Dr. Reilly to look into the threats against Louise — and arrives just after she has been killed.",tag:"detective"}
+};
+// Three orbits. Dig staff (8 nodes) on inner orbit, observers (2) on middle, outsider (1) on outer.
+// Poirot floats outside as a "comet" — the detective, not a suspect.
+const ORBIT = {inner:38, middle:62, outer:86};
+const layout = {
+  louise:    {r:0,           a:0},
+  // Inner orbit — 8 dig-house residents evenly spaced (45° apart)
+  leidner:   {r:ORBIT.inner, a:-90},
+  johnson:   {r:ORBIT.inner, a:-45},
+  carey:     {r:ORBIT.inner, a:  0},
+  coleman:   {r:ORBIT.inner, a: 45},
+  emmott:    {r:ORBIT.inner, a: 90},
+  reiter:    {r:ORBIT.inner, a:135},
+  mercadoJ:  {r:ORBIT.inner, a:180},
+  mercadoM:  {r:ORBIT.inner, a:225},
+  // Middle orbit — observers, opposite each other
+  leatheran: {r:ORBIT.middle, a:-30},
+  maitland:  {r:ORBIT.middle, a:150},
+  // Outer orbit — outsider
+  lavigny:   {r:ORBIT.outer, a: 60},
+  // Poirot: comet position, off the orbits
+  poirot:    {r:90,           a:-60}
+};
+const stage = document.getElementById('mim-stage');
+const detail = document.getElementById('mim-detail');
+function initials(name){
+  // For "Dr. Leidner" -> "EL", for "Louise Leidner" -> "LL", for "Father Lavigny" -> "FL"
+  const parts = name.replace(/^(Dr\.|Father|Capt\.|Nurse|Sister|Lord|Lady|Sir|Dame)\s+/,'').split(/\s+/);
+  if(parts.length>=2) return (parts[0][0]+parts[parts.length-1][0]).toUpperCase();
+  return parts[0].slice(0,2).toUpperCase();
+}
+function drawRing(rPct,label,labelAngleDeg){
+  const ring=document.createElement('div');ring.className='mim-ring';
+  ring.style.width=(rPct*2)+'%';ring.style.height=(rPct*2)+'%';
+  stage.appendChild(ring);
+  if(label){
+    const lbl=document.createElement('div');
+    lbl.className='mim-ring-label';
+    lbl.textContent=label;
+    const labelAngle = (labelAngleDeg||240) * Math.PI/180;
+    const lx = 50 + (rPct*0.5) * Math.cos(labelAngle);
+    const ly = 50 + (rPct*0.5) * Math.sin(labelAngle);
+    lbl.style.left = lx + '%';
+    lbl.style.top = ly + '%';
+    lbl.style.transform='translate(-50%,-50%)';
+    stage.appendChild(lbl);
+  }
+}
+drawRing(ORBIT.inner,'dig staff',180);
+drawRing(ORBIT.middle,'observers',60);
+drawRing(ORBIT.outer,'outsiders',150);
+function placeNode(key){
+  const ch=CHARS[key],pos=layout[key],rad=pos.a*Math.PI/180;
+  const x=50+pos.r*0.5*Math.cos(rad),y=50+pos.r*0.5*Math.sin(rad);
+  const node=document.createElement('div');node.className='mim-node';
+  node.style.left=x+'%';node.style.top=y+'%';node.dataset.key=key;node.dataset.tag=ch.tag;
+  const photo=document.createElement('div');photo.className='mim-photo t-'+ch.tag;
+  photo.textContent=initials(ch.name);
+  if(ch.tag==='victim'){photo.style.width='66px';photo.style.height='66px';photo.style.fontSize='22px';}
+  if(ch.tag==='detective'){photo.style.width='60px';photo.style.height='60px';photo.style.fontSize='20px';}
+  const name=document.createElement('div');name.className='mim-name';name.textContent=SHORT[key];
+  node.appendChild(photo);node.appendChild(name);
+  node.addEventListener('click',()=>selectChar(key));
+  stage.appendChild(node);
+}
+function selectChar(key){
+  document.querySelectorAll('.mim-node').forEach(n=>n.classList.toggle('active',n.dataset.key===key));
+  const ch=CHARS[key],tagLabel=ch.tag==='redherring'?'red herring':ch.tag;
+  detail.innerHTML='<div class="mim-detail-head"><div class="mim-detail-photo t-'+ch.tag+'">'+initials(ch.name)+'</div><div class="mim-detail-titles"><p class="mim-detail-name">'+ch.name+'</p><p class="mim-detail-actor">'+ch.actor+'</p><span class="mim-tag tag-'+ch.tag+'">'+tagLabel+'</span></div></div><p class="mim-role">'+ch.role+'</p><p class="mim-desc">'+ch.desc+'</p>';
+  detail.classList.add('visible');
+}
+Object.keys(CHARS).forEach(placeNode);
+
+// Legend chips act as filters
+let activeFilter = null;
+document.querySelectorAll('.mim-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const tag = chip.dataset.tag;
+    if (activeFilter === tag) {
+      activeFilter = null;
+      document.querySelectorAll('.mim-chip').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.mim-node').forEach(n => n.classList.remove('dimmed'));
+    } else {
+      activeFilter = tag;
+      document.querySelectorAll('.mim-chip').forEach(c => c.classList.toggle('active', c.dataset.tag === tag));
+      document.querySelectorAll('.mim-node').forEach(n => n.classList.toggle('dimmed', n.dataset.tag !== tag));
+    }
+  });
+});
+</script>

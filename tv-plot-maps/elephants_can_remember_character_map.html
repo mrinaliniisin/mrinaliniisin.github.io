@@ -1,0 +1,238 @@
+<style>
+:root{
+  --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --color-text-primary: #1a1915;
+  --color-text-secondary: #6b6a64;
+  --color-text-tertiary: #9a988f;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f5f4ee;
+  --color-border-tertiary: rgba(0,0,0,0.10);
+  --color-border-secondary: rgba(0,0,0,0.20);
+  --color-background-info: rgba(55,138,221,0.20);
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --color-text-primary: #ebe9e0;
+    --color-text-secondary: #9a988f;
+    --color-text-tertiary: #6b6a64;
+    --color-background-primary: #2a2925;
+    --color-background-secondary: #1f1e1b;
+    --color-border-tertiary: rgba(255,255,255,0.10);
+    --color-border-secondary: rgba(255,255,255,0.20);
+  }
+}
+body{margin:0;padding:1.5rem;background:var(--color-background-secondary);font-family:var(--font-sans);max-width:1000px;margin:0 auto}
+.ecr-wrap{font-family:var(--font-sans);padding:1rem 0;color:var(--color-text-primary)}
+.ecr-legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem;font-size:12px}
+.ecr-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:0.5px solid var(--color-border-tertiary);cursor:pointer;user-select:none;transition:background .15s, border-color .15s}
+.ecr-chip:hover{border-color:var(--color-border-secondary);background:var(--color-background-primary)}
+.ecr-chip.active{background:var(--color-background-primary);border-color:var(--color-text-primary)}
+.ecr-node.dimmed{opacity:0.18;pointer-events:none}
+.ecr-dot{width:8px;height:8px;border-radius:50%}
+.ecr-stage{position:relative;width:100%;aspect-ratio:1/1;max-width:900px;margin:0 auto;background:var(--color-background-secondary);border-radius:var(--border-radius-lg);overflow:hidden}
+.ecr-ring{position:absolute;border:1.5px dashed var(--color-border-secondary);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
+.ecr-ring-label{position:absolute;font-size:10px;color:var(--color-text-tertiary);background:var(--color-background-secondary);padding:0 6px;letter-spacing:.04em;text-transform:lowercase}
+.ecr-node{position:absolute;transform:translate(-50%,-50%);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .15s ease, opacity .25s ease}
+.ecr-node:hover{transform:translate(-50%,-50%) scale(1.08);z-index:10}
+.ecr-node.active{z-index:20}
+.ecr-photo{width:54px;height:54px;border-radius:50%;border:2px solid var(--color-border-tertiary);transition:box-shadow .15s;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:18px;color:#fff;letter-spacing:.5px;background-size:cover;background-position:center}
+.ecr-node.active .ecr-photo{box-shadow:0 0 0 3px var(--color-background-info)}
+.ecr-name{font-size:10px;font-weight:500;color:var(--color-text-primary);text-align:center;background:var(--color-background-primary);padding:1px 6px;border-radius:var(--border-radius-md);max-width:88px;line-height:1.25}
+.t-victim{border-color:#A32D2D;background:#A32D2D}
+.t-killer{border-color:#26215C;background:#26215C}
+.t-redherring{border-color:#BA7517;background:#BA7517}
+.t-innocent{border-color:#0F6E56;background:#0F6E56}
+.t-detective{border-color:#185FA5;background:#185FA5}
+.ecr-detail{margin:1.5rem auto 0;max-width:680px;padding:1rem 1.25rem;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);min-height:140px;display:none}
+.ecr-detail.visible{display:block}
+.ecr-plot{margin-top:2rem;padding:1.5rem 1.75rem;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);color:var(--color-text-primary);line-height:1.7;font-size:14px}
+.ecr-plot h3{font-size:18px;font-weight:500;margin:0 0 1rem;color:var(--color-text-primary)}
+.ecr-plot h4{font-size:15px;font-weight:500;margin:1.5rem 0 0.5rem;color:var(--color-text-primary)}
+.ecr-plot p{margin:0 0 0.85rem}
+.ecr-plot p:last-child{margin-bottom:0}
+.ecr-plot em{color:var(--color-text-secondary);font-style:italic}
+.ecr-plot ol{margin:0 0 0.85rem;padding-left:1.5rem}
+.ecr-plot ol li{margin-bottom:0.4rem}
+.ecr-detail-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.ecr-detail-photo{width:56px;height:56px;border-radius:50%;border:2px solid var(--color-border-tertiary);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:500;font-size:18px;letter-spacing:.5px;background-size:cover;background-position:center}
+.ecr-detail-titles{flex:1}
+.ecr-detail-name{font-size:15px;font-weight:500;margin:0;line-height:1.3}
+.ecr-detail-actor{font-size:12px;color:var(--color-text-secondary);margin:2px 0 0}
+.ecr-tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;font-weight:500;margin-top:4px}
+.tag-victim{background:#FCEBEB;color:#791F1F}
+.tag-killer{background:#EEEDFE;color:#3C3489}
+.tag-redherring{background:#FAEEDA;color:#854F0B}
+.tag-innocent{background:#E1F5EE;color:#085041}
+.tag-detective{background:#E6F1FB;color:#0C447C}
+.ecr-role{font-size:13px;color:var(--color-text-secondary);margin:0 0 8px}
+.ecr-desc{font-size:13px;line-height:1.6;color:var(--color-text-primary);margin:0}
+.back-link{margin:0 0 1rem;font-size:13px}
+.back-link a{color:var(--color-text-secondary);text-decoration:none;transition:color .15s}
+.back-link a:hover{color:var(--color-text-primary)}
+</style>
+<p class="back-link"><a href="poirot.html">← All plot maps</a></p>
+<h2 class="sr-only">Interactive who's-who map for Elephants Can Remember.</h2>
+<div class="ecr-wrap">
+  <div class="ecr-legend">
+    <span class="ecr-chip" data-tag="victim"><span class="ecr-dot" style="background:#A32D2D"></span>Victim</span>
+    <span class="ecr-chip" data-tag="killer"><span class="ecr-dot" style="background:#26215C"></span>Killer</span>
+    <span class="ecr-chip" data-tag="redherring"><span class="ecr-dot" style="background:#BA7517"></span>Red herring</span>
+    <span class="ecr-chip" data-tag="innocent"><span class="ecr-dot" style="background:#0F6E56"></span>Innocent</span>
+    <span class="ecr-chip" data-tag="detective"><span class="ecr-dot" style="background:#185FA5"></span>Detective</span>
+  </div>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin:0 0 1rem;line-height:1.5">Three orbits around the victim: <strong style="color:var(--color-text-primary);font-weight:500">household (13 yrs ago)</strong> (inner) → <strong style="color:var(--color-text-primary);font-weight:500">investigators</strong> (middle) → <strong style="color:var(--color-text-primary);font-weight:500">present-day periphery</strong> (outer). Click any face for their role.</p>
+  <div class="ecr-stage" id="ecr-stage"></div>
+  <div class="ecr-detail" id="ecr-detail"></div>
+  <div class="ecr-plot">
+    <h3>The plot, walked through</h3>
+
+    <h4>Opening — a literary lunch in London</h4>
+    <p>Mystery novelist Mrs. Ariadne Oliver is cornered by an aggressive society woman, Mrs. Burton-Cox, who demands to know: <em>"Did your goddaughter Celia's mother kill her father — or did her father kill her mother?"</em> Mrs. Burton-Cox's son Desmond wants to marry Celia, and Mrs. Burton-Cox claims she has to know before she'll consent. Mrs. Oliver, appalled, takes the question to Poirot.</p>
+
+    <h4>The cold case — 13 years ago at Overcliffe</h4>
+    <p>General Sir Alistair Ravenscroft and his wife Lady Margaret Ravenscroft were found shot dead at the cliff edge of their Cornish home, Overcliffe. One pistol, both their fingerprints on it, both bullets fired from it. Verdict: murder-suicide. But which way round? No one knew, and the case was quietly closed. The two children, Celia and Edward, were sent away to relatives. The French governess, Mademoiselle Zelie Rouxelle, returned to Switzerland and never spoke of it.</p>
+    <p>Just before the deaths, Lady Margaret's twin sister, Dolly Jarrow, had come to live with them. Dolly had spent years institutionalised under the care of Dr. Willoughby Sr. — a child had died in her care many years before, and her mind had never recovered.</p>
+
+    <h4>The present-day mystery</h4>
+    <p>Just as Poirot and Mrs. Oliver begin to dig — interviewing the "elephants," the old witnesses who remember — the psychiatrist Dr. Willoughby (son of the man who treated Dolly) is murdered. Someone is killing the keepers of the old institution's records. Superintendent Garroway works the present-day case in parallel.</p>
+
+    <h4>The misdirections</h4>
+    <ol>
+      <li>Mrs. Burton-Cox's intrusive question looks like meddling — actually she has her own concealed motive tied to Desmond's inheritance and parentage.</li>
+      <li>The murder-suicide verdict itself is misdirection — the "obvious" question (which spouse killed the other) is the wrong question. The right question is <em>which woman is in the grave</em>.</li>
+      <li>The present-day Willoughby murders look connected to the cold case — they are connected by <em>setting</em> (the old institution) but the killer is a third party with a private grievance.</li>
+      <li>The "elephants" — old servants, neighbours, the wig-maker, the postman — each remember a fragment, none of which on its own points to the truth. They are all telling Poirot what they saw; what matters is what they <em>didn't</em> see.</li>
+    </ol>
+
+    <h4>The trick</h4>
+    <p>Lady Margaret had been killed weeks before the clifftop "murder-suicide." Dolly, her identical twin, had pushed Margaret to her death out of obsessive jealousy of the life Margaret had — a husband, children, sanity. Sir Alistair, with Zelie's help, quietly buried Margaret and then lived alongside Dolly as if she <em>were</em> Margaret, to protect the children from the scandal of their mother's murder by their aunt.</p>
+    <p>When the strain became unbearable — and when Dolly began to threaten the children too — Alistair took her up to the clifftop, shot her, and then shot himself. The body identified as "Lady Margaret" was Dolly. Margaret had been dead for weeks. The "murder-suicide" the world saw was real — but the woman in it was not who everyone thought.</p>
+
+    <h4>The reveal</h4>
+    <p>Zelie Rouxelle has carried the secret for thirteen years, out of love for Sir Alistair and loyalty to the children. Poirot extracts it from her gently. The wigs the old wig-maker remembers, the missing weeks, the small inconsistencies in the elephants' stories — all of it falls into place once you accept that Margaret died first and Dolly took her place.</p>
+
+    <h4>The parallel resolution</h4>
+    <p>The present-day Willoughby killings are revealed to be the work of Marie McDermott, who blames the Willoughby family — father and son — for the death of her own child years before, while she was a patient at the institution. Her grievance has nothing to do with the Ravenscrofts directly. The two mysteries shared a setting and a set of records, nothing more.</p>
+
+    <h4>The motive</h4>
+    <p>Dolly's motive: pathological envy of her twin's life. Sir Alistair's motive: protecting his children from a scandal worse than their parents' death — that their aunt had murdered their mother and lived in her skin. Marie McDermott's motive: long-incubated revenge against the doctors she blames for her child.</p>
+
+    <h4>The denouement</h4>
+    <p>Celia and Desmond can marry — knowing now that Lady Margaret was the victim, not the killer, and that Sir Alistair acted out of love for them. Mrs. Burton-Cox's leverage collapses. Marie McDermott is arrested. Mrs. Oliver, who started the whole thing, gets the last word.</p>
+
+    <h4>The structural pattern</h4>
+    <p>Two "obvious" suspect pools are paraded for the audience — the murder-suicide spouses (one of whom must be the killer), and the family of the present-day victim. The truth comes from the <em>one place no one was looking</em>: a third woman, identical to the victim, who has been hiding in plain sight as the victim herself.</p>
+    <p>This is the same family of trick as Appointment with Death (Westholme is the prisoner Lady Boynton once held) and Murder in Mesopotamia (Dr. Leidner is Louise's presumed-dead first husband). All three turn on a hidden identity that connects the killer or the victim to a buried past — <strong>the killer, or the corpse, is the one person whose true identity is invisible to everyone else.</strong></p>
+  </div>
+</div>
+<script>
+const IMGS = {poirot:"data:image/jpeg;base64,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"};
+const SHORT = {margaret:'Lady Margaret',alistair:'Sir Alistair',dolly:'Dolly Jarrow',celia:'Celia',edward:'Edward',zelie:'Zelie',oliver:'Mrs. Oliver',garroway:'Garroway',burtoncox:'Mrs. Burton-Cox',desmond:'Desmond',willoughby:'Dr. Willoughby',mcdermott:'M. McDermott',poirot:'Poirot'};
+const CHARS = {
+  margaret:{name:"Lady Margaret Ravenscroft",actor:"Annabel Mullion",role:"The victim",desc:"Wife of General Sir Alistair Ravenscroft. Killed by her own identical twin sister Dolly weeks before the staged 'murder-suicide' at Overcliffe. The woman the world buried as 'Lady Margaret' was actually Dolly.",tag:"victim"},
+  alistair:{name:"General Sir Alistair Ravenscroft",actor:"Adrian Lukis",role:"Husband — the avenger",desc:"Distinguished retired soldier. After Dolly murdered Margaret, he buried his wife in secret and lived with Dolly as if she were Margaret to protect the children from scandal. When Dolly became dangerous, he shot her on the clifftop and then himself. Tagged here as a killer for what he did to Dolly.",tag:"killer"},
+  dolly:{name:"Dorothea 'Dolly' Jarrow",actor:"Claire Cox",role:"Margaret's twin — the killer",desc:"Margaret's identical twin sister. Years institutionalised under Dr. Willoughby Sr. after a child died in her care. Pathologically jealous of Margaret's life. Murdered Margaret, then was killed by Sir Alistair on the clifftop and buried under Margaret's name.",tag:"killer"},
+  celia:{name:"Celia Ravenscroft",actor:"Vanessa Kirby",role:"Daughter — the goddaughter",desc:"Mrs. Oliver's goddaughter. Engaged to Desmond Burton-Cox. The whole investigation is set in motion by the question of whether she can marry under the shadow of her parents' deaths.",tag:"innocent"},
+  edward:{name:"Edward Ravenscroft",actor:"— (not depicted in this adaptation)",role:"Son — referenced only",desc:"Celia's brother in the source novel. The 2013 TV adaptation drops him from the on-screen cast and folds the orphaned-children backstory into Celia alone.",tag:"innocent"},
+  zelie:{name:"Mlle. Zelie Rouxelle",actor:"Elsa Mollien",role:"French governess — keeper of the secret",desc:"The Ravenscrofts' Swiss governess. Helped Sir Alistair conceal Margaret's death and the substitution. Has carried the secret in silence for thirteen years out of love and loyalty. Poirot draws the truth from her gently.",tag:"innocent"},
+  oliver:{name:"Mrs. Ariadne Oliver",actor:"Zoë Wanamaker",role:"Mystery novelist — instigator",desc:"Poirot's old friend, mystery writer, and Celia's godmother. Brings the cold case to Poirot after being ambushed by Mrs. Burton-Cox at a literary lunch. Drives much of the elephant-hunting fieldwork.",tag:"detective"},
+  garroway:{name:"Superintendent Bill Garroway",actor:"Danny Webb",role:"Police",desc:"Investigates the present-day Willoughby murders. Provides Poirot with the official files on the original Ravenscroft case.",tag:"innocent"},
+  burtoncox:{name:"Mrs. Burton-Cox",actor:"Greta Scacchi",role:"Pushy society mother",desc:"Demands to know how the Ravenscrofts died before she'll let her son marry Celia. Behaves suspiciously throughout — has her own concealed agenda tied to Desmond's inheritance and parentage. A red herring for both murders.",tag:"redherring"},
+  desmond:{name:"Desmond Burton-Cox",actor:"Ferdinand Kingsley",role:"Celia's fiancé",desc:"Wants to marry Celia regardless of what the cold case turns up. Caught between his mother's intrusion and Celia's right to her family's truth.",tag:"innocent"},
+  willoughby:{name:"Dr. David Willoughby",actor:"Iain Glen",role:"Psychiatrist — present-day victim",desc:"Son of the doctor who treated Dolly Jarrow at the institution. Murdered in the present day by someone with a grievance against the family — a killing that runs in parallel with the cold case but is not directly connected to it.",tag:"victim"},
+  mcdermott:{name:"Marie McDermott",actor:"Alexandra Dowling",role:"Present-day killer",desc:"Former patient at the Willoughbys' institution. Blames Dr. Willoughby and his late father for the death of her own child years before. Carries out a private revenge against the family in the present day. No connection to the Ravenscroft case beyond the shared institution.",tag:"killer"},
+  poirot:{name:"Hercule Poirot",actor:"David Suchet",role:"Detective",desc:"Reluctantly takes on a thirteen-year-old cold case at Mrs. Oliver's urging. Interviews the 'elephants' — the old witnesses who remember — and reconstructs not who killed whom, but which woman is actually in the grave.",tag:"detective"}
+};
+// Three orbits. Household 13 yrs ago (5 nodes) on inner orbit, investigators (2) on middle, present-day periphery (4) on outer.
+// Poirot floats outside as a "comet" — the detective, not a suspect.
+const ORBIT = {inner:38, middle:62, outer:86};
+const layout = {
+  margaret:  {r:0,           a:0},
+  // Inner orbit — 5 household members evenly spaced (72° apart)
+  alistair:  {r:ORBIT.inner, a:-90},
+  dolly:     {r:ORBIT.inner, a:-18},
+  celia:     {r:ORBIT.inner, a: 54},
+  edward:    {r:ORBIT.inner, a:126},
+  zelie:     {r:ORBIT.inner, a:198},
+  // Middle orbit — investigators, opposite each other
+  oliver:    {r:ORBIT.middle, a:-30},
+  garroway:  {r:ORBIT.middle, a:150},
+  // Outer orbit — present-day periphery, evenly spaced (90° apart)
+  burtoncox: {r:ORBIT.outer, a:-135},
+  desmond:   {r:ORBIT.outer, a: -45},
+  willoughby:{r:ORBIT.outer, a:  45},
+  mcdermott: {r:ORBIT.outer, a: 135},
+  // Poirot: comet position, off the orbits
+  poirot:    {r:90,           a:-60}
+};
+const stage = document.getElementById('ecr-stage');
+const detail = document.getElementById('ecr-detail');
+function initials(name){
+  const parts = name.replace(/^(Dr\.|Father|Capt\.|Nurse|Sister|Lord|Lady|Sir|Dame|Mrs\.|Mr\.|Mlle\.|General|Sir|Superintendent)\s+/,'').split(/\s+/);
+  if(parts.length>=2) return (parts[0][0]+parts[parts.length-1][0]).toUpperCase();
+  return parts[0].slice(0,2).toUpperCase();
+}
+function drawRing(rPct,label,labelAngleDeg){
+  const ring=document.createElement('div');ring.className='ecr-ring';
+  ring.style.width=(rPct*2)+'%';ring.style.height=(rPct*2)+'%';
+  stage.appendChild(ring);
+  if(label){
+    const lbl=document.createElement('div');
+    lbl.className='ecr-ring-label';
+    lbl.textContent=label;
+    const labelAngle = (labelAngleDeg||240) * Math.PI/180;
+    const lx = 50 + (rPct*0.5) * Math.cos(labelAngle);
+    const ly = 50 + (rPct*0.5) * Math.sin(labelAngle);
+    lbl.style.left = lx + '%';
+    lbl.style.top = ly + '%';
+    lbl.style.transform='translate(-50%,-50%)';
+    stage.appendChild(lbl);
+  }
+}
+drawRing(ORBIT.inner,'household (13 yrs ago)',180);
+drawRing(ORBIT.middle,'investigators',60);
+drawRing(ORBIT.outer,'present-day',150);
+function placeNode(key){
+  const ch=CHARS[key],pos=layout[key],rad=pos.a*Math.PI/180;
+  const x=50+pos.r*0.5*Math.cos(rad),y=50+pos.r*0.5*Math.sin(rad);
+  const node=document.createElement('div');node.className='ecr-node';
+  node.style.left=x+'%';node.style.top=y+'%';node.dataset.key=key;node.dataset.tag=ch.tag;
+  const photo=document.createElement('div');photo.className='ecr-photo t-'+ch.tag;
+  if(IMGS[key]){photo.style.backgroundImage='url('+IMGS[key]+')';}
+  else{photo.textContent=initials(ch.name);}
+  if(ch.tag==='victim' && key==='margaret'){photo.style.width='66px';photo.style.height='66px';photo.style.fontSize='22px';}
+  if(ch.tag==='detective'){photo.style.width='60px';photo.style.height='60px';photo.style.fontSize='20px';}
+  const name=document.createElement('div');name.className='ecr-name';name.textContent=SHORT[key];
+  node.appendChild(photo);node.appendChild(name);
+  node.addEventListener('click',()=>selectChar(key));
+  stage.appendChild(node);
+}
+function selectChar(key){
+  document.querySelectorAll('.ecr-node').forEach(n=>n.classList.toggle('active',n.dataset.key===key));
+  const ch=CHARS[key],tagLabel=ch.tag==='redherring'?'red herring':ch.tag;
+  const photoStyle=IMGS[key]?' style="background-image:url('+IMGS[key]+')"':'';
+  const photoInner=IMGS[key]?'':initials(ch.name);
+  detail.innerHTML='<div class="ecr-detail-head"><div class="ecr-detail-photo t-'+ch.tag+'"'+photoStyle+'>'+photoInner+'</div><div class="ecr-detail-titles"><p class="ecr-detail-name">'+ch.name+'</p><p class="ecr-detail-actor">'+ch.actor+'</p><span class="ecr-tag tag-'+ch.tag+'">'+tagLabel+'</span></div></div><p class="ecr-role">'+ch.role+'</p><p class="ecr-desc">'+ch.desc+'</p>';
+  detail.classList.add('visible');
+}
+Object.keys(CHARS).forEach(placeNode);
+
+// Legend chips act as filters
+let activeFilter = null;
+document.querySelectorAll('.ecr-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const tag = chip.dataset.tag;
+    if (activeFilter === tag) {
+      activeFilter = null;
+      document.querySelectorAll('.ecr-chip').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.ecr-node').forEach(n => n.classList.remove('dimmed'));
+    } else {
+      activeFilter = tag;
+      document.querySelectorAll('.ecr-chip').forEach(c => c.classList.toggle('active', c.dataset.tag === tag));
+      document.querySelectorAll('.ecr-node').forEach(n => n.classList.toggle('dimmed', n.dataset.tag !== tag));
+    }
+  });
+});
+</script>
