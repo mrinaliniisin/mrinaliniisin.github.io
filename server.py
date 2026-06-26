@@ -12,7 +12,9 @@ save time and POSTs both; this server just writes files. The markdown source is
 preserved inside each post as an <!--EDIT:post:b64:...--> comment, so the editor
 can reload and re-save a post. Publishing is a normal `git push` afterwards.
 
-Run from the repo root:  python3 server.py [port]   (default 8000)
+Run from the repo root:  python3 server.py [port]   (default 5666)
+
+5666 is the port the always-on runit service uses, so the default matches it.
 """
 
 import base64
@@ -171,7 +173,7 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 5666
     print("Blog save server on http://localhost:%d" % port)
     print("  editor:  http://localhost:%d/editor.html" % port)
     print("  blog:    http://localhost:%d/blog/" % port)
