@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog editor</title>
+  <link rel="stylesheet" href="/assets/blog.css">
+  <style>
+    /* Editor chrome — only loaded locally, never part of a published post. */
+    body { padding: 0; }
+    .bar { position: sticky; top: 0; z-index: 10; display: flex; gap: 12px;
+           align-items: center; flex-wrap: wrap;
+           background: #1a1a1a; color: #fff; padding: 12px 20px; }
+    .bar input { font: inherit; border: 1px solid #444; border-radius: 6px;
+                 background: #2a2a2a; color: #fff; padding: 7px 10px; }
+    .bar input.title { flex: 1; min-width: 220px; font-size: 15px; font-weight: 600; }
+    .bar button { font: inherit; background: #2d5a27; color: #fff; border: 0;
+                  border-radius: 6px; padding: 8px 16px; font-weight: 600; cursor: pointer; }
+    .bar button:hover { filter: brightness(1.12); }
+    .bar .status { font-size: 13px; color: #a8a29e; }
+    .bar .status a { color: #8fd17f; }
+    .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+             height: calc(100vh - 58px); }
+    .panes textarea { border: 0; border-right: 1px solid #d9d6cf; padding: 32px 24px;
+                      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                      font-size: 14px; line-height: 1.6; resize: none; outline: none;
+                      background: #fbfaf8; color: #1a1a1a; }
+    .preview { overflow-y: auto; padding: 24px; }
+    .preview .wrap { padding: 8px 0; }
+    @media (max-width: 720px) { .panes { grid-template-columns: 1fr; height: auto; }
+                                .panes textarea { min-height: 50vh; } }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <input class="title" id="title" placeholder="Post title" autocomplete="off">
+    <input type="date" id="date">
+    <button id="save">Save</button>
+    <span class="status" id="status">Draft &middot; Save writes to /blog, then git push to publish</span>
+  </div>
+  <div class="panes">
+    <textarea id="md" placeholder="# Write your post in Markdown&#10;&#10;Type here…"></textarea>
+    <div class="preview">
+      <div class="wrap"><div class="post-body" id="preview"></div></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    // The title field supplies the post's <h1>, so drop a leading body heading
+    // to keep preview, published post, and listing showing the title once.
+    const toBody = md => marked.parse(md || '')
+                          .replace(/^\s*<h1\b[^>]*>.*?<\/h1>\s*/is, '');
+    const render = () => { $('preview').innerHTML = toBody($('md').value); };
+    $('md').addEventListener('input', render);
+    $('date').value = new Date().toISOString().slice(0, 10);
+
+    // Edit an existing post via ?p=slug
+    const slug = new URLSearchParams(location.search).get('p');
+    if (slug) {
+      fetch('/api/load?p=' + encodeURIComponent(slug))
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(p => { $('title').value = p.title; $('date').value = p.date || $('date').value;
+                     $('md').value = p.markdown; render();
+                     $('status').textContent = 'Editing ' + slug; })
+        .catch(() => { $('status').textContent = 'Could not load "' + slug + '"'; });
+    }
+
+    $('save').addEventListener('click', async () => {
+      const title = $('title').value.trim();
+      if (!title) { $('status').textContent = 'Add a title first.'; $('title').focus(); return; }
+      $('status').textContent = 'Saving…';
+      try {
+        const r = await fetch('/api/save', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, date: $('date').value,
+                                 markdown: $('md').value,
+                                 html: toBody($('md').value) })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || r.status);
+        $('status').innerHTML = 'Saved &rarr; <a href="' + d.url + '" target="_blank">' +
+                                d.url + '</a> &middot; now <code>git push</code>';
+        history.replaceState(null, '', '?p=' + d.slug);
+      } catch (e) { $('status').textContent = 'Error: ' + e.message; }
+    });
+  </script>
+</body>
+</html>

@@ -1,20 +1,24 @@
----
-layout: default
-title: Blog
----
-<a class="back" href="{{ '/' | relative_url }}">&larr; Home</a>
-<h1>Blog</h1>
-<p class="post-meta">Notes, essays, and assorted writing.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog · Mrinalini S</title>
+  <link rel="stylesheet" href="/assets/blog.css">
+</head>
+<body>
+  <main class="wrap">
+    <a class="back" href="/">&larr; Home</a>
+    <h1>Blog</h1>
+    <p class="post-meta">Notes, essays, and assorted writing.</p>
 
-{% if site.posts.size > 0 %}
-<ul class="post-list">
-  {% for post in site.posts %}
-  <li>
-    <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-    <span class="post-meta">{{ post.date | date: "%B %-d, %Y" }}</span>
-  </li>
-  {% endfor %}
-</ul>
-{% else %}
-<p>No posts yet — check back soon.</p>
-{% endif %}
+    <!-- server.py inserts new posts immediately after the POSTS marker
+         (newest first). Do not remove the marker comments. -->
+    <ul class="post-list">
+<!--POSTS-->
+      <li><a href="/blog/hello-world.html"><span class="t">Hello, world</span><span class="post-meta">June 26, 2026</span></a></li>
+    </ul>
+  </main>
+  <footer>&copy; 2026 Mrinalini S &middot; Code licensed under MIT</footer>
+</body>
+</html>

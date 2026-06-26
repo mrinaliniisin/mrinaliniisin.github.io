@@ -1,8 +1,0 @@
-# Jekyll configuration for the blog. The hand-written pages (index.html,
-# theo/, tv-plot-maps/, ...) have no front matter, so Jekyll copies them
-# through untouched — only files with a `---` block get processed.
-title: Mrinalini S
-description: Notes, essays, and assorted writing.
-
-# Posts live in blog/_posts/. Give them clean, dateless URLs under /blog/.
-permalink: /blog/:title/
