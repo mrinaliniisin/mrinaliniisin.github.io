@@ -3,3 +3,6 @@
 
 # Local Claude Code tooling/config
 .claude/
+
+# Python bytecode cache (from local http.server preview)
+__pycache__/
