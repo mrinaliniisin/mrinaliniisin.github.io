@@ -58,9 +58,23 @@
   <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
   <script>
     const $ = id => document.getElementById(id);
+
+    // A YouTube link on its own line becomes a responsive inline player. This
+    // runs before marked so the URL isn't autolinked first; marked then passes
+    // the <div> through as a raw HTML block. The Markdown source keeps the
+    // plain URL, so posts reload and re-render cleanly.
+    const YT_ID = /(?:youtube\.com\/(?:watch\?(?:\S*&)?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/;
+    const ytEmbed = id =>
+      '<div class="video-embed"><iframe src="https://www.youtube-nocookie.com/embed/' + id +
+      '" title="YouTube video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; ' +
+      'encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>';
+    const embedYouTube = md => (md || '').replace(
+      /^[ \t]*(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?(?:\S*&)?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})\S*[ \t]*$/gm,
+      (_, id) => '\n\n' + ytEmbed(id) + '\n\n');
+
     // The title field supplies the post's <h1>, so drop a leading body heading
     // to keep preview, published post, and listing showing the title once.
-    const toBody = md => marked.parse(md || '')
+    const toBody = md => marked.parse(embedYouTube(md))
                           .replace(/^\s*<h1\b[^>]*>.*?<\/h1>\s*/is, '');
     const render = () => { $('preview').innerHTML = toBody($('md').value); };
     $('date').value = new Date().toISOString().slice(0, 10);
@@ -90,7 +104,18 @@
     $('md').addEventListener('paste', async e => {
       const item = [...(e.clipboardData?.items || [])]
                      .find(it => it.type.startsWith('image/'));
-      if (!item) return;            // not an image — let the normal text paste run
+      if (!item) {
+        // A pasted YouTube link (and nothing else) drops in as an inline player.
+        // Requiring the whole clipboard to be the URL leaves links inside copied
+        // prose untouched; the blank lines put it on its own block for the embed.
+        const text = (e.clipboardData?.getData('text/plain') || '').trim();
+        if (/^\S+$/.test(text) && YT_ID.test(text)) {
+          e.preventDefault();
+          insertAtCursor($('md'), '\n\n' + text + '\n\n');
+          render(); markDirty();
+        }
+        return;                     // otherwise let the normal text paste run
+      }
       e.preventDefault();
       const file = item.getAsFile();
       if (!file) return;
