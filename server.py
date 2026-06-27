@@ -29,6 +29,13 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 ROOT = os.getcwd()
 BLOG = os.path.join(ROOT, "blog")
 INDEX = os.path.join(BLOG, "index.html")
+IMAGES = os.path.join(BLOG, "images")
+
+# Clipboard images arrive as a MIME type, not a filename, so map it to a suffix.
+IMAGE_EXT = {
+    "image/png": "png", "image/jpeg": "jpg", "image/jpg": "jpg",
+    "image/gif": "gif", "image/webp": "webp", "image/svg+xml": "svg",
+}
 
 POST_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
@@ -116,6 +123,23 @@ def update_index(slug, title, date_iso):
         f.write("\n".join(out) + "\n")
 
 
+def save_image(title, mime, b64):
+    ext = IMAGE_EXT.get((mime or "").lower())
+    if not ext:
+        raise ValueError("unsupported image type: %r" % mime)
+    os.makedirs(IMAGES, exist_ok=True)
+    # Name images after the post slug so they sort and read sensibly; before a
+    # title exists, fall back to a timestamp so the paste still works.
+    base = slugify(title) if title.strip() else datetime.now().strftime("img-%Y%m%d-%H%M%S")
+    n = 1
+    while os.path.exists(os.path.join(IMAGES, "%s-%d.%s" % (base, n, ext))):
+        n += 1
+    name = "%s-%d.%s" % (base, n, ext)
+    with open(os.path.join(IMAGES, name), "wb") as f:
+        f.write(base64.b64decode(b64))
+    return "/blog/images/" + name
+
+
 def load_post(slug):
     path = os.path.join(BLOG, slug + ".html")
     if not os.path.isfile(path):
@@ -152,6 +176,15 @@ class Handler(SimpleHTTPRequestHandler):
         return super().do_GET()
 
     def do_POST(self):
+        if self.path == "/api/upload":
+            length = int(self.headers.get("Content-Length", 0))
+            try:
+                data = json.loads(self.rfile.read(length) or b"{}")
+                url = save_image(data.get("title", ""), data.get("mime", ""),
+                                 data.get("b64", ""))
+                return self._json(200, {"ok": True, "url": url})
+            except Exception as e:
+                return self._json(500, {"error": str(e)})
         if self.path != "/api/save":
             return self._json(404, {"error": "unknown endpoint"})
         length = int(self.headers.get("Content-Length", 0))

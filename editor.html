@@ -72,6 +72,49 @@
     $('title').addEventListener('input', markDirty);
     $('date').addEventListener('input', markDirty);
 
+    // Paste an image: upload its bytes to the server, then drop a Markdown
+    // image reference at the caret. A placeholder holds the spot while the
+    // upload is in flight so two quick pastes can't clobber each other.
+    const blobToB64 = blob => new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result.split(',', 2)[1]); // strip "data:…;base64,"
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
+    const insertAtCursor = (ta, text) => {
+      const { selectionStart: s, selectionEnd: e } = ta;
+      ta.value = ta.value.slice(0, s) + text + ta.value.slice(e);
+      ta.selectionStart = ta.selectionEnd = s + text.length;
+    };
+    let pasteSeq = 0;
+    $('md').addEventListener('paste', async e => {
+      const item = [...(e.clipboardData?.items || [])]
+                     .find(it => it.type.startsWith('image/'));
+      if (!item) return;            // not an image — let the normal text paste run
+      e.preventDefault();
+      const file = item.getAsFile();
+      if (!file) return;
+      const token = '![uploading #' + (++pasteSeq) + '…]()';
+      insertAtCursor($('md'), token);
+      render(); markDirty();
+      try {
+        const b64 = await blobToB64(file);
+        const r = await fetch('/api/upload', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: $('title').value.trim(),
+                                 mime: file.type, b64 })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || r.status);
+        $('md').value = $('md').value.replace(token, '![](' + d.url + ')');
+        $('status').textContent = 'Inserted ' + d.url; // clear any stale error
+      } catch (err) {
+        $('md').value = $('md').value.replace(token, '');
+        $('status').textContent = 'Image upload failed: ' + err.message;
+      }
+      render();
+    });
+
     // Edit an existing post via ?p=slug
     const slug = new URLSearchParams(location.search).get('p');
     if (slug) {
