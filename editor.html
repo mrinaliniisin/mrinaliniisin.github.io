@@ -67,13 +67,24 @@
     // the <div> through as a raw HTML block. The Markdown source keeps the
     // plain URL, so posts reload and re-render cleanly.
     const YT_ID = /(?:youtube\.com\/(?:watch\?(?:\S*&)?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/;
-    const ytEmbed = id =>
+    // Pull a start time out of the link so a deep-linked moment survives:
+    // t=90, t=90s, or t=1m30s / t=1h2m3s, plus the embed's own ?start=. -> seconds.
+    const ytStart = url => {
+      const m = url.match(/[?&](?:t|start)=([0-9hms]+)/i);
+      if (!m) return 0;
+      if (/^\d+$/.test(m[1])) return +m[1];          // plain seconds
+      let s = 0, p; const re = /(\d+)([hms])/gi;
+      while ((p = re.exec(m[1]))) s += +p[1] * { h: 3600, m: 60, s: 1 }[p[2].toLowerCase()];
+      return s;
+    };
+    const ytEmbed = (id, start) =>
       '<div class="video-embed"><iframe src="https://www.youtube-nocookie.com/embed/' + id +
+      (start ? '?start=' + start : '') +
       '" title="YouTube video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; ' +
       'encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>';
     const embedYouTube = md => (md || '').replace(
       /^[ \t]*(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?(?:\S*&)?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})\S*[ \t]*$/gm,
-      (_, id) => '\n\n' + ytEmbed(id) + '\n\n');
+      (m, id) => '\n\n' + ytEmbed(id, ytStart(m)) + '\n\n');
 
     // The title field supplies the post's <h1>, so drop a leading body heading
     // to keep preview, published post, and listing showing the title once.
