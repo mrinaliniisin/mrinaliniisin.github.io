@@ -22,7 +22,9 @@
 
   const setState = on => {
     btn.dataset.on = on ? "1" : "";
-    btn.textContent = on ? "🔔 Subscribed — tap to stop" : "🔔 Notify me of new stuff";
+    const label = on ? "Subscribed — click to stop notifications" : "Notify me of new posts";
+    btn.title = label;
+    btn.setAttribute("aria-label", label);   // keep the SVG intact, stay accessible
   };
 
   let reg;

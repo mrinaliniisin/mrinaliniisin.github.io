@@ -38,18 +38,46 @@
     .gh:hover { color: #2d5a27; background: #eceae4; }
     .gh svg { width: 18px; height: 18px; display: block; }
     footer { margin-top: 48px; font-size: 12px; color: #a8a29e; text-align: center; }
-    .notify-row { margin-top: 28px; text-align: center; }
-    .notify-btn { font: inherit; font-size: 14px; cursor: pointer;
-                  background: #fff; color: #2d5a27; border: 1px solid #2d5a27;
-                  border-radius: 999px; padding: 9px 18px;
-                  transition: background 0.15s ease, color 0.15s ease; }
-    .notify-btn:hover { background: #2d5a27; color: #fff; }
-    .notify-btn:disabled { opacity: 0.6; cursor: default; }
-    .notify-btn[data-on="1"] { border-color: #a8a29e; color: #6b6560; }
-    .notify-btn[data-on="1"]:hover { background: #6b6560; color: #fff; border-color: #6b6560; }
+    .top-actions { position: fixed; top: 18px; right: 18px; z-index: 50;
+                   display: flex; gap: 10px; }
+    .icon-btn { width: 42px; height: 42px; padding: 0; cursor: pointer;
+                display: inline-flex; align-items: center; justify-content: center;
+                background: #fff; color: #1a1a1a; border: 1px solid #d9d6cf;
+                border-radius: 50%; text-decoration: none;
+                transition: background 0.15s ease, color 0.15s ease,
+                            border-color 0.15s ease, transform 0.15s ease; }
+    .icon-btn svg { width: 20px; height: 20px; display: block; }
+    .icon-btn:hover { border-color: #1a1a1a; transform: translateY(-1px); }
+    .notify-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+    /* Subscribed: invert to a filled black bell — stays black & white. */
+    .notify-btn[data-on="1"] { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
   </style>
 </head>
 <body>
+  <div class="top-actions">
+    <a class="icon-btn ig-link" href="https://instagram.com/mrinalinisin"
+       target="_blank" rel="noopener"
+       aria-label="@mrinalinisin on Instagram" title="@mrinalinisin on Instagram">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <ellipse cx="12" cy="18.6" rx="8.5" ry="4.2"/>
+        <ellipse cx="12" cy="13.4" rx="6" ry="3.8"/>
+        <ellipse cx="12" cy="9" rx="3.9" ry="3"/>
+        <circle cx="12" cy="6.2" r="1.5"/>
+        <circle cx="9.6" cy="12.9" r="1.05" fill="#fff"/>
+        <circle cx="14.4" cy="12.9" r="1.05" fill="#fff"/>
+        <path d="M10 15.1Q12 16.6 14 15.1" fill="none" stroke="#fff"
+              stroke-width="1.1" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <button id="notify" class="icon-btn notify-btn" disabled
+            aria-label="Notify me of new posts" title="Notify me of new posts">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+    </button>
+  </div>
   <div class="wrap">
     <div class="grid">
       <div class="card">
@@ -97,10 +125,6 @@
         <h2>China &amp; HK trip 2026</h2>
         <div class="desc">Shops, MUJI &amp; Uniqlo locations, and fun stops mapped for July 2026.</div>
       </div>
-    </div>
-
-    <div class="notify-row">
-      <button id="notify" class="notify-btn" disabled>🔔 Notify me of new stuff</button>
     </div>
 
     <footer>&copy; 2026 Mrinalini S &middot; Code licensed under MIT</footer>
