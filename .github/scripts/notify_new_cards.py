@@ -54,7 +54,7 @@ def main():
         title, desc = new[href]
         url = href if href.startswith("http") else origin + "/" + href.lstrip("/")
         payload = json.dumps({
-            "title": "New on mrinalinisin: " + title,
+            "title": "New on Mrinalini S: " + title,
             "body": desc, "url": url,
         }).encode()
         req = urllib.request.Request(
