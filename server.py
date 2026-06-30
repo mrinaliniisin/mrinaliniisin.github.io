@@ -75,6 +75,7 @@ POST_TEMPLATE = """<!DOCTYPE html>
     </article>
   </main>
   <footer>&copy; 2026 Mrinalini S · Code licensed under MIT</footer>
+  <script src="/assets/analytics.js" defer></script>
 </body>
 </html>
 """
@@ -106,6 +107,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     </article>
   </main>
   <footer>&copy; 2026 Mrinalini S · Code licensed under MIT</footer>
+  <script src="/assets/analytics.js" defer></script>
 </body>
 </html>
 """
