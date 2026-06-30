@@ -25,11 +25,25 @@ import re
 import sys
 from datetime import datetime
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlparse, parse_qs
 
 ROOT = os.getcwd()
 BLOG = os.path.join(ROOT, "blog")
 INDEX = os.path.join(BLOG, "index.html")
 IMAGES = os.path.join(BLOG, "images")
+
+# Hand-built standalone pages that page-editor.html may open and overwrite as
+# raw HTML. The allowlist — not a path check — is the security boundary: the
+# save endpoint refuses anything not in this list, so it can't traverse out of
+# the repo. Deliberately ABSENT: blog posts (edit via editor.html) and
+# generated pages — commonplace/* and the JPeterman build — whose HTML is
+# rebuilt from data, so a hand-edit would be lost on the next regenerate.
+EDITABLE_PAGES = [
+    "index.html",
+    "send-to-anytype.html",
+    "china-hk-trip-2026/index.html",
+    "china-hk-trip-2026/bellamafia.html",
+]
 
 # Clipboard images arrive as a MIME type, not a filename, so map it to a suffix.
 IMAGE_EXT = {
@@ -184,6 +198,60 @@ def list_posts():
     return out
 
 
+def page_title(src, rel):
+    """A human label for the page picker: <title>, else <h1>, else the path."""
+    m = re.search(r"<title>(.*?)</title>", src, re.S | re.I)
+    if m:
+        return html.unescape(re.sub(r"\s+", " ", m.group(1)).strip())
+    m = re.search(r"<h1[^>]*>(.*?)</h1>", src, re.S | re.I)
+    if m:
+        return html.unescape(re.sub(r"<[^>]+>", "", m.group(1)).strip())
+    return rel
+
+
+def editable_path(rel):
+    """Absolute path for an allowlisted standalone page, or None if not allowed.
+    Membership in EDITABLE_PAGES is what confines writes to known files; the
+    normpath round-trip is a belt-and-suspenders guard against odd input."""
+    rel = (rel or "").lstrip("/")
+    if rel not in EDITABLE_PAGES:
+        return None
+    path = os.path.normpath(os.path.join(ROOT, rel))
+    return path if path == os.path.join(ROOT, rel) else None
+
+
+def list_pages():
+    """Allowlisted standalone pages with a display title (for the page picker)."""
+    out = []
+    for rel in EDITABLE_PAGES:
+        path = os.path.join(ROOT, rel)
+        exists = os.path.isfile(path)
+        title = rel
+        if exists:
+            with open(path, encoding="utf-8") as f:
+                title = page_title(f.read(), rel)
+        out.append({"path": rel, "title": title, "exists": exists})
+    return out
+
+
+def load_page(rel):
+    path = editable_path(rel)
+    if not path or not os.path.isfile(path):
+        return None
+    with open(path, encoding="utf-8") as f:
+        return {"path": rel.lstrip("/"), "html": f.read()}
+
+
+def save_page(rel, content):
+    path = editable_path(rel)
+    if not path:
+        raise ValueError("not an editable page: %r" % rel)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
+    rel = rel.lstrip("/")
+    return {"path": rel, "url": "/" + rel}
+
+
 def list_images():
     if not os.path.isdir(IMAGES):
         return []
@@ -286,6 +354,12 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(200, {"images": list_images()})
         if self.path == "/api/posts":
             return self._json(200, {"posts": list_posts()})
+        if self.path == "/api/pages":
+            return self._json(200, {"pages": list_pages()})
+        if self.path.startswith("/api/page?"):
+            rel = parse_qs(urlparse(self.path).query).get("p", [""])[0]
+            page = load_page(rel)
+            return self._json(200 if page else 404, page or {"error": "not found"})
         return super().do_GET()
 
     def do_POST(self):
@@ -309,6 +383,10 @@ class Handler(SimpleHTTPRequestHandler):
                 slug = write_post(title, date_iso, d.get("markdown", ""), d.get("html", ""))
                 return self._json(200, {"ok": True, "slug": slug,
                                         "url": "/blog/%s.html" % slug})
+            if self.path == "/api/page/save":
+                d = self._body()
+                return self._json(200, {"ok": True,
+                                        **save_page(d.get("path"), d.get("html", ""))})
             return self._json(404, {"error": "unknown endpoint"})
         except Exception as e:  # surface the error to the editor/gallery UI
             return self._json(500, {"error": str(e)})
