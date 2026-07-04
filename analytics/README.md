@@ -50,16 +50,27 @@ var WORKER = "https://counterscale.<your-subdomain>.workers.dev";
 Commit + push. That's it — every wired page starts reporting. The site id is
 `mrinaliniisin` (change `SITE_ID` if you want a different label in the dashboard).
 
-## Coverage
+## Coverage — whole site
 
-Wired: the **main site** — homepage, blog (index + posts), the China & HK list +
-its BellaMafia page, the Commonplace Book (index + all factoid pages), and
-standalone pages. Future blog posts and markdown pages get it automatically
-because the include is in `server.py`'s `POST_TEMPLATE` and `PAGE_TEMPLATE`.
+Because the include is an **absolute path** (`/assets/analytics.js`), it resolves
+to *this* repo's loader from anywhere on the `mrinaliniisin.github.io` origin —
+so one loader covers project pages served at `/jpeterman/`, `/tv-plot-maps/`,
+etc. too.
 
-**Not wired (by default):** the sub-projects in their own folders/repos —
-`tv-plot-maps/`, `theo/`, `jpeterman/` (separate repo), `margo/`, `roger/`,
-`hot_or_not_menu_bar_apps/`.
+Wired:
+- **Main site** — homepage, blog (index + posts), China & HK list + BellaMafia,
+  Commonplace (index + all factoid pages), standalone pages. Future posts/pages
+  get it automatically via `server.py`'s `POST_TEMPLATE` / `PAGE_TEMPLATE`.
+- **tv-plot-maps/**, **theo/** — in-repo, added directly.
+- **jpeterman** — separate repo (`~/Desktop/jpeterman`); the include is in its
+  `build_pages.py` templates, regenerated across all pages. Commit + push there.
+
+Not wired:
+- **`hot_or_not_menu_bar_apps/`** — a separate project-pages repo, **not cloned
+  locally**, so it couldn't be wired here. To include it: clone the repo, add
+  `<script src="/assets/analytics.js" defer></script>` before `</body>` on its
+  pages, commit + push.
+- `margo/`, `roger/` — no HTML pages (just assets), nothing to track.
 
 ### Caveat — regenerated pages
 
