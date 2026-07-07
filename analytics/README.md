@@ -64,13 +64,14 @@ Wired:
 - **tv-plot-maps/**, **theo/** — in-repo, added directly.
 - **jpeterman** — separate repo (`~/Desktop/jpeterman`); the include is in its
   `build_pages.py` templates, regenerated across all pages. Commit + push there.
+- **hot_or_not_menu_bar_apps** — separate repo (`~/Desktop/MenuBarApps`);
+  include added to `index.html` + `stats.html`. Commit + push there.
 
 Not wired:
-- **`hot_or_not_menu_bar_apps/`** — a separate project-pages repo, **not cloned
-  locally**, so it couldn't be wired here. To include it: clone the repo, add
-  `<script src="/assets/analytics.js" defer></script>` before `</body>` on its
-  pages, commit + push.
 - `margo/`, `roger/` — no HTML pages (just assets), nothing to track.
+
+> Separate repos (jpeterman, MenuBarApps) each need their own **push** to
+> deploy; they all load the single `assets/analytics.js` from this repo.
 
 ### Caveat — regenerated pages
 
