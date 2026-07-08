@@ -40,8 +40,6 @@ IMAGES = os.path.join(BLOG, "images")
 # rebuilt from data, so a hand-edit would be lost on the next regenerate.
 EDITABLE_PAGES = [
     "index.html",
-    "china-hk-trip-2026/index.html",
-    "china-hk-trip-2026/bellamafia.html",
 ]
 # (send-to-anytype.html is a markdown page now — edit it in editor.html, not here.)
 
