@@ -69,6 +69,18 @@
     body.editing .card-link { pointer-events: none; }   /* don't navigate while editing */
     body.editing .card.dragging { opacity: 0.35; }
     body.editing .card.drop-target { outline: 2px dashed #2d5a27; outline-offset: 3px; }
+
+    /* Trash drop-zone: appears only while a card is being dragged. */
+    .edit-trash { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+                  z-index: 70; display: none; align-items: center; gap: 10px;
+                  background: #fff; color: #a12626; border: 2px dashed #a12626;
+                  border-radius: 12px; padding: 14px 22px; font-size: 14px; font-weight: 600;
+                  box-shadow: 0 8px 28px rgba(0,0,0,0.16); }
+    .edit-trash.show { display: flex; }
+    .edit-trash.over { background: #a12626; color: #fff; border-style: solid; }
+    .edit-trash svg { width: 20px; height: 20px; }
+    /* Children must not swallow drag events, or dragleave flickers. */
+    .edit-trash svg, .edit-trash span { pointer-events: none; }
   </style>
 </head>
 <body>
@@ -78,6 +90,16 @@
       <input type="password" id="editKey" placeholder="Edit key" autocomplete="off">
       <button type="submit">Unlock</button>
     </form>
+  </div>
+  <div class="edit-trash" id="editTrash">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="3 6 5 6 21 6"/>
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+      <line x1="10" y1="11" x2="10" y2="17"/>
+      <line x1="14" y1="11" x2="14" y2="17"/>
+    </svg>
+    <span>Drop here to delete</span>
   </div>
   <div class="top-actions">
     <a class="icon-btn ig-link" href="https://instagram.com/mrinaliniisin"
@@ -164,12 +186,25 @@
     (function () {
       if (!['localhost', '127.0.0.1'].includes(location.hostname)) return;
       const $ = id => document.getElementById(id);
-      const gate = $('editGate'), form = $('editForm'), keyIn = $('editKey'), banner = $('editBanner');
+      const gate = $('editGate'), form = $('editForm'), keyIn = $('editKey');
+      const banner = $('editBanner'), trash = $('editTrash');
       const grid = document.querySelector('.grid');
       let KEY = null;
+      let trashHandling = false;   // a trash drop is in flight; dragend must not also save
 
       const cardHref = c => { const a = c.querySelector('.card-link'); return a ? a.getAttribute('href') : ''; };
+      const cardTitle = c => { const h = c.querySelector('h2'); return h ? h.textContent.trim() : cardHref(c); };
       const currentOrder = () => [...grid.querySelectorAll('.card')].map(cardHref);
+
+      async function api(path, body) {
+        const r = await fetch(path, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(Object.assign({ key: KEY }, body))
+        });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.error || r.status);
+        return d;
+      }
 
       const showGate = () => { gate.classList.add('show'); keyIn.focus(); };
       // Reveal the key prompt with ?edit or Cmd/Ctrl+Shift+E.
@@ -195,21 +230,65 @@
       async function saveOrder() {
         banner.textContent = 'Saving…';
         try {
-          const r = await fetch('/api/edit/reorder', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key: KEY, order: currentOrder() })
-          });
-          if (!r.ok) throw new Error(r.status);
+          await api('/api/edit/reorder', { order: currentOrder() });
           banner.innerHTML = 'Saved · order updated — <code>git push</code> to publish';
         } catch (e) { banner.textContent = 'Save failed: ' + e.message; }
       }
+
+      // Spell out exactly what will happen before anything is removed.
+      function describe(title, plan) {
+        if (plan.kind === 'file') {
+          let msg = 'Delete “' + title + '”?\n\n• remove the card\n• DELETE the file ' + plan.target;
+          if (plan.inbound.length)
+            msg += '\n• remove links to it from ' + plan.inbound.length + ' page(s):\n    ' +
+                   plan.inbound.join('\n    ');
+          return msg + '\n\nThis cannot be undone (except via git).';
+        }
+        if (plan.kind === 'external')
+          return 'Remove the card “' + title + '”?\n\nIt points off-site — no files will be deleted.';
+        return 'Remove the card “' + title + '”?\n\n' + plan.target +
+               ' is a folder/section — only the card is removed.\nNo files will be deleted.';
+      }
+
+      trash.addEventListener('dragover', e => { e.preventDefault(); trash.classList.add('over'); });
+      trash.addEventListener('dragleave', () => trash.classList.remove('over'));
+      trash.addEventListener('drop', async e => {
+        e.preventDefault();
+        trash.classList.remove('over');
+        const card = grid.querySelector('.card.dragging');
+        if (!card) return;
+        trashHandling = true;          // set before any await, so dragend defers to us
+        const href = cardHref(card), title = cardTitle(card);
+        try {
+          const plan = await api('/api/edit/delete-plan', { href });
+          if (!confirm(describe(title, plan))) { await saveOrder(); return; }
+          const res = await api('/api/edit/delete', { href });
+          card.remove();
+          await saveOrder();           // persist the order of what's left
+          const bits = [];
+          if (res.deleted.length) bits.push('deleted ' + res.deleted.join(', '));
+          if (res.unlinked.length) bits.push('unlinked from ' + res.unlinked.length + ' page(s)');
+          banner.innerHTML = 'Removed “' + title + '”' +
+                             (bits.length ? ' · ' + bits.join(' · ') : '') +
+                             ' — <code>git push</code> to publish';
+        } catch (err) {
+          banner.textContent = 'Delete failed: ' + err.message;
+        } finally {
+          trashHandling = false;
+          trash.classList.remove('show');
+        }
+      });
 
       function enableEditing() {
         document.body.classList.add('editing');
         for (const card of grid.querySelectorAll('.card')) {
           card.setAttribute('draggable', 'true');
-          card.addEventListener('dragstart', () => card.classList.add('dragging'));
-          card.addEventListener('dragend', () => { card.classList.remove('dragging'); saveOrder(); });
+          card.addEventListener('dragstart', () => { card.classList.add('dragging'); trash.classList.add('show'); });
+          card.addEventListener('dragend', () => {
+            trash.classList.remove('show');
+            card.classList.remove('dragging');
+            if (!trashHandling) saveOrder();   // the trash handler does its own saving
+          });
           card.addEventListener('dragover', e => {
             e.preventDefault();
             const dragging = grid.querySelector('.card.dragging');

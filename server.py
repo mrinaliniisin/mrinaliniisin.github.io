@@ -475,6 +475,122 @@ def reorder_index(order):
     return [_card_href(b) for b in new_blocks]
 
 
+def remove_card(href):
+    """Drop the card whose card-link href matches, keeping the rest in order."""
+    with open(INDEX_HTML, encoding="utf-8") as f:
+        src = f.read()
+    m = GRID_RE.search(src)
+    if not m:
+        raise ValueError("could not locate the card grid in index.html")
+    blocks = CARD_RE.findall(m.group(2))
+    keep = [b for b in blocks if _card_href(b) != href]
+    if len(keep) == len(blocks):
+        raise ValueError("no card links to %r" % href)
+    new_grid = m.group(1) + "\n".join(keep) + m.group(3)
+    src = src[:m.start()] + new_grid + src[m.end():]
+    with open(INDEX_HTML, "w", encoding="utf-8") as f:
+        f.write(src)
+    return len(keep)
+
+
+def _repo_rel(href):
+    """Repo-relative path a card href points at, or None if it leaves the site."""
+    if re.match(r"^[a-z][a-z0-9+.-]*:", href, re.I) or href.startswith("//"):
+        return None                                   # http:, mailto:, //cdn…
+    rel = href.split("#")[0].split("?")[0].lstrip("/")
+    if not rel:
+        return None
+    if os.path.normpath(os.path.join(ROOT, rel)).startswith(ROOT + os.sep):
+        return rel
+    return None                                       # traversal guard
+
+
+def _site_html():
+    skip = {".git", "node_modules", "__pycache__"}
+    out = []
+    for dirpath, dirnames, filenames in os.walk(ROOT):
+        dirnames[:] = [d for d in dirnames if d not in skip and not d.startswith(".")]
+        for n in filenames:
+            if n.endswith(".html"):
+                out.append(os.path.relpath(os.path.join(dirpath, n), ROOT))
+    return sorted(out)
+
+
+def _href_variants(rel):
+    return (rel, "/" + rel, "./" + rel)
+
+
+def inbound_links(rel):
+    """HTML files containing an <a href> pointing at rel (excluding rel itself)."""
+    hits = []
+    for f in _site_html():
+        if f == rel:
+            continue
+        with open(os.path.join(ROOT, f), encoding="utf-8", errors="ignore") as fh:
+            src = fh.read()
+        if any(('href="%s"' % v) in src for v in _href_variants(rel)):
+            hits.append(f)
+    return hits
+
+
+def strip_inbound_links(rel):
+    """Unwrap <a href="rel">text</a> -> text, so prose survives but the dead link goes."""
+    changed = []
+    for f in inbound_links(rel):
+        p = os.path.join(ROOT, f)
+        with open(p, encoding="utf-8") as fh:
+            src = fh.read()
+        new = src
+        for v in _href_variants(rel):
+            new = re.sub(r'<a\b[^>]*href="%s"[^>]*>(.*?)</a>' % re.escape(v),
+                         lambda m: m.group(1), new, flags=re.S | re.I)
+        if new != src:
+            with open(p, "w", encoding="utf-8") as fh:
+                fh.write(new)
+            changed.append(f)
+    return changed
+
+
+def delete_plan(href):
+    """Dry run: what dragging this card to the trash would do.
+
+    kind == "file"     -> a standalone page; delete it and strip inbound links
+    kind == "folder"   -> a directory or a subdirectory's index.html (a section):
+                          card-only removal, files untouched
+    kind == "external" -> off-site link; card-only removal
+    kind == "missing"  -> nothing on disk (e.g. a separate repo); card-only removal
+    """
+    rel = _repo_rel(href)
+    if rel is None:
+        return {"href": href, "kind": "external", "target": None, "inbound": []}
+    parts = rel.split("/")
+    section_index = len(parts) > 1 and parts[-1] == "index.html"
+    if href.endswith("/") or rel.endswith("/") or os.path.isdir(os.path.join(ROOT, rel)) or section_index:
+        return {"href": href, "kind": "folder", "target": rel, "inbound": []}
+    if not os.path.isfile(os.path.join(ROOT, rel)):
+        return {"href": href, "kind": "missing", "target": rel, "inbound": []}
+    # index.html's link to it IS the card, which remove_card() handles — don't
+    # list it as a separate inbound link in the confirmation dialog.
+    inbound = [f for f in inbound_links(rel) if f != "index.html"]
+    return {"href": href, "kind": "file", "target": rel, "inbound": inbound}
+
+
+def delete_card(href):
+    """Remove the card; delete the page + strip inbound links only for kind=="file"."""
+    plan = delete_plan(href)
+    remove_card(href)                     # the card always goes
+    deleted, unlinked = [], []
+    if plan["kind"] == "file":
+        p = os.path.join(ROOT, plan["target"])
+        if os.path.isfile(p):
+            os.remove(p)
+            deleted.append(plan["target"])
+        # Only now that the page is gone do links to it become dead.
+        unlinked = strip_inbound_links(plan["target"])
+    return {"kind": plan["kind"], "target": plan["target"],
+            "deleted": deleted, "unlinked": unlinked}
+
+
 class Handler(SimpleHTTPRequestHandler):
     def _json(self, code, obj):
         body = json.dumps(obj).encode("utf-8")
@@ -548,6 +664,16 @@ class Handler(SimpleHTTPRequestHandler):
                 if not key_ok(d.get("key")):
                     return self._json(403, {"error": "bad key"})
                 return self._json(200, {"ok": True, "order": reorder_index(d.get("order") or [])})
+            if self.path == "/api/edit/delete-plan":
+                d = self._body()
+                if not key_ok(d.get("key")):
+                    return self._json(403, {"error": "bad key"})
+                return self._json(200, delete_plan(d.get("href") or ""))
+            if self.path == "/api/edit/delete":
+                d = self._body()
+                if not key_ok(d.get("key")):
+                    return self._json(403, {"error": "bad key"})
+                return self._json(200, {"ok": True, **delete_card(d.get("href") or "")})
             if self.path == "/api/page/save":
                 d = self._body()
                 return self._json(200, {"ok": True,
