@@ -51,9 +51,34 @@
     .notify-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
     /* Subscribed: invert to a filled black bell — stays black & white. */
     .notify-btn[data-on="1"] { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+
+    /* --- Local, key-gated edit mode (drag to reorder cards) --- */
+    .edit-gate { position: fixed; inset: 0; z-index: 100; display: none;
+                 align-items: center; justify-content: center; background: rgba(0,0,0,0.45); }
+    .edit-gate.show { display: flex; }
+    .edit-gate form { background: #fff; padding: 24px; border-radius: 12px; display: flex; gap: 10px;
+                      box-shadow: 0 12px 44px rgba(0,0,0,0.25); }
+    .edit-gate input { font: inherit; padding: 8px 12px; border: 1px solid #d9d6cf; border-radius: 8px; }
+    .edit-gate button { font: inherit; background: #2d5a27; color: #fff; border: 0; border-radius: 8px;
+                        padding: 8px 16px; font-weight: 600; cursor: pointer; }
+    .edit-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 60; display: none;
+                   background: #2d5a27; color: #fff; text-align: center; padding: 9px 12px; font-size: 13px; }
+    body.editing { padding-top: 96px; }
+    body.editing .edit-banner { display: block; }
+    body.editing .card { cursor: grab; }
+    body.editing .card-link { pointer-events: none; }   /* don't navigate while editing */
+    body.editing .card.dragging { opacity: 0.35; }
+    body.editing .card.drop-target { outline: 2px dashed #2d5a27; outline-offset: 3px; }
   </style>
 </head>
 <body>
+  <div class="edit-banner" id="editBanner">Edit mode — drag cards to reorder · saves locally, then <code>git push</code> to publish</div>
+  <div class="edit-gate" id="editGate">
+    <form id="editForm">
+      <input type="password" id="editKey" placeholder="Edit key" autocomplete="off">
+      <button type="submit">Unlock</button>
+    </form>
+  </div>
   <div class="top-actions">
     <a class="icon-btn ig-link" href="https://instagram.com/mrinaliniisin"
        target="_blank" rel="noopener"
@@ -132,5 +157,70 @@
   </div>
   <script src="/push.js" defer></script>
   <script src="/assets/analytics.js" defer></script>
+  <script>
+    // Local-only, key-gated homepage edit mode: drag cards to reorder, saved via
+    // server.py. Wired ONLY on localhost (the write API exists only there), so the
+    // public site never has edit mode. The key is validated server-side.
+    (function () {
+      if (!['localhost', '127.0.0.1'].includes(location.hostname)) return;
+      const $ = id => document.getElementById(id);
+      const gate = $('editGate'), form = $('editForm'), keyIn = $('editKey'), banner = $('editBanner');
+      const grid = document.querySelector('.grid');
+      let KEY = null;
+
+      const cardHref = c => { const a = c.querySelector('.card-link'); return a ? a.getAttribute('href') : ''; };
+      const currentOrder = () => [...grid.querySelectorAll('.card')].map(cardHref);
+
+      const showGate = () => { gate.classList.add('show'); keyIn.focus(); };
+      // Reveal the key prompt with ?edit or Cmd/Ctrl+Shift+E.
+      if (new URLSearchParams(location.search).has('edit')) showGate();
+      document.addEventListener('keydown', e => {
+        if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'e') { e.preventDefault(); showGate(); }
+      });
+      gate.addEventListener('click', e => { if (e.target === gate) gate.classList.remove('show'); });
+
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        try {
+          const r = await fetch('/api/edit/auth', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key: keyIn.value })
+          });
+          const d = await r.json();
+          if (d.ok) { KEY = keyIn.value; gate.classList.remove('show'); enableEditing(); }
+          else { keyIn.value = ''; keyIn.placeholder = 'Wrong key — try again'; }
+        } catch { keyIn.placeholder = 'Save server not reachable'; }
+      });
+
+      async function saveOrder() {
+        banner.textContent = 'Saving…';
+        try {
+          const r = await fetch('/api/edit/reorder', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key: KEY, order: currentOrder() })
+          });
+          if (!r.ok) throw new Error(r.status);
+          banner.innerHTML = 'Saved · order updated — <code>git push</code> to publish';
+        } catch (e) { banner.textContent = 'Save failed: ' + e.message; }
+      }
+
+      function enableEditing() {
+        document.body.classList.add('editing');
+        for (const card of grid.querySelectorAll('.card')) {
+          card.setAttribute('draggable', 'true');
+          card.addEventListener('dragstart', () => card.classList.add('dragging'));
+          card.addEventListener('dragend', () => { card.classList.remove('dragging'); saveOrder(); });
+          card.addEventListener('dragover', e => {
+            e.preventDefault();
+            const dragging = grid.querySelector('.card.dragging');
+            if (!dragging || dragging === card) return;
+            const box = card.getBoundingClientRect();
+            const before = e.clientX < box.left + box.width / 2;
+            grid.insertBefore(dragging, before ? card : card.nextSibling);
+          });
+        }
+      }
+    })();
+  </script>
 </body>
 </html>

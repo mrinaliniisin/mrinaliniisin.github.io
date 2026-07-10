@@ -13,3 +13,4 @@ push-worker/SECRETS.local.txt
 
 # Wrangler local state/cache
 push-worker/.wrangler/
+.edit-key

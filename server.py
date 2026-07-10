@@ -18,6 +18,7 @@ Run from the repo root:  python3 server.py [port]   (default 5666)
 """
 
 import base64
+import hmac
 import html
 import json
 import os
@@ -31,6 +32,13 @@ ROOT = os.getcwd()
 BLOG = os.path.join(ROOT, "blog")
 INDEX = os.path.join(BLOG, "index.html")
 IMAGES = os.path.join(BLOG, "images")
+INDEX_HTML = os.path.join(ROOT, "index.html")
+
+# Local, git-ignored file holding the homepage edit-mode key (one line). Absent =
+# edit mode disabled. The browser sends the key; the server validates it HERE, so
+# it's a real server-side check — not a bypassable client-side "if key===" that
+# would ship in the public page.
+EDIT_KEY_FILE = os.path.join(ROOT, ".edit-key")
 
 # Hand-built standalone pages that page-editor.html may open and overwrite as
 # raw HTML. The allowlist — not a path check — is the security boundary: the
@@ -414,6 +422,59 @@ def delete_image(name):
     return {"name": name}
 
 
+# --- Homepage edit mode (key-gated drag-to-reorder) ---------------------------
+# A card block is `      <div class="card"> ... \n      </div>` (6-space indent).
+# Inner tags (desc/credit/gh) close inline or at deeper indent, so the first
+# bare 6-space </div> after a card open is always that card's close.
+CARD_RE = re.compile(r'      <div class="card">\n.*?\n      </div>', re.S)
+GRID_RE = re.compile(r'(    <div class="grid">\n)(.*?)(\n    </div>)', re.S)
+
+
+def _edit_key():
+    try:
+        with open(EDIT_KEY_FILE, encoding="utf-8") as f:
+            return f.read().strip()
+    except OSError:
+        return None
+
+
+def key_ok(provided):
+    k = _edit_key()
+    return bool(k) and hmac.compare_digest(provided or "", k)
+
+
+def _card_href(block):
+    m = re.search(r'card-link" href="([^"]+)"', block)
+    return m.group(1) if m else ""
+
+
+def reorder_index(order):
+    """Reorder the homepage cards to match `order` (a list of card-link hrefs).
+    Cards not named in `order` are kept, in their original relative order."""
+    with open(INDEX_HTML, encoding="utf-8") as f:
+        src = f.read()
+    m = GRID_RE.search(src)
+    if not m:
+        raise ValueError("could not locate the card grid in index.html")
+    blocks = CARD_RE.findall(m.group(2))
+    by_href = {}
+    for b in blocks:
+        by_href.setdefault(_card_href(b), b)
+    seen, new_blocks = set(), []
+    for h in order:
+        if h in by_href and h not in seen:
+            new_blocks.append(by_href[h]); seen.add(h)
+    for b in blocks:  # keep any unmentioned cards, in original order
+        h = _card_href(b)
+        if h not in seen:
+            new_blocks.append(b); seen.add(h)
+    new_grid = m.group(1) + "\n".join(new_blocks) + m.group(3)
+    src = src[:m.start()] + new_grid + src[m.end():]
+    with open(INDEX_HTML, "w", encoding="utf-8") as f:
+        f.write(src)
+    return [_card_href(b) for b in new_blocks]
+
+
 class Handler(SimpleHTTPRequestHandler):
     def _json(self, code, obj):
         body = json.dumps(obj).encode("utf-8")
@@ -480,6 +541,13 @@ class Handler(SimpleHTTPRequestHandler):
                                      slug=(d.get("slug") or "").strip() or None)
                 return self._json(200, {"ok": True, "slug": slug,
                                         "url": "/%s.html" % slug})
+            if self.path == "/api/edit/auth":
+                return self._json(200, {"ok": key_ok(self._body().get("key"))})
+            if self.path == "/api/edit/reorder":
+                d = self._body()
+                if not key_ok(d.get("key")):
+                    return self._json(403, {"error": "bad key"})
+                return self._json(200, {"ok": True, "order": reorder_index(d.get("order") or [])})
             if self.path == "/api/page/save":
                 d = self._body()
                 return self._json(200, {"ok": True,
