@@ -191,6 +191,7 @@
       const grid = document.querySelector('.grid');
       let KEY = null;
       let trashHandling = false;   // a trash drop is in flight; dragend must not also save
+      let editCtl = null;          // AbortController: drops every edit-mode listener on exit
 
       const cardHref = c => { const a = c.querySelector('.card-link'); return a ? a.getAttribute('href') : ''; };
       const cardTitle = c => { const h = c.querySelector('h2'); return h ? h.textContent.trim() : cardHref(c); };
@@ -210,7 +211,14 @@
       // Reveal the key prompt with ?edit or Cmd/Ctrl+Shift+E.
       if (new URLSearchParams(location.search).has('edit')) showGate();
       document.addEventListener('keydown', e => {
-        if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'e') { e.preventDefault(); showGate(); }
+        if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'e') {
+          e.preventDefault(); showGate(); return;
+        }
+        if (e.key === 'Escape') {
+          // Esc closes the key prompt if it's open, otherwise leaves edit mode.
+          if (gate.classList.contains('show')) gate.classList.remove('show');
+          else exitEditing();
+        }
       });
       gate.addEventListener('click', e => { if (e.target === gate) gate.classList.remove('show'); });
 
@@ -256,7 +264,7 @@
         e.preventDefault();
         trash.classList.remove('over');
         const card = grid.querySelector('.card.dragging');
-        if (!card) return;
+        if (!card || !KEY) return;     // re-locked mid-drag? do nothing
         trashHandling = true;          // set before any await, so dragend defers to us
         const href = cardHref(card), title = cardTitle(card);
         try {
@@ -279,16 +287,23 @@
         }
       });
 
+      const BANNER_DEFAULT = 'Edit mode — drag cards to reorder · press Esc to exit · ' +
+                             'saves locally, then <code>git push</code> to publish';
+
       function enableEditing() {
+        if (document.body.classList.contains('editing')) return;   // never double-bind
+        editCtl = new AbortController();
+        const signal = editCtl.signal;
         document.body.classList.add('editing');
+        banner.innerHTML = BANNER_DEFAULT;
         for (const card of grid.querySelectorAll('.card')) {
           card.setAttribute('draggable', 'true');
-          card.addEventListener('dragstart', () => { card.classList.add('dragging'); trash.classList.add('show'); });
+          card.addEventListener('dragstart', () => { card.classList.add('dragging'); trash.classList.add('show'); }, { signal });
           card.addEventListener('dragend', () => {
             trash.classList.remove('show');
             card.classList.remove('dragging');
             if (!trashHandling) saveOrder();   // the trash handler does its own saving
-          });
+          }, { signal });
           card.addEventListener('dragover', e => {
             e.preventDefault();
             const dragging = grid.querySelector('.card.dragging');
@@ -296,8 +311,26 @@
             const box = card.getBoundingClientRect();
             const before = e.clientX < box.left + box.width / 2;
             grid.insertBefore(dragging, before ? card : card.nextSibling);
-          });
+          }, { signal });
         }
+      }
+
+      // Esc leaves edit mode and re-locks: the key must be entered again. Aborting
+      // the controller unbinds every drag listener at once, so cards can't keep
+      // reordering behind a merely-hidden banner.
+      function exitEditing() {
+        if (trashHandling) return;                    // a delete is mid-flight; don't yank state
+        if (!document.body.classList.contains('editing')) return;
+        if (editCtl) { editCtl.abort(); editCtl = null; }
+        document.body.classList.remove('editing');
+        for (const card of grid.querySelectorAll('.card')) {
+          card.removeAttribute('draggable');
+          card.classList.remove('dragging');
+        }
+        trash.classList.remove('show', 'over');
+        KEY = null;                                   // re-lock
+        keyIn.value = '';
+        keyIn.placeholder = 'Edit key';
       }
     })();
   </script>
