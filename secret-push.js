@@ -1,10 +1,11 @@
-// Subscribe/unsubscribe UI for push notifications on the homepage.
-// Subscribes under the "index" topic — only cards added to index.html notify
-// this subscriber. See secret-push.js for the secret.html topic.
+// Subscribe/unsubscribe UI for push notifications on secret.html.
+// Subscribes under the "secret" topic, via its own service worker registered
+// at scope /secret.html — a separate registration from index.html's /sw.js,
+// so this bell only ever notifies about cards added to secret.html.
 (() => {
-  // ▼ After deploying the Worker, set this to its URL (also set in sw.js).
+  // ▼ After deploying the Worker, set this to its URL (also set in secret-sw.js).
   const WORKER = "https://mrinaliniisin-push.mustardseed.workers.dev";
-  const TOPIC = "index";
+  const TOPIC = "secret";
   // VAPID public key (safe to expose). Must match the Worker's VAPID_PUBLIC.
   const VAPID_PUBLIC = "BBl7CjwTobyvrKM1fgcfhH5YujNqIR_5dA6EwNRI7LnFJyAmP9_ja2wdy0fSgFTPWSl2MX1K7yxqfmTfaPT2-XY";
 
@@ -31,7 +32,7 @@
   };
 
   let reg;
-  const ready = navigator.serviceWorker.register("/sw.js").then(async r => {
+  const ready = navigator.serviceWorker.register("/secret-sw.js", { scope: "/secret.html" }).then(async r => {
     reg = r;
     setState(!!(await reg.pushManager.getSubscription()));
     btn.disabled = false;

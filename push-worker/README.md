@@ -1,19 +1,27 @@
 # Push notifications for mrinaliniisin.github.io
 
-When a new card is added to the homepage, subscribers get a browser push
-notification. GitHub Pages can't run code, so the moving parts are:
+When a new card is added to `index.html` or `secret.html`, subscribers to that
+page's bell icon get a browser push notification. The two pages are
+independent notification **topics** ("index" and "secret") — subscribing on
+one never notifies you about the other. GitHub Pages can't run code, so the
+moving parts are:
 
-- **`/sw.js`** — service worker on the site; shows the notification.
-- **`/push.js`** + the `#notify` button on `index.html` — lets visitors subscribe.
+- **`/sw.js`** + **`/push.js`** + the `#notify` button on `index.html` — the
+  "index" topic: its own service worker registration, its own subscribers.
+- **`/secret-sw.js`** + **`/secret-push.js`** + the `#notify` button on
+  `secret.html` — the "secret" topic, registered at scope `/secret.html` so
+  it's a wholly separate service worker registration from `/sw.js`.
 - **`push-worker/`** — a Cloudflare Worker (deployed separately) that stores
-  subscriptions in KV and sends the pushes.
+  subscriptions in KV (keyed by topic) and sends the pushes.
 - **`.github/workflows/notify.yml`** — on every push to `main` that changes
-  `index.html`, diffs the cards and calls the Worker's `/broadcast` for any new one.
+  `index.html` or `secret.html`, diffs that page's cards and calls the
+  Worker's `/broadcast` for any new one, tagged with that page's topic.
 
-Pushes are sent **payload-less** (VAPID-signed only). The service worker fetches
-the latest card text from the Worker's `/latest`. Works on Chrome, Edge,
-Firefox, and Android. On iPhone the visitor must **Add to Home Screen** first
-(iOS web-push requirement); plain Safari may not show payload-less pushes.
+Pushes are sent **payload-less** (VAPID-signed only). Each service worker
+fetches its topic's latest card text from the Worker's `/latest?topic=`.
+Works on Chrome, Edge, Firefox, and Android. On iPhone the visitor must
+**Add to Home Screen** first (iOS web-push requirement); plain Safari may not
+show payload-less pushes.
 
 ---
 
@@ -43,9 +51,11 @@ wrangler deploy
 
 ### 2. Point the site at the Worker
 
-Set the deployed URL as the `WORKER` constant in **both**:
+Set the deployed URL as the `WORKER` constant in **all four**:
 - `sw.js`
 - `push.js`
+- `secret-sw.js`
+- `secret-push.js`
 
 (They currently say `https://mrinaliniisin-push.YOUR-SUBDOMAIN.workers.dev`.)
 
@@ -63,11 +73,12 @@ Repo → **Settings → Secrets and variables → Actions → New repository sec
 
 ### 4. Publish the site
 
-Commit and push `index.html`, `push.js`, `sw.js`, and `.github/`. Then:
+Commit and push `index.html`, `secret.html`, `push.js`, `sw.js`,
+`secret-push.js`, `secret-sw.js`, and `.github/`. Then:
 
 1. Open https://mrinaliniisin.github.io, click **🔔 Notify me of new stuff**, allow.
-2. Add a new card (edit `index.html`, push). The Action runs, detects the new
-   card, and everyone subscribed gets a notification.
+2. Add a new card to `index.html` or `secret.html` and push. The Action runs,
+   detects the new card, and subscribers to that page's topic get a notification.
 
 ---
 
@@ -77,11 +88,12 @@ Commit and push `index.html`, `push.js`, `sw.js`, and `.github/`. Then:
 curl -X POST "$PUSH_WORKER_URL/broadcast" \
   -H "Authorization: Bearer $BROADCAST_SECRET" \
   -H "Content-Type: application/json" \
-  -d '{"title":"Hello","body":"Test push","url":"https://mrinaliniisin.github.io"}'
+  -d '{"title":"Hello","body":"Test push","url":"https://mrinaliniisin.github.io","topic":"index"}'
 ```
 
-`/broadcast` returns `{sent, pruned, failed}` — `pruned` are dead subscriptions
-it cleaned up automatically.
+`topic` defaults to `"index"` if omitted. Use `"secret"` to notify only
+`secret.html` subscribers. `/broadcast` returns `{sent, pruned, failed}` —
+`pruned` are dead subscriptions it cleaned up automatically.
 
 ## Rotating keys
 

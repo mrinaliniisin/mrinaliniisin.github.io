@@ -2,14 +2,18 @@
 // mrinaliniisin.github.io. Deployed separately from the static site (GitHub
 // Pages can't run code). See README.md for setup.
 //
+// Subscriptions are scoped by `topic` (e.g. "index", "secret") so each page's
+// bell icon only notifies about that page's own cards.
+//
 // Endpoints:
-//   POST /subscribe    {PushSubscription}              -> store in KV
-//   POST /unsubscribe  {endpoint}                      -> remove from KV
-//   GET  /latest                                       -> last broadcast {title,body,url}
-//   POST /broadcast    {title,body,url}  (Bearer auth) -> send empty push to all subs
+//   POST /subscribe    {PushSubscription, topic?}        -> store in KV
+//   POST /unsubscribe  {endpoint, topic?}                -> remove from KV
+//   GET  /latest?topic=                                  -> last broadcast {title,body,url} for that topic
+//   POST /broadcast    {title,body,url,topic?} (Bearer)  -> send empty push to that topic's subs
 //
 // Pushes are sent WITHOUT an encrypted payload (only a VAPID JWT). The service
-// worker fetches /latest to fill in the notification text.
+// worker fetches /latest to fill in the notification text. `topic` defaults to
+// "index" everywhere for back-compat with subscribers created before topics existed.
 
 const enc = new TextEncoder();
 
@@ -53,8 +57,8 @@ function cors(env, extra = {}) {
 const json = (env, status, obj) => new Response(JSON.stringify(obj), {
   status, headers: { "Content-Type": "application/json", ...cors(env) },
 });
-const subKey = async endpoint =>
-  "sub:" + b64url(await crypto.subtle.digest("SHA-256", enc.encode(endpoint)));
+const subKey = async (topic, endpoint) =>
+  "sub:" + topic + ":" + b64url(await crypto.subtle.digest("SHA-256", enc.encode(endpoint)));
 
 export default {
   async fetch(request, env) {
@@ -64,18 +68,20 @@ export default {
     if (request.method === "POST" && url.pathname === "/subscribe") {
       const sub = await request.json().catch(() => null);
       if (!sub || !sub.endpoint) return json(env, 400, { error: "bad subscription" });
-      await env.SUBS.put(await subKey(sub.endpoint), JSON.stringify(sub));
+      const topic = sub.topic || "index";
+      await env.SUBS.put(await subKey(topic, sub.endpoint), JSON.stringify(sub));
       return json(env, 201, { ok: true });
     }
 
     if (request.method === "POST" && url.pathname === "/unsubscribe") {
-      const { endpoint } = await request.json().catch(() => ({}));
-      if (endpoint) await env.SUBS.delete(await subKey(endpoint));
+      const { endpoint, topic } = await request.json().catch(() => ({}));
+      if (endpoint) await env.SUBS.delete(await subKey(topic || "index", endpoint));
       return json(env, 200, { ok: true });
     }
 
     if (request.method === "GET" && url.pathname === "/latest") {
-      const latest = await env.SUBS.get("latest");
+      const topic = url.searchParams.get("topic") || "index";
+      const latest = await env.SUBS.get("latest:" + topic);
       return json(env, 200, latest ? JSON.parse(latest) : {});
     }
 
@@ -84,7 +90,8 @@ export default {
         return json(env, 401, { error: "unauthorized" });
       }
       const msg = await request.json().catch(() => ({}));
-      await env.SUBS.put("latest", JSON.stringify({
+      const topic = msg.topic || "index";
+      await env.SUBS.put("latest:" + topic, JSON.stringify({
         title: msg.title || "Something new is up",
         body: msg.body || "", url: msg.url || "/", ts: Date.now(),
       }));
@@ -92,7 +99,7 @@ export default {
       let sent = 0, pruned = 0, failed = 0, cursor;
       const failures = [];
       do {
-        const list = await env.SUBS.list({ prefix: "sub:", cursor });
+        const list = await env.SUBS.list({ prefix: "sub:" + topic + ":", cursor });
         for (const k of list.keys) {
           const sub = JSON.parse(await env.SUBS.get(k.name));
           const host = (() => { try { return new URL(sub.endpoint).host; } catch { return "?"; } })();
