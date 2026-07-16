@@ -37,7 +37,7 @@
     const topic = btn.dataset.bellTopic;
     const scope = btn.dataset.bellScope || "/";
     const url = btn.dataset.bellUrl || "/";
-    const label = btn.dataset.bellLabel || "Notify me of new posts";
+    const label = btn.dataset.bellLabel || "Get notified of new content!";
     const swUrl = "/bell-sw.js?topic=" + encodeURIComponent(topic) + "&url=" + encodeURIComponent(url);
 
     const setState = on => {
