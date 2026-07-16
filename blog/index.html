@@ -7,23 +7,60 @@
   <link rel="stylesheet" href="/assets/blog.css">
 </head>
 <body>
-  <main class="wrap">
+  <div class="top-actions">
+    <button class="icon-btn notify-btn" disabled
+            data-bell-topic="blog" data-bell-scope="/blog/" data-bell-url="/blog/"
+            data-bell-label="Notify me of new posts"
+            aria-label="Notify me of new posts" title="Notify me of new posts">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+    </button>
+  </div>
+  <main class="wrap wide">
     <a class="back" href="/secret.html">&larr; Home</a>
     <h1>Blog</h1>
     <p class="post-meta">Notes, essays, and assorted writing.</p>
 
-    <!-- server.py inserts new posts immediately after the POSTS marker
-         (newest first). Do not remove the marker comments. -->
-    <ul class="post-list">
+    <!-- server.py inserts new cards immediately after the POSTS marker
+         (newest first). Do not remove the marker comments. Each card's link
+         is checked at load (see assets/blog-availability.js) — if the post
+         itself 404s (created locally, not committed/pushed yet), the card
+         falls back to a "coming soon" state instead of a dead link. -->
+    <div class="grid post-grid">
 <!--POSTS-->
-      <li><a href="/blog/stop-making-glue-menu-bar-apps.html"><span class="t">Stop making glue Menu Bar Apps!</span><span class="post-meta">July 16, 2026</span></a></li>
-      <li><a href="/blog/learning-to-lua.html"><span class="t">Learning to Lua</span><span class="post-meta">July 15, 2026</span></a></li>
-      <li><a href="/blog/blocked.html"><span class="t">Blocked</span><span class="post-meta">July 12, 2026</span></a></li>
-      <li><a href="/blog/bidding-goodbye-to.html"><span class="t">Bidding Goodbye to…</span><span class="post-meta">June 26, 2026</span></a></li>
-      <li><a href="/blog/hello-world.html"><span class="t">Hello, world</span><span class="post-meta">June 26, 2026</span></a></li>
-    </ul>
+      <div class="card">
+        <a class="card-link" href="/blog/stop-making-glue-menu-bar-apps.html" aria-label="Stop making glue Menu Bar Apps!"></a>
+        <h2>Stop making glue Menu Bar Apps!</h2>
+        <div class="desc">July 16, 2026</div>
+      </div>
+      <div class="card">
+        <a class="card-link" href="/blog/learning-to-lua.html" aria-label="Learning to Lua"></a>
+        <h2>Learning to Lua</h2>
+        <div class="desc">July 15, 2026</div>
+      </div>
+      <div class="card">
+        <a class="card-link" href="/blog/blocked.html" aria-label="Blocked"></a>
+        <h2>Blocked</h2>
+        <div class="desc">July 12, 2026</div>
+      </div>
+      <div class="card">
+        <a class="card-link" href="/blog/bidding-goodbye-to.html" aria-label="Bidding Goodbye to…"></a>
+        <h2>Bidding Goodbye to…</h2>
+        <div class="desc">June 26, 2026</div>
+      </div>
+      <div class="card">
+        <a class="card-link" href="/blog/hello-world.html" aria-label="Hello, world"></a>
+        <h2>Hello, world</h2>
+        <div class="desc">June 26, 2026</div>
+      </div>
+    </div>
   </main>
   <footer>&copy; 2026 Mrinalini S &middot; Code licensed under MIT</footer>
   <script src="/assets/analytics.js" defer></script>
+  <script src="/bell.js" defer></script>
+  <script src="/assets/blog-availability.js" defer></script>
 </body>
 </html>

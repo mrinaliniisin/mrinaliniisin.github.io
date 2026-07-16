@@ -23,6 +23,7 @@ import html
 import json
 import os
 import re
+import subprocess
 import sys
 from datetime import datetime
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -156,24 +157,30 @@ def write_post(title, date_iso, markdown, body_html):
 
 def update_index(slug, title, date_iso):
     with open(INDEX, encoding="utf-8") as f:
-        lines = f.read().splitlines()
+        text = f.read()
 
     href = '/blog/%s.html' % slug
-    # Drop any existing entry for this slug and the "no posts" placeholder.
-    lines = [ln for ln in lines
-             if href not in ln and "empty-placeholder" not in ln]
+    # Drop any existing card for this slug and the "no posts yet" placeholder,
+    # matching the same 6-space-indented <div class="card">...</div> block
+    # shape as CARD_RE (see the homepage's reorder_index/remove_card above) —
+    # each card spans multiple lines now, so this can't be a per-line filter.
+    block_re = re.compile(
+        r'      <div class="card( empty)?">\n.*?\n      </div>\n?', re.S)
+    text = block_re.sub(
+        lambda m: '' if (m.group(1) or _card_href(m.group(0)) == href) else m.group(0),
+        text)
 
-    li = ('      <li><a href="%s"><span class="t">%s</span>'
-          '<span class="post-meta">%s</span></a></li>'
-          % (href, html.escape(title), human_date(date_iso)))
+    card = ('      <div class="card">\n'
+            '        <a class="card-link" href="%s" aria-label="%s"></a>\n'
+            '        <h2>%s</h2>\n'
+            '        <div class="desc">%s</div>\n'
+            '      </div>\n'
+            % (href, html.escape(title, quote=True), html.escape(title), human_date(date_iso)))
 
-    out = []
-    for ln in lines:
-        out.append(ln)
-        if "<!--POSTS-->" in ln:
-            out.append(li)  # newest first, right under the marker
+    # newest first, right under the marker
+    text = text.replace("<!--POSTS-->\n", "<!--POSTS-->\n" + card, 1)
     with open(INDEX, "w", encoding="utf-8") as f:
-        f.write("\n".join(out) + "\n")
+        f.write(text)
 
 
 def save_image(title, mime, b64):
@@ -285,6 +292,25 @@ def list_posts():
             "date": date.group(1) if date else "",
         })
     out.sort(key=lambda p: (p["date"], p["slug"]), reverse=True)
+    return out
+
+
+def uncommitted_posts():
+    """Root-relative hrefs of blog posts that exist on disk but aren't in the
+    current HEAD commit. GitHub Pages only ever serves what's been pushed, so
+    these are exactly the posts whose blog/index.html card would 404 live —
+    blog/index.html itself is generated together with the post file (see
+    update_index), so this only diverges when a post got committed/pushed
+    without also committing its file, or hasn't been committed at all yet.
+    Used so the local editor can preview the "coming soon" fallback
+    (assets/blog-availability.js) without needing to actually push."""
+    out = []
+    for path in post_files():
+        rel = os.path.relpath(path, ROOT).replace(os.sep, "/")
+        r = subprocess.run(["git", "cat-file", "-e", "HEAD:" + rel],
+                            cwd=ROOT, capture_output=True)
+        if r.returncode != 0:
+            out.append("/" + rel)
     return out
 
 
@@ -592,6 +618,17 @@ def delete_card(href):
 
 
 class Handler(SimpleHTTPRequestHandler):
+    def end_headers(self):
+        # Local dev only (never runs on GitHub Pages, which serves the
+        # deployed static files through its own CDN/cache headers): plain
+        # SimpleHTTPRequestHandler sends no Cache-Control, so Chrome's
+        # heuristic caching can keep serving a stale JS/CSS file for minutes
+        # after editing it — very confusing mid-edit. Disable caching
+        # entirely here since freshness matters far more than speed for a
+        # single local editor.
+        self.send_header("Cache-Control", "no-store")
+        super().end_headers()
+
     def _json(self, code, obj):
         body = json.dumps(obj).encode("utf-8")
         self.send_response(code)
@@ -613,6 +650,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(200, {"images": list_images()})
         if self.path == "/api/posts":
             return self._json(200, {"posts": list_posts()})
+        if self.path == "/api/blog-status":
+            return self._json(200, {"uncommitted": uncommitted_posts()})
         if self.path == "/api/md-pages":
             return self._json(200, {"pages": list_md_pages()})
         if self.path.startswith("/api/md-page?"):
