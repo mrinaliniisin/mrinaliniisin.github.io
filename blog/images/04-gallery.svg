@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 460" width="640" height="460" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
+  <rect width="640" height="460" rx="16" fill="#fffcf6" stroke="#d8cdb6"/>
+  <line x1="0" y1="56" x2="640" y2="56" stroke="#d8cdb6"/>
+  <text x="24" y="34" font-size="17" font-weight="700" fill="#2b2622">Keepr</text>
+  <text x="90" y="34" font-size="12" fill="#6f6557">· /Users/you/Desktop/trip-photos</text>
+  <text x="400" y="34" font-size="12" font-weight="700" fill="#8a3320">Deleted: 12</text>
+  <text x="480" y="34" font-size="12" font-weight="700" fill="#1f7a3d">Kept: 30</text>
+  <text x="545" y="34" font-size="12" fill="#6f6557">158 left</text>
+  <circle cx="608" cy="28" r="13" fill="none" stroke="#d8cdb6"/>
+  <text x="608" y="33" font-size="13" text-anchor="middle" fill="#2b2622">&#9881;</text>
+
+  <text x="24" y="92" font-size="15" font-weight="700" fill="#2b2622">Deleted</text>
+  <text x="82" y="92" font-size="12" fill="#6f6557">12 items</text>
+
+  <!-- 3x2 grid -->
+  <g font-size="9" fill="#ffffff">
+    <!-- row1 -->
+    <rect x="24" y="108" width="188" height="150" rx="8" fill="#8c5b73"/>
+    <g stroke="#ffffff" stroke-width="1.4" fill="none"><rect x="97" y="163" width="42" height="34" rx="4"/><circle cx="107" cy="174" r="3.2" fill="#ffffff" stroke="none"/><path d="M100 189l11-11 6 6 11-11 6 6"/></g>
+    <rect x="24" y="240" width="188" height="18" fill="rgba(0,0,0,0.55)"/><text x="118" y="253" text-anchor="middle">IMG_0402.jpg</text>
+
+    <rect x="226" y="108" width="188" height="150" rx="8" fill="#5b7b95"/>
+    <circle cx="320" cy="180" r="20" fill="none" stroke="#ffffff" stroke-width="1.6"/>
+    <path d="M314 171l14 9-14 9z" fill="#ffffff"/>
+    <rect x="226" y="240" width="188" height="18" fill="rgba(0,0,0,0.55)"/><text x="320" y="253" text-anchor="middle">clip_09.mov</text>
+
+    <rect x="428" y="108" width="188" height="150" rx="8" fill="#c9a04c"/>
+    <g stroke="#ffffff" stroke-width="1.4" fill="none"><rect x="501" y="163" width="42" height="34" rx="4"/><circle cx="511" cy="174" r="3.2" fill="#ffffff" stroke="none"/><path d="M504 189l11-11 6 6 11-11 6 6"/></g>
+    <rect x="428" y="240" width="188" height="18" fill="rgba(0,0,0,0.55)"/><text x="522" y="253" text-anchor="middle">IMG_0483.jpg</text>
+
+    <!-- row2 -->
+    <rect x="24" y="268" width="188" height="150" rx="8" fill="#7c9473"/>
+    <g stroke="#ffffff" stroke-width="1.4" fill="none"><rect x="97" y="323" width="42" height="34" rx="4"/><circle cx="107" cy="334" r="3.2" fill="#ffffff" stroke="none"/><path d="M100 349l11-11 6 6 11-11 6 6"/></g>
+    <rect x="24" y="400" width="188" height="18" fill="rgba(0,0,0,0.55)"/><text x="118" y="413" text-anchor="middle">IMG_0511.jpg</text>
+
+    <rect x="226" y="268" width="188" height="150" rx="8" fill="#c17a52"/>
+    <g stroke="#ffffff" stroke-width="1.4" fill="none"><rect x="299" y="323" width="42" height="34" rx="4"/><circle cx="309" cy="334" r="3.2" fill="#ffffff" stroke="none"/><path d="M302 349l11-11 6 6 11-11 6 6"/></g>
+    <rect x="226" y="400" width="188" height="18" fill="rgba(0,0,0,0.55)"/><text x="320" y="413" text-anchor="middle">IMG_0522.jpg</text>
+
+    <rect x="428" y="268" width="188" height="150" rx="8" fill="#5b7b95"/>
+    <g stroke="#ffffff" stroke-width="1.4" fill="none"><rect x="501" y="323" width="42" height="34" rx="4"/><circle cx="511" cy="334" r="3.2" fill="#ffffff" stroke="none"/><path d="M504 349l11-11 6 6 11-11 6 6"/></g>
+    <rect x="428" y="400" width="188" height="18" fill="rgba(0,0,0,0.55)"/><text x="522" y="413" text-anchor="middle">IMG_0530.jpg</text>
+  </g>
+</svg>

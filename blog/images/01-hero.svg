@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 560" width="640" height="560" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
+  <rect width="640" height="560" rx="16" fill="#fffcf6" stroke="#d8cdb6"/>
+  <!-- app bar -->
+  <line x1="0" y1="56" x2="640" y2="56" stroke="#d8cdb6"/>
+  <text x="24" y="34" font-size="17" font-weight="700" fill="#2b2622">Keepr</text>
+  <text x="90" y="34" font-size="12" fill="#6f6557">· /Users/you/Desktop/gallery-dl/Instagram/Images</text>
+  <text x="470" y="34" font-size="12" font-weight="700" fill="#8a3320">Deleted: 42</text>
+  <text x="552" y="34" font-size="12" font-weight="700" fill="#1f7a3d">Kept: 96</text>
+  <circle cx="608" cy="28" r="13" fill="none" stroke="#d8cdb6"/>
+  <text x="608" y="33" font-size="13" text-anchor="middle" fill="#2b2622">&#9881;</text>
+
+  <!-- card -->
+  <rect x="170" y="96" width="300" height="375" rx="10" fill="#14110f"/>
+  <rect x="170" y="96" width="300" height="375" rx="10" fill="#5b7b95"/>
+  <g stroke="#ffffff" stroke-width="1.6" fill="none">
+    <rect x="278" y="245" width="84" height="66" rx="6"/>
+    <circle cx="299" cy="266" r="6" fill="#ffffff" stroke="none"/>
+    <path d="M285 296l22-22 12 12 22-22 12 12"/>
+  </g>
+  <g transform="translate(420,116) rotate(10)">
+    <rect x="-46" y="-16" width="92" height="34" rx="7" fill="#fffcf6" stroke="#1f7a3d" stroke-width="3"/>
+    <text x="0" y="7" font-size="19" font-weight="700" letter-spacing="1" text-anchor="middle" fill="#1f7a3d">KEEP</text>
+  </g>
+  <rect x="170" y="441" width="300" height="30" fill="rgba(0,0,0,0.55)"/>
+  <text x="320" y="461" font-size="11" text-anchor="middle" fill="#ffffff">harbor_view_final2.jpg</text>
+
+  <text x="320" y="518" font-size="13" text-anchor="middle" fill="#6f6557">Every file becomes one decision: keep it, or delete it.</text>
+</svg>

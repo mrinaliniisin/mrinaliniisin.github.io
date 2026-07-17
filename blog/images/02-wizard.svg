@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 460" width="640" height="460" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
+  <rect width="640" height="460" rx="16" fill="#fffcf6" stroke="#d8cdb6"/>
+  <line x1="0" y1="56" x2="640" y2="56" stroke="#d8cdb6"/>
+  <text x="24" y="34" font-size="17" font-weight="700" fill="#2b2622">Keepr</text>
+  <circle cx="608" cy="28" r="13" fill="none" stroke="#d8cdb6"/>
+  <text x="608" y="33" font-size="13" text-anchor="middle" fill="#2b2622">&#9881;</text>
+
+  <text x="320" y="122" font-size="21" font-weight="700" text-anchor="middle" fill="#2b2622">Welcome to Keepr</text>
+  <text x="320" y="152" font-size="13" text-anchor="middle" fill="#6f6557">Point Keepr at a folder of photos and videos,</text>
+  <text x="320" y="170" font-size="13" text-anchor="middle" fill="#6f6557">then swipe through them one at a time.</text>
+
+  <rect x="230" y="200" width="180" height="42" rx="21" fill="#7a1f2b"/>
+  <text x="320" y="226" font-size="14" font-weight="700" text-anchor="middle" fill="#ffffff">Choose a folder&#8230;</text>
+
+  <text x="320" y="272" font-size="12" text-anchor="middle" fill="#6f6557">&#8230;or enter a path manually</text>
+
+  <rect x="185" y="292" width="200" height="34" rx="7" fill="#f4efe4" stroke="#d8cdb6"/>
+  <text x="197" y="314" font-size="12" fill="#6f6557">/Users/you/Desktop/some-folder</text>
+  <rect x="393" y="292" width="62" height="34" rx="7" fill="#fffcf6" stroke="#d8cdb6"/>
+  <text x="424" y="314" font-size="12" text-anchor="middle" fill="#2b2622">Switch</text>
+
+  <text x="320" y="366" font-size="13" text-anchor="middle" fill="#6f6557">&#8220;Choose a folder&#8230;&#8221; opens a real macOS folder picker &#8212;</text>
+  <text x="320" y="386" font-size="13" text-anchor="middle" fill="#6f6557">no path-typing required.</text>
+</svg>
