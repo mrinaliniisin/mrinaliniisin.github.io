@@ -50,7 +50,6 @@ EDIT_KEY_FILE = os.path.join(ROOT, ".edit-key")
 EDITABLE_PAGES = [
     "index.html",
 ]
-# (send-to-anytype.html is a markdown page now — edit it in editor.html, not here.)
 
 # Clipboard images arrive as a MIME type, not a filename, so map it to a suffix.
 IMAGE_EXT = {
@@ -87,7 +86,7 @@ POST_TEMPLATE = """<!DOCTYPE html>
 </html>
 """
 
-# A standalone "page" (e.g. send-to-anytype.html): same markdown round-trip as a
+# A standalone "page": same markdown round-trip as a
 # post, but it lives at the repo root, links Home instead of "All posts", carries
 # no date, and is NOT added to the blog index. The page-kind meta marks it so the
 # editor can tell a markdown page apart from a post or hand-built HTML.
