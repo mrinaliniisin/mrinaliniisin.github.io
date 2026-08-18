@@ -9,6 +9,10 @@
 // disk) is the primary signal; only when that endpoint isn't there (static
 // hosting, e.g. the live GitHub Pages site, which has no server to ask) do
 // we fall back to checking whether each post actually resolves.
+//
+// Draft posts are a separate case this script never sees: server.py writes
+// their card in the coming-soon state already (no href, so the map below drops
+// them), because their file DOES exist and neither signal here would fire.
 (() => {
   const cards = Array.from(document.querySelectorAll(".post-grid .card")).map(card => {
     const link = card.querySelector(".card-link");

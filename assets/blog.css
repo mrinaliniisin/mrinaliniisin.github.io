@@ -49,6 +49,15 @@ h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
 .post-grid .card.coming-soon .desc { color: #a8a29e; font-style: italic; }
 .post-grid .card.empty { color: #6b6560; grid-column: 1 / -1; padding: 16px 0; }
 
+/* Splits the published cards from the coming-soon ones. Spans every column so
+   it reads as a rule across the grid rather than a cell in it; dashed to match
+   the cards below it. */
+.post-grid .post-divider { grid-column: 1 / -1; display: flex; align-items: center;
+                           gap: 14px; margin: 10px 0 2px; color: #a8a29e;
+                           font-size: 13px; font-style: italic; }
+.post-grid .post-divider::before,
+.post-grid .post-divider::after { content: ""; flex: 1; border-top: 1px dashed #d9d6cf; }
+
 /* Article */
 .post-title { margin-bottom: 6px; }
 article .post-meta { margin-bottom: 32px; }
