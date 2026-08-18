@@ -132,8 +132,15 @@ def human_date(iso):
         return iso
 
 
-def write_post(title, date_iso, markdown, body_html):
-    slug = slugify(title)
+def write_post(title, date_iso, markdown, body_html, slug=None):
+    """Render a post to blog/<slug>.html and give it a card in the listing.
+
+    The slug normally comes from the title, so retitling moves the post to a
+    new filename. An explicit slug (passed by /api/save when the post is
+    already published) pins the filename instead, keeping the live URL — and
+    any push notification pointing at it — working across a retitle. Same
+    escape hatch write_md_page has for pages."""
+    slug = slugify(slug or title)
     # The title comes from the title field and is rendered by the template, so
     # drop a leading <h1> from the body to avoid showing the title twice.
     body_html = re.sub(r"^\s*<h1\b[^>]*>.*?</h1>\s*", "", body_html,
@@ -154,20 +161,29 @@ def write_post(title, date_iso, markdown, body_html):
     return slug
 
 
+# A card in the blog listing: the same 6-space-indented <div class="card">…
+# </div> block shape as the homepage's CARD_RE (see reorder_index/remove_card
+# below), plus its trailing newline and the "no posts yet" placeholder variant
+# in group 1. Each card spans several lines, so lifting one out can't be a
+# per-line filter. Shared by update_index (replaces a card) and delete_post
+# (removes one) so the two can't drift apart.
+BLOG_CARD_RE = re.compile(
+    r'      <div class="card( empty)?">\n.*?\n      </div>\n?', re.S)
+
+
 def update_index(slug, title, date_iso):
     with open(INDEX, encoding="utf-8") as f:
         text = f.read()
 
     href = '/blog/%s.html' % slug
-    # Drop any existing card for this slug and the "no posts yet" placeholder,
-    # matching the same 6-space-indented <div class="card">...</div> block
-    # shape as CARD_RE (see the homepage's reorder_index/remove_card above) —
-    # each card spans multiple lines now, so this can't be a per-line filter.
-    block_re = re.compile(
-        r'      <div class="card( empty)?">\n.*?\n      </div>\n?', re.S)
-    text = block_re.sub(
+    # Drop any existing card for this slug and the "no posts yet" placeholder.
+    text = BLOG_CARD_RE.sub(
         lambda m: '' if (m.group(1) or _card_href(m.group(0)) == href) else m.group(0),
         text)
+    # Every save is also a chance to clear cards whose post file has since gone
+    # away, so orphans can't quietly pile up between deletes. The post being
+    # saved was just written to disk, so its own card is never at risk here.
+    text, _ = _prune_cards(text)
 
     card = ('      <div class="card">\n'
             '        <a class="card-link" href="%s" aria-label="%s"></a>\n'
@@ -180,6 +196,129 @@ def update_index(slug, title, date_iso):
     text = text.replace("<!--POSTS-->\n", "<!--POSTS-->\n" + card, 1)
     with open(INDEX, "w", encoding="utf-8") as f:
         f.write(text)
+
+
+def _card_slug(block):
+    """The post slug a listing card points at, or "" if its href isn't a post."""
+    m = re.match(r"/blog/([^/]+)\.html$", _card_href(block))
+    return m.group(1) if m else ""
+
+
+def _card_field(block, pattern):
+    m = re.search(pattern, block, re.S)
+    return html.unescape(re.sub(r"\s+", " ", m.group(1)).strip()) if m else ""
+
+
+def _prune_cards(text):
+    """Drop every card in `text` whose post file is missing from disk.
+
+    The listing and the post files are separate artifacts, kept in step only by
+    the write path, so a post that goes away by any route other than
+    delete_post — removed by hand, dropped by a git checkout, or left behind by
+    a retitle that re-slugged the filename — strands its card here. A stranded
+    card is worse than merely wrong: it's a dead link, and dead links are
+    exactly what assets/blog-availability.js repaints as "Coming soon, to be
+    notified hit the 🔔", so an orphan is indistinguishable from an unpublished
+    post and sits on the blog page forever. Nothing on disk can revive it, so
+    the card is always the thing to remove.
+
+    Returns (text, removed); `removed` describes each dropped card. Cards
+    pointing anywhere other than /blog/<slug>.html are left alone, as is the
+    "no posts yet" placeholder (group 1).
+    """
+    removed = []
+
+    def drop(m):
+        block = m.group(0)
+        slug = _card_slug(block)
+        if m.group(1) or not slug or os.path.isfile(os.path.join(BLOG, slug + ".html")):
+            return block
+        removed.append({"slug": slug, "href": _card_href(block),
+                        "title": _card_field(block, r"<h2>(.*?)</h2>"),
+                        "listed": _card_field(block, r'<div class="desc">(.*?)</div>')})
+        return ''
+
+    return BLOG_CARD_RE.sub(drop, text), removed
+
+
+def prune_index():
+    """Remove orphaned cards from the blog listing; returns the ones removed."""
+    with open(INDEX, encoding="utf-8") as f:
+        text = f.read()
+    text, removed = _prune_cards(text)
+    if removed:
+        with open(INDEX, "w", encoding="utf-8") as f:
+            f.write(text)
+    return removed
+
+
+def orphan_cards():
+    """A dry run of prune_index: listing cards with no post file behind them."""
+    with open(INDEX, encoding="utf-8") as f:
+        return _prune_cards(f.read())[1]
+
+
+def _card_count(slug):
+    """How many listing cards point at this post."""
+    with open(INDEX, encoding="utf-8") as f:
+        text = f.read()
+    return sum(1 for m in BLOG_CARD_RE.finditer(text)
+               if not m.group(1) and _card_slug(m.group(0)) == slug)
+
+
+def delete_post_plan(slug):
+    """Dry run for delete_post, so the editor can spell out the damage first."""
+    slug = slugify(slug)
+    rel = "blog/%s.html" % slug
+    # "index" slugifies like any other title, but blog/index.html is the
+    # listing itself, never a deletable post.
+    is_post = slug != "index"
+    return {"slug": slug, "target": rel,
+            "exists": is_post and os.path.isfile(os.path.join(ROOT, rel)),
+            # Reported separately from `exists` because either half can be
+            # missing: a card with no file behind it has nothing to delete, but
+            # removing the card is precisely the point of deleting it.
+            "cards": _card_count(slug) if is_post else 0,
+            # The listing's own card IS what delete_post removes, so don't
+            # report blog/index.html as a link that would be left dangling.
+            "inbound": [f for f in inbound_links(rel) if f != "blog/index.html"]}
+
+
+def delete_post(slug):
+    """Delete a post file and drop its card from the blog listing.
+
+    Either half can already be missing and this still does the right thing.
+    Saving re-slugs from the title (see write_post), so retitling a post leaves
+    the old slug's file — and its own card — behind; this is how the editor
+    clears those out. And a card whose file is already gone is an orphan that
+    renders as a dead link forever (see _prune_cards), so it has to be
+    removable too: only a slug with neither a file nor a card is an error.
+
+    Two things are deliberately left alone. Images: they're named after the
+    slug that first uploaded them, but the retitled post still references those
+    same files, so deleting them would break the surviving post. Inbound links
+    from other posts: unlike delete_card, a post's markdown source lives on in
+    the file's base64 EDIT block, so unwrapping the <a> in the HTML would just
+    come back on that post's next save. The plan reports them instead.
+    """
+    slug = slugify(slug)
+    rel = "blog/%s.html" % slug
+    path = os.path.join(BLOG, slug + ".html")
+    exists = slug != "index" and os.path.isfile(path)
+    if slug == "index" or not (exists or _card_count(slug)):
+        raise ValueError("no post named %r" % slug)
+
+    inbound = [f for f in inbound_links(rel) if f != "blog/index.html"]
+    if exists:
+        os.remove(path)
+    # With the file gone, this post's own card is an orphan like any other, so a
+    # single sweep lifts it out — and clears any card stranded earlier by a
+    # deletion that never came through here.
+    removed = prune_index()
+    return {"slug": slug, "target": rel, "deleted_file": exists,
+            "cards": sum(1 for c in removed if c["slug"] == slug),
+            "pruned": [c for c in removed if c["slug"] != slug],
+            "inbound": inbound}
 
 
 def save_image(title, mime, b64):
@@ -278,7 +417,14 @@ def post_files():
 
 
 def list_posts():
-    """Slug + title + date for every post, newest first (for the editor picker)."""
+    """Slug + title + date for every post, newest first (for the editor picker).
+
+    Orphaned cards are appended, flagged `orphan`, carrying the date the card
+    itself shows rather than an ISO one — there's no file left to read it from.
+    They have nothing to open, but the picker is the only place the editor can
+    offer to clear them, and until something does they sit on the blog page
+    pretending to be unpublished posts.
+    """
     out = []
     for path in post_files():
         with open(path, encoding="utf-8") as f:
@@ -291,7 +437,19 @@ def list_posts():
             "date": date.group(1) if date else "",
         })
     out.sort(key=lambda p: (p["date"], p["slug"]), reverse=True)
+    out += [{"slug": c["slug"], "title": c["title"], "date": "",
+             "listed": c["listed"], "orphan": True}
+            for c in sorted(orphan_cards(), key=lambda c: c["title"])]
     return out
+
+
+def in_head(rel):
+    """Is this repo-relative path in the current HEAD commit? GitHub Pages only
+    serves what's been pushed, so this is the test for "the outside world may
+    already have this URL"."""
+    r = subprocess.run(["git", "cat-file", "-e", "HEAD:" + rel],
+                       cwd=ROOT, capture_output=True)
+    return r.returncode == 0
 
 
 def uncommitted_posts():
@@ -306,9 +464,7 @@ def uncommitted_posts():
     out = []
     for path in post_files():
         rel = os.path.relpath(path, ROOT).replace(os.sep, "/")
-        r = subprocess.run(["git", "cat-file", "-e", "HEAD:" + rel],
-                            cwd=ROOT, capture_output=True)
-        if r.returncode != 0:
+        if not in_head(rel):
             out.append("/" + rel)
     return out
 
@@ -683,9 +839,39 @@ class Handler(SimpleHTTPRequestHandler):
                 if not title:
                     return self._json(400, {"error": "title is required"})
                 date_iso = (d.get("date") or datetime.now().strftime("%Y-%m-%d")).strip()
-                slug = write_post(title, date_iso, d.get("markdown", ""), d.get("html", ""))
+
+                # A post's filename comes from its title, so retitling one the
+                # editor already has open would leave the old slug's file and
+                # card orphaned. `slug` is the open post's current slug; when
+                # the title has moved it somewhere else, resolve which of the
+                # two filenames wins and retire the loser.
+                prev = slugify(d.get("slug") or "") if (d.get("slug") or "").strip() else ""
+                target = slugify(title)
+                moved = prev and prev != target and \
+                    os.path.isfile(os.path.join(BLOG, prev + ".html"))
+                if moved:
+                    if os.path.isfile(os.path.join(BLOG, target + ".html")):
+                        return self._json(409, {
+                            "error": "a different post already lives at blog/%s.html — "
+                                     "rename or delete that one first" % target})
+                    choice = (d.get("rename") or "").strip()
+                    if not choice:
+                        # Never pushed: no outside link can break, so just move it.
+                        # Already pushed: the caller has to say which it wants,
+                        # because renaming 404s the live URL.
+                        if in_head("blog/%s.html" % prev):
+                            return self._json(409, {"needs_choice": True, "from": prev,
+                                                    "to": target, "published": True})
+                        choice = "new"
+                    if choice == "keep":
+                        target = prev
+
+                slug = write_post(title, date_iso, d.get("markdown", ""),
+                                  d.get("html", ""), slug=target)
+                retired = delete_post(prev) if (moved and slug != prev) else None
                 return self._json(200, {"ok": True, "slug": slug,
-                                        "url": "/blog/%s.html" % slug})
+                                        "url": "/blog/%s.html" % slug,
+                                        "renamed_from": retired and retired["slug"]})
             if self.path == "/api/save-page":
                 d = self._body()
                 title = (d.get("title") or "").strip()
@@ -695,6 +881,15 @@ class Handler(SimpleHTTPRequestHandler):
                                      slug=(d.get("slug") or "").strip() or None)
                 return self._json(200, {"ok": True, "slug": slug,
                                         "url": "/%s.html" % slug})
+            # Not key-gated, matching /api/image/delete: these serve the local
+            # editor only. (The homepage's delete IS gated because index.html
+            # ships its edit-mode JS to every visitor.)
+            if self.path == "/api/post/delete-plan":
+                d = self._body()
+                return self._json(200, delete_post_plan(d.get("slug") or ""))
+            if self.path == "/api/post/delete":
+                d = self._body()
+                return self._json(200, {"ok": True, **delete_post(d.get("slug") or "")})
             if self.path == "/api/edit/auth":
                 return self._json(200, {"ok": key_ok(self._body().get("key"))})
             if self.path == "/api/edit/reorder":

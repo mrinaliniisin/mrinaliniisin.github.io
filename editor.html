@@ -22,6 +22,8 @@
     .bar button { font: inherit; background: #2d5a27; color: #fff; border: 0;
                   border-radius: 6px; padding: 8px 16px; font-weight: 600; cursor: pointer; }
     .bar button:hover { filter: brightness(1.12); }
+    .bar button.danger { background: #7a2222; }
+    .bar button[hidden] { display: none; }
     .bar .navlink { color: #8fd17f; text-decoration: none; font-size: 14px; }
     .bar .navlink:hover { text-decoration: underline; }
     .bar .status { font-size: 13px; color: #a8a29e; }
@@ -58,6 +60,8 @@
     </label>
     <select id="open" title="Open an existing post or page to edit"><option value="">Open…</option></select>
     <button id="save">Save</button>
+    <button id="del" class="danger" hidden
+            title="Delete this post's file and its card from the blog listing">Delete</button>
     <a class="navlink" href="/gallery.html">Images</a>
     <a class="navlink" href="/page-editor.html">Pages</a>
     <span class="status" id="status">Draft &middot; Save writes to /blog, then <code>git push</code> to publish</span>
@@ -175,17 +179,60 @@
     // stable across re-saves, so its homepage link doesn't break.
     let currentKind = 'post';
     let currentSlug = '';
+    // An orphaned listing card is open: a card on the blog page whose post file
+    // is gone (see server.py's _prune_cards). There's nothing to edit — it's
+    // open only so Delete can clear the card — so Save has to refuse, or it
+    // would resurrect the post as an empty one under the same title.
+    let currentOrphan = false;
+
+    // Delete only offers itself for a post that's already on disk, or for an
+    // orphaned card. A fresh draft has no file yet, and a page's file is
+    // deleted from the homepage's edit-mode trash instead — that path also
+    // removes the page's homepage card and the links pointing at it, which this
+    // one knows nothing about.
+    const canDelete = () => currentKind === 'post' && !!currentSlug;
+    const syncDelete = () => { $('del').hidden = !canDelete(); };
 
     function setKind(kind) {
       currentKind = kind;
       $('ispage').checked = (kind === 'page');
       $('date').style.display = (kind === 'page') ? 'none' : '';
+      syncDelete();
     }
+
+    const api = async (path, body) => {
+      const r = await fetch(path, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || r.status);
+      return d;
+    };
 
     $('ispage').addEventListener('change', () => {
       setKind($('ispage').checked ? 'page' : 'post');
       markDirty();
     });
+
+    // Open an orphaned card. There's no file behind it, so there's nothing to
+    // fetch and nothing to edit — show what the card says and point at Delete,
+    // the one action that applies.
+    function openOrphan(slug, title, listed) {
+      currentSlug = slug;                 // before setKind, which reads it
+      currentOrphan = true;
+      setKind('post');
+      $('title').value = title || slug;
+      $('date').value = '';
+      $('md').value = '';
+      render(); dirty = false;
+      $('open').value = slug;
+      $('status').innerHTML =
+        'Orphaned card &middot; <code>blog/' + slug + '.html</code> is gone, but the blog ' +
+        'listing still shows a card for it' + (listed ? ' dated ' + listed : '') +
+        ' &mdash; where it reads as an unpublished post. <b>Delete</b> removes the card.';
+      history.replaceState(null, '', '?p=' + slug);
+    }
 
     // Load an existing post or page — from the URL or the "Open…" picker.
     function loadDoc(kind, slug, push) {
@@ -193,8 +240,9 @@
       return fetch(api + encodeURIComponent(slug))
         .then(r => r.ok ? r.json() : Promise.reject())
         .then(p => {
+          currentSlug = p.slug || slug;   // before setKind, which reads it
+          currentOrphan = false;
           setKind(kind);
-          currentSlug = p.slug || slug;
           $('title').value = p.title;
           if (kind === 'post') $('date').value = p.date || $('date').value;
           $('md').value = p.markdown;
@@ -222,8 +270,9 @@
         }
         $('open').appendChild(og);
       }
+      const posts = P.posts || [];
       const ogp = document.createElement('optgroup'); ogp.label = 'Posts';
-      for (const p of (P.posts || [])) {
+      for (const p of posts.filter(p => !p.orphan)) {
         const o = document.createElement('option');
         o.value = p.slug; o.dataset.kind = 'post';
         o.textContent = p.title + (p.date ? ' · ' + p.date : '');
@@ -231,11 +280,38 @@
       }
       $('open').appendChild(ogp);
 
+      // Orphaned cards go last, in their own group: not documents to edit but
+      // stale cards sitting on the blog page waiting to be cleared. The title
+      // and date ride along on the option — the card is the only record left.
+      const orphans = posts.filter(p => p.orphan);
+      if (orphans.length) {
+        const ogo = document.createElement('optgroup');
+        ogo.label = 'Orphaned cards (no file — open to delete)';
+        for (const p of orphans) {
+          const o = document.createElement('option');
+          o.value = p.slug; o.dataset.kind = 'post'; o.dataset.orphan = '1';
+          o.dataset.title = p.title; o.dataset.listed = p.listed || '';
+          o.textContent = '⚠ ' + p.title + (p.listed ? ' · ' + p.listed : '');
+          ogo.appendChild(o);
+        }
+        $('open').appendChild(ogo);
+      }
+
       // Open whatever the URL points at, now that the options exist.
       const params = new URLSearchParams(location.search);
       if (params.get('page')) loadDoc('page', params.get('page'), false);
-      else if (params.get('p')) loadDoc('post', params.get('p'), false);
+      else if (params.get('p')) openPost(params.get('p'), false);
     });
+
+    // Open a post slug, routing to openOrphan when the picker says that slug is
+    // an orphaned card rather than a real file. Used by the ?p= URL, which can't
+    // tell the two apart on its own.
+    function openPost(slug, push) {
+      const o = [...$('open').options]
+                  .find(x => x.value === slug && (x.dataset.kind || 'post') === 'post');
+      if (o && o.dataset.orphan) return openOrphan(slug, o.dataset.title, o.dataset.listed);
+      return loadDoc('post', slug, push);
+    }
 
     $('open').addEventListener('change', () => {
       const opt = $('open').selectedOptions[0];
@@ -245,46 +321,158 @@
       if (dirty && !confirm('Discard unsaved changes and open this?')) {
         $('open').value = cur; return;
       }
+      if (opt.dataset.orphan) return openOrphan(opt.value, opt.dataset.title, opt.dataset.listed);
       loadDoc(opt.dataset.kind || 'post', opt.value, true);
     });
+
+    // Save, answering the one question the server can't decide alone: a retitled
+    // post wants to move to the filename its new title slugifies to, but if the
+    // post is already pushed, that move 404s a URL the world may hold. Unpushed
+    // posts move silently — the server only asks when it's a published one.
+    async function postSave(url, payload) {
+      const send = body => fetch(url, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      }).then(async r => [r, await r.json()]);
+
+      let [r, d] = await send(payload);
+      if (!r.ok && d.needs_choice) {
+        const rename = confirm(
+          'This post is already published at /blog/' + d.from + '.html, and the new ' +
+          'title would put it at /blog/' + d.to + '.html.\n\n' +
+          'OK — rename it. The URL matches the title, but /blog/' + d.from +
+          '.html goes dead: any link or push notification pointing there breaks.\n\n' +
+          'Cancel — keep the published URL. Only the title and its listing card change.');
+        [r, d] = await send({ ...payload, rename: rename ? 'new' : 'keep' });
+      }
+      if (!r.ok) throw new Error(d.error || r.status);
+      return d;
+    }
 
     $('save').addEventListener('click', async () => {
       const title = $('title').value.trim();
       if (!title) { $('status').textContent = 'Add a title first.'; $('title').focus(); return; }
+      if (currentOrphan) {
+        // Saving here would write a brand-new, empty post at the orphan's slug
+        // rather than restore anything — the markdown only ever lived in the
+        // file that's gone. Delete the card, or start a fresh post instead.
+        $('status').textContent =
+          'That\'s an orphaned card, not a post — its file is gone, so there\'s nothing ' +
+          'to save. Delete clears the card; the “+” button starts a new post.';
+        return;
+      }
       const isPage = $('ispage').checked;
       $('status').textContent = 'Saving…';
       try {
+        // Both kinds send the open doc's slug: a page's pins its filename, a
+        // post's tells the server which file a retitle is moving away from.
         const payload = isPage
           ? { title, slug: (currentKind === 'page' ? currentSlug : ''),
               markdown: $('md').value, html: toBody($('md').value) }
           : { title, date: $('date').value,
+              slug: (currentKind === 'post' ? currentSlug : ''),
               markdown: $('md').value, html: toBody($('md').value) };
-        const r = await fetch(isPage ? '/api/save-page' : '/api/save', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const d = await r.json();
-        if (!r.ok) throw new Error(d.error || r.status);
+        const d = await postSave(isPage ? '/api/save-page' : '/api/save', payload);
         currentKind = isPage ? 'page' : 'post';
         currentSlug = d.slug;
+        syncDelete();
         $('status').innerHTML = 'Saved &rarr; <a href="' + d.url + '" target="_blank">' +
-                                d.url + '</a> &middot; now <code>git push</code>';
+                                d.url + '</a>' +
+                                (d.renamed_from ? ' &middot; renamed from <code>blog/' +
+                                                  d.renamed_from + '.html</code>' : '') +
+                                ' &middot; now <code>git push</code>';
         history.replaceState(null, '', '?' + (isPage ? 'page' : 'p') + '=' + d.slug);
-        // Keep the picker in sync (a brand-new doc won't be in its list yet).
+        // Keep the picker in sync: a brand-new doc isn't in its list yet, a
+        // retitle changes an existing entry's label, and a rename leaves an
+        // entry for a slug whose file the server just deleted.
         const grpLabel = isPage ? 'Pages' : 'Posts';
         const kind = isPage ? 'page' : 'post';
-        if (![...$('open').options].some(o => o.value === d.slug && (o.dataset.kind || 'post') === kind)) {
+        const option = slug => [...$('open').options]
+                                 .find(o => o.value === slug && (o.dataset.kind || 'post') === kind);
+        if (d.renamed_from) option(d.renamed_from)?.remove();
+        let o = option(d.slug);
+        if (!o) {
           let og = [...$('open').querySelectorAll('optgroup')].find(g => g.label === grpLabel);
           if (!og) { og = document.createElement('optgroup'); og.label = grpLabel; $('open').appendChild(og); }
-          const o = document.createElement('option');
+          o = document.createElement('option');
           o.value = d.slug; o.dataset.kind = kind;
-          o.textContent = title + (isPage ? ' · ' + d.slug + '.html'
-                                          : ($('date').value ? ' · ' + $('date').value : ''));
           og.appendChild(o);
         }
+        o.textContent = title + (isPage ? ' · ' + d.slug + '.html'
+                                        : ($('date').value ? ' · ' + $('date').value : ''));
         $('open').value = d.slug;
         dirty = false;
       } catch (e) { $('status').textContent = 'Error: ' + e.message; }
+    });
+
+    // Delete the open post. The usual reason: saving re-slugs the filename from
+    // the title, so retitling a post leaves the old slug's file (and its card)
+    // orphaned — open the stale one from the picker and delete it here.
+    $('del').addEventListener('click', async () => {
+      if (!canDelete()) return;
+      const slug = currentSlug, title = $('title').value.trim() || slug;
+      $('status').textContent = 'Checking…';
+      try {
+        const plan = await api('/api/post/delete-plan', { slug });
+        // Either half can be missing: no file but a card left over is an orphan,
+        // and clearing that card is the whole job. Only both missing is nothing.
+        if (!plan.exists && !plan.cards)
+          throw new Error('no file at ' + plan.target + ' and no card in the blog listing');
+        let msg = 'Delete “' + title + '”?\n\n' +
+                  (plan.exists ? '• DELETE the file ' + plan.target + '\n' : '') +
+                  (plan.cards ? '• remove its card from the blog listing'
+                              : '• (no card is in the listing)');
+        if (!plan.exists)
+          msg += '\n\nThe file ' + plan.target + ' is already gone, so this only clears ' +
+                 'the stale card — which currently shows on the blog page as a post ' +
+                 'that\'s "coming soon".';
+        if (plan.inbound.length)
+          msg += '\n\nWARNING: still linked from ' + plan.inbound.length + ' page(s):\n    ' +
+                 plan.inbound.join('\n    ') + '\n  Those links will go dead — fix them by hand.';
+        msg += '\n\nImages under /blog/images are kept (the renamed post may still ' +
+               'use them).\nThis cannot be undone, except via git.';
+        if (!confirm(msg)) { $('status').textContent = 'Kept ' + plan.target; return; }
+
+        const d = await api('/api/post/delete', { slug });
+        // Drop it from the picker — along with any other orphan the server swept
+        // in the same pass — then open the newest post that's left; the picker
+        // lists posts newest-first, orphans last, so skip those. That way the
+        // editor never sits on a file that no longer exists. Nothing left to
+        // open: fall back to a blank draft.
+        const gone = new Set([slug, ...d.pruned.map(c => c.slug)]);
+        [...$('open').options]
+          .filter(o => gone.has(o.value) && (o.dataset.kind || 'post') === 'post')
+          .forEach(o => o.remove());
+        [...$('open').querySelectorAll('optgroup')]     // don't leave a bare label
+          .filter(g => !g.querySelector('option')).forEach(g => g.remove());
+        currentSlug = '';
+        currentOrphan = false;
+        dirty = false;                            // deleted; nothing to warn about
+        const note = (d.deleted_file
+                        ? 'Deleted <code>' + d.target + '</code>' +
+                          (d.cards ? ' and its card' : ' (no card was in the listing)')
+                        : 'Cleared the stale card for <code>' + d.target + '</code>') +
+                     (d.pruned.length
+                        ? ' &middot; also swept ' + d.pruned.length + ' other orphaned card(s): ' +
+                          d.pruned.map(c => '<code>' + c.slug + '</code>').join(', ')
+                        : '') +
+                     ' &middot; commit &amp; <code>git push</code> to publish the removal';
+        const next = [...$('open').options]
+                       .find(o => o.value && (o.dataset.kind || 'post') === 'post' && !o.dataset.orphan);
+        if (next) {
+          await loadDoc('post', next.value, true);
+          $('status').innerHTML = note + ' &middot; now editing ' + next.value;
+        } else {
+          $('open').value = '';
+          $('title').value = '';
+          $('md').value = '';
+          $('date').value = new Date().toISOString().slice(0, 10);
+          setKind('post');
+          render();
+          history.replaceState(null, '', location.pathname);
+          $('status').innerHTML = note;
+        }
+      } catch (e) { $('status').textContent = 'Delete failed: ' + e.message; }
     });
 
     // Cmd/Ctrl+S saves, instead of the browser's "Save page…" dialog. Delegates
