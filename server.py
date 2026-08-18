@@ -65,7 +65,7 @@ POST_TEMPLATE = """<!DOCTYPE html>
   <title>{title_attr} · Mrinalini S</title>
   <meta name="post-title" content="{title_attr}">
   <meta name="post-date" content="{date_iso}">
-  <link rel="stylesheet" href="/assets/blog.css">
+{draft_meta}  <link rel="stylesheet" href="/assets/blog.css">
 </head>
 <body>
   <main class="wrap">
@@ -85,6 +85,15 @@ POST_TEMPLATE = """<!DOCTYPE html>
 </body>
 </html>
 """
+
+# Stamped into a draft's <head> by write_post. The post-draft meta is what
+# makes the state survive a round-trip: the editor reads it back so re-saving a
+# draft doesn't quietly republish it, and load_post/list_posts read it to label
+# the post. The noindex rides along because a draft keeps its file — the page is
+# still reachable by anyone holding the URL, so at least keep it out of search.
+DRAFT_META = ('  <meta name="post-draft" content="1">\n'
+              '  <meta name="robots" content="noindex">\n')
+
 
 # A standalone "page": same markdown round-trip as a
 # post, but it lives at the repo root, links Home instead of "All posts", carries
@@ -132,8 +141,15 @@ def human_date(iso):
         return iso
 
 
-def write_post(title, date_iso, markdown, body_html, slug=None):
+def write_post(title, date_iso, markdown, body_html, slug=None, draft=False):
     """Render a post to blog/<slug>.html and give it a card in the listing.
+
+    `draft` still gives the post a card — it just renders as the "coming soon"
+    state (see update_index), the same one assets/blog-availability.js paints
+    onto a post that isn't pushed yet. So a draft is announced on the blog page
+    and can be subscribed to with the bell; it just isn't readable yet. The
+    state is stamped into the file as DRAFT_META so the next save can read it
+    back rather than publishing by default.
 
     The slug normally comes from the title, so retitling moves the post to a
     new filename. An explicit slug (passed by /api/save when the post is
@@ -151,13 +167,14 @@ def write_post(title, date_iso, markdown, body_html, slug=None):
         title_html=html.escape(title),
         date_iso=date_iso,
         date_human=human_date(date_iso),
+        draft_meta=DRAFT_META if draft else "",
         b64=b64,
         slug=slug,
         body_html=body_html,
     )
     with open(os.path.join(BLOG, slug + ".html"), "w", encoding="utf-8") as f:
         f.write(page)
-    update_index(slug, title, date_iso)
+    update_index(slug, title, date_iso, draft=draft)
     return slug
 
 
@@ -168,10 +185,63 @@ def write_post(title, date_iso, markdown, body_html, slug=None):
 # per-line filter. Shared by update_index (replaces a card) and delete_post
 # (removes one) so the two can't drift apart.
 BLOG_CARD_RE = re.compile(
-    r'      <div class="card( empty)?">\n.*?\n      </div>\n?', re.S)
+    r'      <div class="card( empty)?(?: coming-soon)?">\n.*?\n      </div>\n?', re.S)
 
 
-def update_index(slug, title, date_iso):
+# The one line a "coming soon" card shows instead of its date. Kept identical
+# to the string assets/blog-availability.js writes when it repaints a card for
+# an unpushed post, so a draft and a not-yet-pushed post read the same on the
+# blog page — both mean "written down, not readable yet, hit the bell".
+COMING_SOON = "Coming soon, to be notified hit the \N{BELL}"
+
+
+# The rule that splits published cards from coming-soon ones. It's a plain
+# labelled row, not a heading: the cards use <h2> for post titles, so an <h2>
+# here would read as a sibling of the posts it's meant to group rather than a
+# parent of them. Full-width via grid-column, the same escape hatch .card.empty
+# uses to break out of the grid's columns.
+POST_DIVIDER = '      <div class="post-divider"><span>Coming soon</span></div>\n'
+
+DIVIDER_RE = re.compile(r'      <div class="post-divider">.*?</div>\n?', re.S)
+
+
+def _regroup(text):
+    """Re-sort the listing: published cards, then the divider, then drafts.
+
+    Called on every write to the listing rather than once, because the write
+    path can't keep the grouping on its own — update_index always drops a new
+    card directly under the <!--POSTS--> marker, so a post that gets published,
+    retitled, or flipped back to draft would otherwise land on the wrong side
+    of the rule. Re-deriving the order from the cards themselves means any
+    route into the file (including a hand-edit) comes out grouped.
+
+    Relative order within each group is preserved, so this only ever moves a
+    card across the divider — never reshuffles the posts you've arranged.
+    The divider appears only when there's actually something on both sides.
+    """
+    cards = [m.group(0) for m in BLOG_CARD_RE.finditer(text)]
+    live = [c for c in cards if "coming-soon" not in c]
+    soon = [c for c in cards if "coming-soon" in c]
+
+    text = DIVIDER_RE.sub('', BLOG_CARD_RE.sub('', text))
+    block = "".join(live) + (POST_DIVIDER if live and soon else "") + "".join(soon)
+    return text.replace("<!--POSTS-->\n", "<!--POSTS-->\n" + block, 1)
+
+
+def update_index(slug, title, date_iso, draft=False):
+    """Give this post a card in the blog listing, replacing any it already had.
+
+    A draft gets the same card in its "coming soon" form: dashed, unclickable,
+    and showing the bell prompt in place of the date. It's rendered that way
+    HERE rather than left to blog-availability.js, because that script only
+    knows how to spot a post whose *file* is missing — a draft's file is right
+    there. Baking it into the markup also means the state survives with
+    JavaScript off, on GitHub Pages as much as locally.
+
+    The card keeps its href in a data-href instead: not a link any more, but
+    still the card's identity, which is what lets the dedupe below (and prune,
+    and delete) find it when the post is saved again or published.
+    """
     with open(INDEX, encoding="utf-8") as f:
         text = f.read()
 
@@ -185,17 +255,33 @@ def update_index(slug, title, date_iso):
     # saved was just written to disk, so its own card is never at risk here.
     text, _ = _prune_cards(text)
 
-    card = ('      <div class="card">\n'
-            '        <a class="card-link" href="%s" aria-label="%s"></a>\n'
-            '        <h2>%s</h2>\n'
-            '        <div class="desc">%s</div>\n'
-            '      </div>\n'
-            % (href, html.escape(title, quote=True), html.escape(title), human_date(date_iso)))
+    if draft:
+        card = ('      <div class="card coming-soon">\n'
+                '        <a class="card-link" data-href="%s" aria-disabled="true" aria-label="%s"></a>\n'
+                '        <h2>%s</h2>\n'
+                '        <div class="desc">%s</div>\n'
+                '      </div>\n'
+                % (href, html.escape(title, quote=True), html.escape(title),
+                   html.escape(COMING_SOON)))
+    else:
+        card = ('      <div class="card">\n'
+                '        <a class="card-link" href="%s" aria-label="%s"></a>\n'
+                '        <h2>%s</h2>\n'
+                '        <div class="desc">%s</div>\n'
+                '      </div>\n'
+                % (href, html.escape(title, quote=True), html.escape(title),
+                   human_date(date_iso)))
 
-    # newest first, right under the marker
+    # newest first, right under the marker — then _regroup moves it below the
+    # divider if it's a draft, and drops the divider if it's no longer needed.
     text = text.replace("<!--POSTS-->\n", "<!--POSTS-->\n" + card, 1)
     with open(INDEX, "w", encoding="utf-8") as f:
-        f.write(text)
+        f.write(_regroup(text))
+
+
+def is_draft(src):
+    """Does this post's HTML carry the draft marker? (see DRAFT_META)"""
+    return bool(re.search(r'name="post-draft" content="1"', src))
 
 
 def _card_slug(block):
@@ -248,7 +334,7 @@ def prune_index():
     text, removed = _prune_cards(text)
     if removed:
         with open(INDEX, "w", encoding="utf-8") as f:
-            f.write(text)
+            f.write(_regroup(text))
     return removed
 
 
@@ -354,6 +440,8 @@ def load_post(slug):
         "title": html.unescape(title.group(1)) if title else "",
         "date": date.group(1) if date else "",
         "markdown": markdown,
+        # So re-saving an opened draft keeps it a draft instead of publishing it.
+        "draft": is_draft(src),
     }
 
 
@@ -435,6 +523,7 @@ def list_posts():
             "slug": os.path.basename(path)[:-5],
             "title": html.unescape(title.group(1)) if title else os.path.basename(path)[:-5],
             "date": date.group(1) if date else "",
+            "draft": is_draft(src),
         })
     out.sort(key=lambda p: (p["date"], p["slug"]), reverse=True)
     out += [{"slug": c["slug"], "title": c["title"], "date": "",
@@ -625,7 +714,14 @@ def key_ok(provided):
 
 
 def _card_href(block):
-    m = re.search(r'card-link" href="([^"]+)"', block)
+    """What this card points at.
+
+    A draft's card is deliberately not a link, so it parks the target in
+    data-href instead (see update_index). That's still the card's identity —
+    dedupe, prune and delete all match on it — so read either spelling.
+    """
+    m = (re.search(r'card-link" href="([^"]+)"', block) or
+         re.search(r'card-link" data-href="([^"]+)"', block))
     return m.group(1) if m else ""
 
 
@@ -867,10 +963,12 @@ class Handler(SimpleHTTPRequestHandler):
                         target = prev
 
                 slug = write_post(title, date_iso, d.get("markdown", ""),
-                                  d.get("html", ""), slug=target)
+                                  d.get("html", ""), slug=target,
+                                  draft=bool(d.get("draft")))
                 retired = delete_post(prev) if (moved and slug != prev) else None
                 return self._json(200, {"ok": True, "slug": slug,
                                         "url": "/blog/%s.html" % slug,
+                                        "draft": bool(d.get("draft")),
                                         "renamed_from": retired and retired["slug"]})
             if self.path == "/api/save-page":
                 d = self._body()

@@ -58,13 +58,17 @@
     <label class="toggle" title="Save as a standalone page (linked from Home) instead of a dated blog post">
       <input type="checkbox" id="ispage"> Page
     </label>
+    <label class="toggle" id="draftlabel"
+           title="List this post as &quot;Coming soon&quot; instead of publishing it: the card shows on the blog page with the bell prompt, but doesn't link to the post yet.">
+      <input type="checkbox" id="isdraft"> Draft
+    </label>
     <select id="open" title="Open an existing post or page to edit"><option value="">Open…</option></select>
     <button id="save">Save</button>
     <button id="del" class="danger" hidden
             title="Delete this post's file and its card from the blog listing">Delete</button>
     <a class="navlink" href="/gallery.html">Images</a>
     <a class="navlink" href="/page-editor.html">Pages</a>
-    <span class="status" id="status">Draft &middot; Save writes to /blog, then <code>git push</code> to publish</span>
+    <span class="status" id="status">Unsaved &middot; Save writes to /blog, then <code>git push</code> to publish</span>
   </div>
   <div class="panes">
     <textarea id="md" placeholder="# Write your post in Markdown&#10;&#10;Type here…"></textarea>
@@ -197,6 +201,10 @@
       currentKind = kind;
       $('ispage').checked = (kind === 'page');
       $('date').style.display = (kind === 'page') ? 'none' : '';
+      // Only posts get a listing card, so only posts can be drafts. Pages are
+      // linked from Home by hand and were never on the blog listing at all.
+      $('draftlabel').style.display = (kind === 'page') ? 'none' : '';
+      if (kind === 'page') $('isdraft').checked = false;
       syncDelete();
     }
 
@@ -215,6 +223,8 @@
       markDirty();
     });
 
+    $('isdraft').addEventListener('change', markDirty);
+
     // Open an orphaned card. There's no file behind it, so there's nothing to
     // fetch and nothing to edit — show what the card says and point at Delete,
     // the one action that applies.
@@ -222,6 +232,7 @@
       currentSlug = slug;                 // before setKind, which reads it
       currentOrphan = true;
       setKind('post');
+      $('isdraft').checked = false;
       $('title').value = title || slug;
       $('date').value = '';
       $('md').value = '';
@@ -242,13 +253,15 @@
         .then(p => {
           currentSlug = p.slug || slug;   // before setKind, which reads it
           currentOrphan = false;
-          setKind(kind);
+          setKind(kind);                  // clears the draft box, so set it after
+          $('isdraft').checked = (kind === 'post' && !!p.draft);
           $('title').value = p.title;
           if (kind === 'post') $('date').value = p.date || $('date').value;
           $('md').value = p.markdown;
           render(); dirty = false;
           $('open').value = slug;
-          $('status').textContent = 'Editing ' + (kind === 'page' ? 'page ' : '') + slug;
+          $('status').textContent = 'Editing ' + (kind === 'page' ? 'page ' : '') + slug +
+                                    ($('isdraft').checked ? ' (draft — listed as “Coming soon”)' : '');
           if (push) history.replaceState(null, '', '?' + (kind === 'page' ? 'page' : 'p') + '=' + slug);
         })
         .catch(() => { $('status').textContent = 'Could not load "' + slug + '"'; });
@@ -275,7 +288,7 @@
       for (const p of posts.filter(p => !p.orphan)) {
         const o = document.createElement('option');
         o.value = p.slug; o.dataset.kind = 'post';
-        o.textContent = p.title + (p.date ? ' · ' + p.date : '');
+        o.textContent = (p.draft ? '✎ ' : '') + p.title + (p.date ? ' · ' + p.date : '');
         ogp.appendChild(o);
       }
       $('open').appendChild(ogp);
@@ -371,6 +384,7 @@
               markdown: $('md').value, html: toBody($('md').value) }
           : { title, date: $('date').value,
               slug: (currentKind === 'post' ? currentSlug : ''),
+              draft: $('isdraft').checked,
               markdown: $('md').value, html: toBody($('md').value) };
         const d = await postSave(isPage ? '/api/save-page' : '/api/save', payload);
         currentKind = isPage ? 'page' : 'post';
@@ -380,6 +394,8 @@
                                 d.url + '</a>' +
                                 (d.renamed_from ? ' &middot; renamed from <code>blog/' +
                                                   d.renamed_from + '.html</code>' : '') +
+                                (d.draft ? ' &middot; <b>draft</b> — listed as &ldquo;Coming soon&rdquo;'
+                                         : '') +
                                 ' &middot; now <code>git push</code>';
         history.replaceState(null, '', '?' + (isPage ? 'page' : 'p') + '=' + d.slug);
         // Keep the picker in sync: a brand-new doc isn't in its list yet, a
@@ -398,8 +414,9 @@
           o.value = d.slug; o.dataset.kind = kind;
           og.appendChild(o);
         }
-        o.textContent = title + (isPage ? ' · ' + d.slug + '.html'
-                                        : ($('date').value ? ' · ' + $('date').value : ''));
+        o.textContent = (d.draft ? '✎ ' : '') + title +
+                        (isPage ? ' · ' + d.slug + '.html'
+                                : ($('date').value ? ' · ' + $('date').value : ''));
         $('open').value = d.slug;
         dirty = false;
       } catch (e) { $('status').textContent = 'Error: ' + e.message; }
