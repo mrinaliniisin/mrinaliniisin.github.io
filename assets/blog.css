@@ -80,3 +80,6 @@ article .post-meta { margin-bottom: 32px; }
 
 footer { max-width: 680px; margin: 48px auto 0; font-size: 12px;
          color: #a8a29e; text-align: center; }
+/* The UPI handle is a upi:// link; keep it muted like the rest of the footer
+   rather than letting it fall back to default link blue. */
+footer a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }

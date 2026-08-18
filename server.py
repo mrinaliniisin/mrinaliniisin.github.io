@@ -80,7 +80,7 @@ POST_TEMPLATE = """<!DOCTYPE html>
 <!--/EDIT:post-->
     </article>
   </main>
-  <footer>&copy; 2026 Mrinalini S · Code licensed under MIT</footer>
+  <footer>&copy; 2026 Mrinalini S · <a href="upi://pay?pa=mrinalinis@upi&amp;pn=Mrinalini%20S&amp;cu=INR" title="Pay via UPI (opens a payment app on mobile)"><code>mrinalinis@upi</code></a> · Code licensed under MIT</footer>
   <script src="/assets/analytics.js" defer></script>
 </body>
 </html>
@@ -121,7 +121,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <!--/EDIT:post-->
     </article>
   </main>
-  <footer>&copy; 2026 Mrinalini S · Code licensed under MIT</footer>
+  <footer>&copy; 2026 Mrinalini S · <a href="upi://pay?pa=mrinalinis@upi&amp;pn=Mrinalini%20S&amp;cu=INR" title="Pay via UPI (opens a payment app on mobile)"><code>mrinalinis@upi</code></a> · Code licensed under MIT</footer>
   <script src="/assets/analytics.js" defer></script>
 </body>
 </html>

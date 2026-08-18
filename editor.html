@@ -80,6 +80,8 @@
   <a class="fab" id="fab" href="/editor.html" title="New post" aria-label="New post">+</a>
 
   <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <!-- The other direction: HTML -> Markdown, for pasting. Same CDN as marked. -->
+  <script src="https://cdn.jsdelivr.net/npm/turndown@7/dist/turndown.min.js"></script>
   <script>
     const $ = id => document.getElementById(id);
 
@@ -106,6 +108,74 @@
     const embedYouTube = md => (md || '').replace(
       /^[ \t]*(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?(?:\S*&)?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})\S*[ \t]*$/gm,
       (m, id) => '\n\n' + ytEmbed(id, ytStart(m)) + '\n\n');
+
+    // ---- Pasting HTML ------------------------------------------------------
+    // A textarea paste takes the clipboard's text/plain flavour, so copying the
+    // *source* of a page drops raw markup into the Markdown pane — tags and all,
+    // right down to the </body></html>. Left alone that's not just ugly: marked
+    // passes raw HTML straight through, so saving it would bury a second
+    // <footer> and stray closing tags inside the post body. So: spot HTML on the
+    // way in and turn it back into Markdown.
+
+    const turndown = window.TurndownService && new TurndownService({
+      headingStyle: 'atx',            // ## Heading, matching how posts are written
+      codeBlockStyle: 'fenced',
+      bulletListMarker: '-',
+      emDelimiter: '*',
+    });
+    // A post's video embed is an <iframe> in the HTML but a bare URL in the
+    // Markdown (see embedYouTube), so send it back the way it came instead of
+    // letting Turndown drop the iframe on the floor.
+    if (turndown) turndown.addRule('youtubeEmbed', {
+      filter: n => n.nodeName === 'IFRAME' && /youtube(?:-nocookie)?\.com\/embed\//.test(n.getAttribute('src') || ''),
+      replacement: (_, node) => {
+        const m = (node.getAttribute('src') || '').match(/embed\/([\w-]{11})/);
+        return m ? '\n\nhttps://www.youtube.com/watch?v=' + m[1] + '\n\n' : '';
+      },
+    });
+
+    // Is this text actually markup, rather than prose that happens to contain a
+    // tag? Deliberately strict: a whole document is obvious, and short of that
+    // we want it to both START with a tag and carry real block structure, so a
+    // Markdown draft with one raw <div class="video-embed"> in it isn't dragged
+    // through a conversion it doesn't need.
+    const HTML_DOC = /<!DOCTYPE\s+html|<html[\s>]|<\/body>|<\/html>/i;
+    const BLOCK_TAG = /<(?:p|div|h[1-6]|ul|ol|li|blockquote|pre|table|article|section|main|figure)\b[^>]*>/gi;
+    const blockCount = t => (t.match(BLOCK_TAG) || []).length;
+    const looksLikeHtml = t => HTML_DOC.test(t) || (/^\s*</.test(t) && blockCount(t) >= 2);
+    // Markdown markers. If the plain text already reads as Markdown we leave it
+    // alone, so copying Markdown out of a code block on some page doesn't come
+    // back wrapped in a fence.
+    const looksLikeMarkdown = t => /(?:^|\n)#{1,6}\s|\]\(|(?:^|\n)[-*]\s+\S|\*\*\S/.test(t);
+
+    const b64ToText = b64 =>
+      new TextDecoder().decode(Uint8Array.from(atob(b64.trim()), c => c.charCodeAt(0)));
+
+    // Returns { markdown, exact } or null if there's nothing better to offer.
+    function htmlToMarkdown(html) {
+      // Every post and page on this site carries its own Markdown source inside
+      // an <!--EDIT:…:b64:…--> comment, so if this is one of ours we can hand
+      // back the author's exact original rather than a reconstruction of it.
+      const m = html.match(/<!--EDIT:[^:]*:b64:([\s\S]*?)-->/);
+      if (m) {
+        try { return { markdown: b64ToText(m[1]), exact: true }; } catch (err) { /* fall through */ }
+      }
+      if (!turndown) return null;              // CDN blocked or offline
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      // Page chrome, not content — this is the stuff that would otherwise end up
+      // duplicated inside the post body.
+      doc.querySelectorAll('script, style, nav, footer, header, .back, .top-actions, .post-meta, .fab')
+         .forEach(n => n.remove());
+      // Prefer the narrowest wrapper that means "the writing": a post body, then
+      // an article, then main, and only then the whole document.
+      const root = doc.querySelector('.post-body') || doc.querySelector('article') ||
+                   doc.querySelector('main') || doc.body;
+      if (!root) return null;
+      const h1 = root.querySelector('h1');     // the title field supplies this
+      if (h1) h1.remove();
+      const markdown = turndown.turndown(root.innerHTML).trim();
+      return markdown ? { markdown, exact: false } : null;
+    }
 
     // The title field supplies the post's <h1>, so drop a leading body heading
     // to keep preview, published post, and listing showing the title once.
@@ -140,14 +210,41 @@
       const item = [...(e.clipboardData?.items || [])]
                      .find(it => it.type.startsWith('image/'));
       if (!item) {
+        const text = (e.clipboardData?.getData('text/plain') || '').trim();
         // A pasted YouTube link (and nothing else) drops in as an inline player.
         // Requiring the whole clipboard to be the URL leaves links inside copied
         // prose untouched; the blank lines put it on its own block for the embed.
-        const text = (e.clipboardData?.getData('text/plain') || '').trim();
         if (/^\S+$/.test(text) && YT_ID.test(text)) {
           e.preventDefault();
           insertAtCursor($('md'), '\n\n' + text + '\n\n');
           render(); markDirty();
+          return;
+        }
+        // Two ways HTML arrives. Either the plain text IS markup (you copied a
+        // page's source), or the clipboard carries a text/html flavour alongside
+        // it (you copied from a rendered page). The first is always worth
+        // converting; the second only when it has structure worth keeping and
+        // the plain text isn't already Markdown.
+        const rich = e.clipboardData?.getData('text/html') || '';
+        const source = looksLikeHtml(text) ? text
+                     : (rich && blockCount(rich) >= 1 && !looksLikeMarkdown(text)) ? rich
+                     : '';
+        if (source) {
+          const got = htmlToMarkdown(source);
+          if (got) {
+            e.preventDefault();
+            insertAtCursor($('md'), got.markdown);
+            render(); markDirty();
+            $('status').textContent = got.exact
+              ? 'Pasted HTML was one of your own posts — restored its original Markdown.'
+              : 'Pasted HTML converted to Markdown.';
+          } else if (!turndown) {
+            // Nothing to convert with, so the raw markup is about to land in the
+            // pane. Say so rather than letting it look like the editor broke.
+            $('status').textContent =
+              'That looks like HTML, but the Markdown converter didn\'t load — ' +
+              'check your connection, or clean the tags up by hand before saving.';
+          }
         }
         return;                     // otherwise let the normal text paste run
       }
