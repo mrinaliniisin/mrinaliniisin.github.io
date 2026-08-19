@@ -195,12 +195,14 @@ BLOG_CARD_RE = re.compile(
 COMING_SOON = "Coming soon, to be notified hit the \N{BELL}"
 
 
-# The rule that splits published cards from coming-soon ones. It's a plain
-# labelled row, not a heading: the cards use <h2> for post titles, so an <h2>
-# here would read as a sibling of the posts it's meant to group rather than a
-# parent of them. Full-width via grid-column, the same escape hatch .card.empty
-# uses to break out of the grid's columns.
-POST_DIVIDER = '      <div class="post-divider"><span>Coming soon</span></div>\n'
+# The rule that splits published cards from coming-soon ones. Deliberately
+# unlabelled: every card below it already says "Coming soon" in its own desc
+# line, so a label here only repeated them. It's a plain rule, not a heading —
+# the cards use <h2> for post titles, so an <h2> here would read as a sibling
+# of the posts it's meant to group rather than a parent of them. Full-width via
+# grid-column, the same escape hatch .card.empty uses to break out of the
+# grid's columns.
+POST_DIVIDER = '      <div class="post-divider"></div>\n'
 
 DIVIDER_RE = re.compile(r'      <div class="post-divider">.*?</div>\n?', re.S)
 

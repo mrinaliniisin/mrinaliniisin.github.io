@@ -57,6 +57,10 @@ h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
                            font-size: 13px; font-style: italic; }
 .post-grid .post-divider::before,
 .post-grid .post-divider::after { content: ""; flex: 1; border-top: 1px dashed #d9d6cf; }
+/* Unlabelled divider (the usual case): with no label to sit between them,
+   the two half-rules would show as two stubs with a gap. Drop one so the
+   remaining flex:1 rule spans the full width as a single dashed line. */
+.post-grid .post-divider:empty::after { content: none; }
 
 /* Article */
 .post-title { margin-bottom: 6px; }
