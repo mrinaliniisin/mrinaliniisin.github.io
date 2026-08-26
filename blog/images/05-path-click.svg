@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 120" width="640" height="120" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
-  <rect width="640" height="120" rx="14" fill="#fffcf6" stroke="#d8cdb6"/>
-  <text x="28" y="66" font-size="17" font-weight="700" fill="#2b2622">Keepr</text>
-  <rect x="92" y="48" width="230" height="24" rx="6" fill="#2b2622" opacity="0.06"/>
-  <text x="102" y="65" font-size="13" fill="#6f6557">/Users/you/Desktop/trip-photos</text>
-  <path d="M336 50l18 10-18 10z" fill="#7a1f2b"/>
-</svg>

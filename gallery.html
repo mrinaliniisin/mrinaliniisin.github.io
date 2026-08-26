@@ -37,6 +37,52 @@
                       padding: 5px 10px; cursor: pointer; }
     .actions button:hover { filter: brightness(0.97); }
     .actions .del { color: #a11; border-color: #e6c9c9; background: #fbf3f3; }
+
+    /* Multi-select: shift-click to pick images, then delete them in one go. */
+    .card { position: relative; }
+    .pick { position: absolute; top: 8px; left: 8px; z-index: 2; margin: 0;
+            width: 17px; height: 17px; cursor: pointer; accent-color: #2d5a27;
+            display: none; }
+    body.shift .pick, body.selecting .pick, .card.selected .pick { display: block; }
+    body.shift .thumb { cursor: cell; }
+    body.shift .card { outline: 1px dashed #c9c5bd; outline-offset: 2px; }
+    .card.selected { outline: 2px solid #2d5a27; outline-offset: 2px; }
+    .card.selected .thumb { background: #e7efe5; }
+    /* The bar always offers "Select all" — it is the only visible hint that
+       selection exists at all; the rest needs something picked first. */
+    .selbar { display: flex; gap: 10px; align-items: center; font-size: 13px; }
+    .selonly { display: none; }
+    body.selecting .selonly { display: inline-block; }
+    .selbar .count { color: #f0eee9; }
+    .selbar button { font: inherit; font-size: 12px; border: 1px solid #4a4a4a;
+                     background: #2a2a2a; color: #f0eee9; border-radius: 6px;
+                     padding: 5px 10px; cursor: pointer; }
+    .selbar button:hover { background: #343434; }
+    .selbar .delsel { color: #ffb4b4; border-color: #6b3a3a; background: #3a2626; }
+
+    /* Lightbox: full image + the markdown snippet that embeds it. */
+    .thumb { cursor: zoom-in; }
+    .lightbox { position: fixed; inset: 0; z-index: 100; display: none;
+                background: rgba(20, 18, 16, .9); padding: 24px; }
+    .lightbox.open { display: flex; align-items: center; justify-content: center; }
+    .lb-inner { display: flex; flex-direction: column; align-items: center;
+                gap: 12px; max-width: 100%; }
+    .lb-inner img { max-width: 88vw; max-height: 68vh; object-fit: contain;
+                    background: #fff; border-radius: 8px; }
+    .lb-name { color: #f0eee9; font-size: 13px; word-break: break-all;
+               font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .lb-code { font: inherit; font-size: 13px;
+               font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+               background: #f7f6f3; color: #1a1a1a; border: 1px solid #d9d6cf;
+               border-radius: 6px; padding: 10px 14px; cursor: copy;
+               max-width: 88vw; overflow-x: auto; white-space: pre;
+               text-align: left; }
+    .lb-code:hover { background: #fff; }
+    .lb-hint { color: #a8a29e; font-size: 12px; min-height: 1em; }
+    .lb-close { position: absolute; top: 14px; right: 18px; font: inherit;
+                font-size: 22px; line-height: 1; color: #f0eee9; background: none;
+                border: 0; padding: 6px 10px; cursor: pointer; }
+    .lb-close:hover { color: #fff; }
   </style>
 </head>
 <body>
@@ -44,11 +90,27 @@
     <h1>Image gallery</h1>
     <a href="/editor.html">← Editor</a>
     <a href="/blog/">Blog</a>
+    <span class="selbar" id="selbar">
+      <span class="count selonly" id="selCount"></span>
+      <button class="delsel selonly" id="delSel">Delete selected</button>
+      <button id="selAll" title="Or shift-click thumbnails to pick them one by one">Select all</button>
+      <button class="selonly" id="selNone">Clear</button>
+    </span>
     <span class="status" id="status">Loading…</span>
   </div>
   <main class="gallery">
     <div class="grid" id="grid"></div>
   </main>
+
+  <div class="lightbox" id="lightbox" hidden>
+    <button class="lb-close" id="lbClose" title="Close (Esc)">&times;</button>
+    <div class="lb-inner">
+      <img id="lbImg" alt="">
+      <span class="lb-name" id="lbName"></span>
+      <button class="lb-code" id="lbCode" title="Click to copy"></button>
+      <span class="lb-hint" id="lbHint">Click the snippet to copy it</span>
+    </div>
+  </div>
 
   <script>
     const $ = id => document.getElementById(id);
@@ -64,10 +126,34 @@
           '<a href="/blog/' + s + '.html" target="_blank">' + s + '</a>').join(', ')
       : '<span class="unused">Unused</span>';
 
+    // Selection lives by filename, so it survives a re-render of the grid.
+    // `images` is the last payload from /api/images, used for order and used_in.
+    let images = [];
+    const selected = new Set();
+
+    function syncSelection() {
+      selected.forEach(n => {                  // drop names deleted elsewhere
+        if (!images.some(i => i.name === n)) selected.delete(n);
+      });
+      document.body.classList.toggle('selecting', selected.size > 0);
+      $('selCount').textContent = selected.size + ' selected';
+      document.querySelectorAll('.card').forEach(el => {
+        const on = selected.has(el.dataset.name);
+        el.classList.toggle('selected', on);
+        el.querySelector('.pick').checked = on;
+      });
+    }
+
+    function togglePick(name) {
+      if (selected.has(name)) selected.delete(name); else selected.add(name);
+      syncSelection();
+    }
+
     function card(img) {
       const el = document.createElement('div');
       el.className = 'card';
       el.innerHTML =
+        '<input type="checkbox" class="pick" title="Select">' +
         '<div class="thumb"><img src="' + img.url + '" alt="" loading="lazy"></div>' +
         '<div class="meta">' +
           '<span class="name"></span>' +
@@ -79,10 +165,140 @@
           '</div>' +
         '</div>';
       el.querySelector('.name').textContent = img.name;  // textContent: no HTML injection
+      // Shift-click picks the image instead of opening it; the checkbox does the
+      // same without the modifier, once selection mode is visible.
+      el.querySelector('.thumb').addEventListener('click', e => {
+        if (e.shiftKey) togglePick(img.name);
+        else openLightbox(img);
+      });
+      const box = el.querySelector('.pick');
+      box.checked = selected.has(img.name);
+      box.addEventListener('click', e => {
+        e.stopPropagation();
+        togglePick(img.name);
+      });
+      el.classList.toggle('selected', selected.has(img.name));
+      el.dataset.name = img.name;
       el.querySelector('.ren').addEventListener('click', () => rename(img));
       el.querySelector('.del').addEventListener('click', () => remove(img));
       return el;
     }
+
+    // The snippet the editor itself writes on paste-upload (editor.html), so a
+    // copied snippet and a pasted image produce identical markdown source.
+    const snippet = img => '![](' + img.url + ')';
+
+    function openLightbox(img) {
+      $('lbImg').src = img.url;
+      $('lbName').textContent = img.name;
+      $('lbCode').textContent = snippet(img);
+      $('lbHint').textContent = 'Click the snippet to copy it';
+      $('lightbox').hidden = false;
+      $('lightbox').classList.add('open');
+    }
+
+    function closeLightbox() {
+      $('lightbox').classList.remove('open');
+      $('lightbox').hidden = true;
+      $('lbImg').removeAttribute('src');   // stop the full-size image decoding
+    }
+
+    // Deprecated, but the only path that works when the async clipboard API is
+    // missing (a bare LAN IP is not a secure context) or refuses permission.
+    function copyViaTextarea(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { return document.execCommand('copy'); }
+      catch (e) { return false; }
+      finally { document.body.removeChild(ta); }
+    }
+
+    async function copySnippet() {
+      const text = $('lbCode').textContent;
+      let ok = false;
+      // The async API can be present and still throw NotAllowedError, so a
+      // refusal falls through to the fallback rather than ending the attempt.
+      if (navigator.clipboard && window.isSecureContext) {
+        try { await navigator.clipboard.writeText(text); ok = true; }
+        catch (e) { ok = false; }
+      }
+      if (!ok) ok = copyViaTextarea(text);
+      $('lbHint').textContent = ok
+        ? 'Copied'
+        : 'Copy failed — select it and press Cmd+C';
+    }
+
+    $('lbCode').addEventListener('click', copySnippet);
+    $('lbClose').addEventListener('click', closeLightbox);
+    // Backdrop only: clicks on the image or the snippet must not close it.
+    $('lightbox').addEventListener('click', e => {
+      if (e.target === $('lightbox')) closeLightbox();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      if (!$('lightbox').hidden) closeLightbox();
+      else if (selected.size) { selected.clear(); syncSelection(); }
+    });
+
+    async function removeSelected() {
+      const names = images.filter(i => selected.has(i.name)).map(i => i.name);
+      if (!names.length) return;
+      const used = images.filter(i => selected.has(i.name) && i.used_in.length);
+      const warn = used.length
+        ? '\n\nWARNING: ' + used.length + ' of them ' +
+          (used.length === 1 ? 'is' : 'are') + ' still used in ' +
+          [...new Set(used.flatMap(i => i.used_in))].join(', ') +
+          ' — those posts will show a broken image.'
+        : '';
+      if (!confirm('Delete ' + names.length + ' image' +
+                   (names.length === 1 ? '' : 's') + ' from disk?\n\n' +
+                   names.join('\n') + warn)) return;
+      // One request per image: /api/image/delete is a plain unlink server-side,
+      // so a batch endpoint would buy nothing and this reports per-file errors.
+      const failed = [];
+      let done = 0;
+      for (const name of names) {
+        status('Deleting ' + (done + 1) + ' of ' + names.length + '…');
+        try {
+          const r = await fetch('/api/image/delete', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+          });
+          const d = await r.json();
+          if (!r.ok) throw new Error(d.error || r.status);
+          selected.delete(name);
+          done++;
+        } catch (e) { failed.push(name + ' (' + e.message + ')'); }
+      }
+      await load();
+      status(failed.length
+        ? 'Deleted ' + done + ', failed: ' + failed.join(', ')
+        : 'Deleted ' + done + ' image' + (done === 1 ? '' : 's'));
+    }
+
+    $('delSel').addEventListener('click', removeSelected);
+    $('selAll').addEventListener('click', () => {
+      images.forEach(i => selected.add(i.name));
+      syncSelection();
+    });
+    $('selNone').addEventListener('click', () => {
+      selected.clear();
+      syncSelection();
+    });
+
+    // Shift held = the grid shows its checkboxes, so the gesture is discoverable
+    // before the first click. Blur matters: a shift-tab away never fires keyup.
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Shift') document.body.classList.add('shift');
+    });
+    document.addEventListener('keyup', e => {
+      if (e.key === 'Shift') document.body.classList.remove('shift');
+    });
+    window.addEventListener('blur', () => document.body.classList.remove('shift'));
 
     async function load() {
       try {
@@ -91,12 +307,15 @@
         if (!r.ok) throw new Error(d.error || r.status);
         const grid = $('grid');
         grid.innerHTML = '';
+        images = d.images;
         if (!d.images.length) {
           grid.innerHTML = '<p class="empty">No images yet. Paste one into the editor to upload it.</p>';
+          syncSelection();
           status('0 images');
           return;
         }
         d.images.forEach(img => grid.appendChild(card(img)));
+        syncSelection();
         status(d.images.length + ' image' + (d.images.length === 1 ? '' : 's'));
       } catch (e) { status('Error: ' + e.message); }
     }
