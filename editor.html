@@ -24,6 +24,38 @@
     .bar button:hover { filter: brightness(1.12); }
     .bar button.danger { background: #7a2222; }
     .bar button[hidden] { display: none; }
+    /* Tag field: chips + a type-ahead that offers the tags already in use.
+       Chips are drawn in the same shape and hue as the ribbons they'll become
+       on the blog page, so the colour isn't a surprise after saving. */
+    .tagfield { position: relative; display: flex; align-items: center; gap: 5px;
+                flex-wrap: wrap; flex: 1 1 210px; min-width: 170px; max-width: 340px;
+                border: 1px solid #444; border-radius: 6px; background: #2a2a2a;
+                padding: 3px 5px; }
+    .tagfield #chips { display: contents; }
+    .tagfield input { flex: 1; min-width: 72px; border: 0; background: transparent;
+                      padding: 4px 4px; font-size: 13px; }
+    .tagfield input:focus { outline: none; }
+    .chip { display: inline-flex; align-items: center; gap: 4px;
+            background: hsl(var(--rb, 100) 38% 39%); color: #fff;
+            font-size: 11.5px; font-weight: 600; line-height: 1.5;
+            padding: 2px 13px 2px 7px;
+            clip-path: polygon(0 0, 100% 0, calc(100% - 5px) 50%, 100% 100%, 0 100%); }
+    .chip .x { cursor: pointer; opacity: 0.65; font-weight: 700; }
+    .chip .x:hover { opacity: 1; }
+    .tagmenu { position: absolute; top: calc(100% + 6px); left: 0; z-index: 30;
+               min-width: 100%; max-height: 240px; overflow-y: auto; padding: 4px;
+               background: #232323; border: 1px solid #444; border-radius: 8px;
+               box-shadow: 0 10px 30px rgba(0,0,0,0.45); }
+    .tagmenu[hidden] { display: none; }
+    .tagmenu button { display: flex; width: 100%; align-items: center; gap: 8px;
+                      background: transparent; color: #e8e6e1; border: 0;
+                      border-radius: 6px; padding: 6px 8px;
+                      font: inherit; font-size: 13px; font-weight: 400;
+                      text-align: left; cursor: pointer; white-space: nowrap; }
+    .tagmenu button:hover, .tagmenu button.on { background: #3a3a3a; filter: none; }
+    .tagmenu .sw { flex: none; width: 10px; height: 10px; border-radius: 2px;
+                   background: hsl(var(--rb, 100) 38% 44%); }
+    .tagmenu .n { margin-left: auto; padding-left: 10px; color: #8a847e; font-size: 11px; }
     .bar .navlink { color: #8fd17f; text-decoration: none; font-size: 14px; }
     .bar .navlink:hover { text-decoration: underline; }
     .bar .status { font-size: 13px; color: #a8a29e; }
@@ -62,6 +94,13 @@
            title="List this post as &quot;Coming soon&quot; instead of publishing it: the card shows on the blog page with the bell prompt, but doesn't link to the post yet.">
       <input type="checkbox" id="isdraft"> Draft
     </label>
+    <div class="tagfield" id="tagfield"
+         title="Tags for this post. They show as ribbons on the post and on its card on the blog page.">
+      <span id="chips"></span>
+      <input id="tagin" placeholder="Tag…" autocomplete="off" spellcheck="false"
+             aria-label="Add a tag" role="combobox" aria-expanded="false" aria-autocomplete="list">
+      <div class="tagmenu" id="tagmenu" hidden role="listbox" aria-label="Existing tags"></div>
+    </div>
     <select id="open" title="Open an existing post or page to edit"><option value="">Open…</option></select>
     <button id="save">Save</button>
     <button id="del" class="danger" hidden
@@ -301,7 +340,10 @@
       // Only posts get a listing card, so only posts can be drafts. Pages are
       // linked from Home by hand and were never on the blog listing at all.
       $('draftlabel').style.display = (kind === 'page') ? 'none' : '';
-      if (kind === 'page') $('isdraft').checked = false;
+      // Tags exist to be shown on the blog listing, and a page has no card
+      // there — so, like Draft, the field is a post-only affair.
+      $('tagfield').style.display = (kind === 'page') ? 'none' : '';
+      if (kind === 'page') { $('isdraft').checked = false; setTags([]); }
       syncDelete();
     }
 
@@ -322,6 +364,172 @@
 
     $('isdraft').addEventListener('change', markDirty);
 
+    // ---- Tags -----------------------------------------------------------
+    // The post's tags, and the vocabulary to pick from: every tag already in
+    // use across the blog, with its post count, from /api/tags. Server-side a
+    // post's tags are one <meta name="post-tags"> line in its own file and
+    // there's no registry anywhere, so "existing tags" is nothing more than
+    // what the other posts happen to use.
+    let tags = [];
+    let known = [];          // [{name, count, hue}], most-used first
+    let hi = -1;             // highlighted row in the suggestion menu
+
+    // Same hue-from-name hash as server.py's tag_hue, so a chip here is exactly
+    // the colour the ribbon will be. crc32 over UTF-8 bytes to match zlib's.
+    const TAG_HUES = [152, 186, 210, 250, 282, 320, 348, 18, 38, 92];
+    const CRC = (() => { const t = new Int32Array(256);
+      for (let n = 0; n < 256; n++) { let c = n;
+        for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        t[n] = c; } return t; })();
+    const tagHue = name => {
+      let c = -1;
+      for (const b of new TextEncoder().encode(name.toLowerCase()))
+        c = (c >>> 8) ^ CRC[(c ^ b) & 0xFF];
+      return TAG_HUES[((c ^ -1) >>> 0) % TAG_HUES.length];
+    };
+
+    // Mirrors parse_tags in server.py: commas are the separator in the stored
+    // meta line, so they can't survive inside a tag.
+    const cleanTag = raw => raw.replace(/,/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 32).trim();
+    const hasTag = name => tags.some(t => t.toLowerCase() === name.toLowerCase());
+
+    function renderChips() {
+      $('chips').innerHTML = '';
+      for (const t of tags) {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.style.setProperty('--rb', tagHue(t));
+        chip.append(t);
+        const x = document.createElement('span');
+        x.className = 'x'; x.textContent = '\u00d7';
+        x.title = 'Remove "' + t + '"';
+        x.addEventListener('click', () => { removeTag(t); markDirty(); });
+        chip.appendChild(x);
+        $('chips').appendChild(chip);
+      }
+    }
+
+    function setTags(list) { tags = []; for (const t of list || []) pushTag(t); renderChips(); }
+    function removeTag(name) {
+      tags = tags.filter(t => t !== name);
+      renderChips();
+    }
+
+    // Adopt an existing tag's spelling when one matches case-insensitively:
+    // typing "books" where "Books" is already in use should reuse that tag
+    // rather than fork the vocabulary into two that render as one.
+    function pushTag(raw) {
+      const name = cleanTag(raw);
+      if (!name || hasTag(name)) return false;
+      const match = known.find(k => k.name.toLowerCase() === name.toLowerCase());
+      tags.push(match ? match.name : name);
+      return true;
+    }
+
+    function addTag(raw) {
+      if (pushTag(raw)) { renderChips(); markDirty(); }
+      $('tagin').value = '';
+      showMenu();
+    }
+
+    // The suggestion list: existing tags not already on this post, filtered by
+    // what's typed, then an explicit "create" row when the text isn't one of
+    // them — so inventing a tag is a visible choice rather than something that
+    // silently happens on Enter.
+    //
+    // Existing tags come FIRST, and the first row is the one Enter takes.
+    // Typing "relat" should land on "Relationships", not mint a "relat" beside
+    // it: a tag that's one keystroke off an existing one is nearly always a
+    // typo, and the failure is invisible — two ribbons that mean the same
+    // thing. Creating still works, it's just one ArrowDown away. Within the
+    // matches, tags that START with what's typed rank above ones that merely
+    // contain it, so the row Enter would take is the likeliest one.
+    function menuItems() {
+      const typed = cleanTag($('tagin').value);
+      const q = typed.toLowerCase();
+      const items = known
+        .filter(k => !hasTag(k.name) && (!q || k.name.toLowerCase().includes(q)))
+        .map(k => ({ name: k.name, hue: k.hue, count: k.count,
+                     lead: q && k.name.toLowerCase().startsWith(q) ? 0 : 1 }))
+        .sort((a, b) => a.lead - b.lead);   // stable, so /api/tags' own order holds within a group
+      if (typed && !hasTag(typed) &&
+          !items.some(i => i.name.toLowerCase() === q))
+        items.push({ name: typed, hue: tagHue(typed), create: true });
+      return items;
+    }
+
+    function showMenu() {
+      const items = menuItems();
+      const menu = $('tagmenu');
+      menu.innerHTML = '';
+      hi = items.length ? 0 : -1;
+      items.forEach((it, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = i === hi ? 'on' : '';
+        b.dataset.name = it.name;
+        b.innerHTML = '<span class="sw" style="--rb:' + it.hue + '"></span>';
+        b.append(it.create ? 'Create \u201c' + it.name + '\u201d' : it.name);
+        if (!it.create) {
+          const n = document.createElement('span');
+          n.className = 'n'; n.textContent = it.count + (it.count === 1 ? ' post' : ' posts');
+          b.appendChild(n);
+        }
+        // mousedown, not click: the input would blur first and close the menu.
+        b.addEventListener('mousedown', e => { e.preventDefault(); addTag(it.name); });
+        menu.appendChild(b);
+      });
+      menu.hidden = !items.length;
+      $('tagin').setAttribute('aria-expanded', String(!menu.hidden));
+    }
+
+    const hideMenu = () => { $('tagmenu').hidden = true; hi = -1;
+                             $('tagin').setAttribute('aria-expanded', 'false'); };
+
+    function moveHi(delta) {
+      const rows = [...$('tagmenu').querySelectorAll('button')];
+      if (!rows.length) return;
+      rows[hi]?.classList.remove('on');
+      hi = (hi + delta + rows.length) % rows.length;
+      rows[hi].classList.add('on');
+      rows[hi].scrollIntoView({ block: 'nearest' });
+    }
+
+    $('tagin').addEventListener('input', showMenu);
+    $('tagin').addEventListener('focus', showMenu);
+    $('tagin').addEventListener('blur', hideMenu);
+    $('tagin').addEventListener('keydown', e => {
+      const rows = [...$('tagmenu').querySelectorAll('button')];
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault(); if ($('tagmenu').hidden) showMenu(); else moveHi(e.key === 'ArrowDown' ? 1 : -1);
+      } else if (e.key === 'Enter' || e.key === ',') {
+        // Deliberately not Tab. Tab commits in some tag fields, but here the
+        // menu pre-selects the nearest existing tag, so tabbing out towards
+        // Save would quietly attach a tag that was never chosen.
+        const pick = (!$('tagmenu').hidden && rows[hi]) ? rows[hi].dataset.name : cleanTag(e.target.value);
+        if (!pick) return;
+        e.preventDefault();
+        addTag(pick);
+      } else if (e.key === 'Escape' && !$('tagmenu').hidden) {
+        e.preventDefault(); hideMenu();
+      } else if (e.key === 'Backspace' && !e.target.value && tags.length) {
+        removeTag(tags[tags.length - 1]); markDirty(); showMenu();
+      }
+    });
+
+    // Clicking the field's padding should get you to the input, like a real
+    // multi-value control — but not when the click was a chip's \u00d7.
+    $('tagfield').addEventListener('mousedown', e => {
+      if (e.target === $('tagfield') || e.target === $('chips')) {
+        e.preventDefault(); $('tagin').focus();
+      }
+    });
+
+    const loadKnownTags = () => fetch('/api/tags')
+      .then(r => r.json()).then(d => { known = d.tags || []; })
+      .catch(() => {});
+    loadKnownTags();
+
     // Open an orphaned card. There's no file behind it, so there's nothing to
     // fetch and nothing to edit — show what the card says and point at Delete,
     // the one action that applies.
@@ -330,6 +538,7 @@
       currentOrphan = true;
       setKind('post');
       $('isdraft').checked = false;
+      setTags([]);
       $('title').value = title || slug;
       $('date').value = '';
       $('md').value = '';
@@ -352,6 +561,7 @@
           currentOrphan = false;
           setKind(kind);                  // clears the draft box, so set it after
           $('isdraft').checked = (kind === 'post' && !!p.draft);
+          setTags(kind === 'post' ? p.tags : []);
           $('title').value = p.title;
           if (kind === 'post') $('date').value = p.date || $('date').value;
           $('md').value = p.markdown;
@@ -472,6 +682,12 @@
         return;
       }
       const isPage = $('ispage').checked;
+      // A tag typed but never committed — "Books" still sitting in the input
+      // when Save is clicked — would otherwise be dropped silently. Blur is
+      // the wrong place to catch it (it would also commit tags you typed and
+      // thought better of); this is the one moment the text has to count.
+      if (!isPage && cleanTag($('tagin').value)) addTag($('tagin').value);
+      hideMenu();
       $('status').textContent = 'Saving…';
       try {
         // Both kinds send the open doc's slug: a page's pins its filename, a
@@ -481,7 +697,7 @@
               markdown: $('md').value, html: toBody($('md').value) }
           : { title, date: $('date').value,
               slug: (currentKind === 'post' ? currentSlug : ''),
-              draft: $('isdraft').checked,
+              draft: $('isdraft').checked, tags,
               markdown: $('md').value, html: toBody($('md').value) };
         const d = await postSave(isPage ? '/api/save-page' : '/api/save', payload);
         currentKind = isPage ? 'page' : 'post';
@@ -516,6 +732,7 @@
                                 : ($('date').value ? ' · ' + $('date').value : ''));
         $('open').value = d.slug;
         dirty = false;
+        if (!isPage) loadKnownTags();
       } catch (e) { $('status').textContent = 'Error: ' + e.message; }
     });
 

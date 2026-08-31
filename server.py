@@ -3,9 +3,10 @@
 
 Serves the static site AND backs editor.html with two endpoints:
 
-  POST /api/save   {title, date, markdown, html}  -> writes blog/<slug>.html
+  POST /api/save   {title, date, markdown, html, tags} -> writes blog/<slug>.html
                                                       and updates blog/index.html
-  GET  /api/load?p=<slug>                          -> {title, date, markdown}
+  GET  /api/load?p=<slug>                          -> {title, date, markdown, tags}
+  GET  /api/tags                                   -> every tag in use, most-used first
 
 Posts are pre-rendered: editor.html renders markdown -> HTML with marked.js at
 save time and POSTs both; this server just writes files. The markdown source is
@@ -25,6 +26,7 @@ import os
 import re
 import subprocess
 import sys
+import zlib
 from datetime import datetime
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
@@ -65,7 +67,7 @@ POST_TEMPLATE = """<!DOCTYPE html>
   <title>{title_attr} · Mrinalini S</title>
   <meta name="post-title" content="{title_attr}">
   <meta name="post-date" content="{date_iso}">
-{draft_meta}  <link rel="stylesheet" href="/assets/blog.css">
+{tags_meta}{draft_meta}  <link rel="stylesheet" href="/assets/blog.css">
 </head>
 <body>
   <main class="wrap">
@@ -73,7 +75,7 @@ POST_TEMPLATE = """<!DOCTYPE html>
     <article>
       <h1 class="post-title">{title_html}</h1>
       <p class="post-meta">{date_human}</p>
-<!--EDIT:post:b64:{b64}-->
+{tags_html}<!--EDIT:post:b64:{b64}-->
       <div class="post-body" data-edit-id="post" data-edit-file="blog/{slug}.html">
 {body_html}
       </div>
@@ -133,6 +135,89 @@ def slugify(text):
     return s or "post"
 
 
+# Tags. A post's tags live in one place — a <meta name="post-tags"> line in its
+# own HTML — and everything else (the listing card's ribbons, the editor's
+# "existing tags" list) is derived from that on read. Nothing to keep in sync,
+# and a post carries its tags with it if it's ever moved or copied.
+TAG_SEP = ", "
+
+# Hues the ribbons are drawn in: ten families spread around the wheel — green,
+# teal, blue, indigo, violet, magenta, crimson, brick, bronze, olive — starting
+# at the site's own green. Evenly spaced on purpose: clustering them (three
+# greens, four blues) makes two tags on the same card read as one.
+#
+# A tag is hashed onto one of these, so it's the same colour on every card and
+# every post with no colour assignment stored anywhere. crc32 rather than
+# hash(): Python randomises str hashing per process, which would repaint every
+# ribbon each time the server restarted.
+TAG_HUES = (152, 186, 210, 250, 282, 320, 348, 18, 38, 92)
+
+TAG_MAX_LEN = 32
+
+
+def tag_hue(tag):
+    return TAG_HUES[zlib.crc32(tag.lower().encode("utf-8")) % len(TAG_HUES)]
+
+
+def parse_tags(value):
+    """Normalise whatever the editor sent into a clean, ordered tag list.
+
+    Accepts a list or a comma-separated string, since a tag round-trips through
+    a comma-joined <meta> and comes back from the editor as an array. Commas are
+    the separator, so they can't survive inside a tag. Dedupe is
+    case-insensitive but keeps the first spelling seen: typing "Books" when
+    "books" already exists should reuse the existing tag, not fork it.
+    """
+    if isinstance(value, str):
+        value = value.split(",")
+    out, seen = [], set()
+    for raw in value or []:
+        tag = re.sub(r"\s+", " ", str(raw).replace(",", " ")).strip()[:TAG_MAX_LEN].strip()
+        if tag and tag.lower() not in seen:
+            seen.add(tag.lower())
+            out.append(tag)
+    return out
+
+
+def render_tags(tags, indent):
+    """The ribbon rail for a set of tags, or "" for none.
+
+    `indent` matters: inside a listing card this markup has to be indented
+    deeper than the 6 spaces BLOG_CARD_RE uses to find a card's closing </div>,
+    or the regex would stop at the rail and cut every card in half.
+    """
+    if not tags:
+        return ""
+    return (indent + '<div class="post-tags">\n'
+            + "".join('%s  <span class="tag-ribbon" style="--rb:%d">%s</span>\n'
+                      % (indent, tag_hue(t), html.escape(t)) for t in tags)
+            + indent + "</div>\n")
+
+
+def read_tags(src):
+    """The tags stamped into a post's HTML (see POST_TEMPLATE)."""
+    m = re.search(r'name="post-tags" content="([^"]*)"', src)
+    return parse_tags(html.unescape(m.group(1))) if m else []
+
+
+def all_tags():
+    """Every tag in use across all posts, most-used first, then alphabetical.
+
+    This is the "choose from existing tags" list the editor offers. Deriving it
+    from the posts rather than keeping a registry means a tag disappears on its
+    own once the last post using it drops it — no orphaned vocabulary to prune.
+    """
+    counts = {}
+    for path in post_files():
+        with open(path, encoding="utf-8") as f:
+            for tag in read_tags(f.read()):
+                key = tag.lower()
+                name, n = counts.get(key, (tag, 0))
+                counts[key] = (name, n + 1)
+    return [{"name": name, "count": n, "hue": tag_hue(name)}
+            for name, n in sorted(counts.values(), key=lambda c: (-c[1], c[0].lower()))]
+
+
 def human_date(iso):
     try:
         d = datetime.strptime(iso, "%Y-%m-%d")
@@ -141,7 +226,8 @@ def human_date(iso):
         return iso
 
 
-def write_post(title, date_iso, markdown, body_html, slug=None, draft=False):
+def write_post(title, date_iso, markdown, body_html, slug=None, draft=False,
+               tags=()):
     """Render a post to blog/<slug>.html and give it a card in the listing.
 
     `draft` still gives the post a card — it just renders as the "coming soon"
@@ -155,8 +241,13 @@ def write_post(title, date_iso, markdown, body_html, slug=None, draft=False):
     new filename. An explicit slug (passed by /api/save when the post is
     already published) pins the filename instead, keeping the live URL — and
     any push notification pointing at it — working across a retitle. Same
-    escape hatch write_md_page has for pages."""
+    escape hatch write_md_page has for pages.
+
+    `tags` is normalised here rather than at the endpoint so every route into a
+    post file (the API today, a script tomorrow) gets the same cleanup, and so
+    the meta line and the listing card can't disagree about what the tags are."""
     slug = slugify(slug or title)
+    tags = parse_tags(tags)
     # The title comes from the title field and is rendered by the template, so
     # drop a leading <h1> from the body to avoid showing the title twice.
     body_html = re.sub(r"^\s*<h1\b[^>]*>.*?</h1>\s*", "", body_html,
@@ -168,13 +259,16 @@ def write_post(title, date_iso, markdown, body_html, slug=None, draft=False):
         date_iso=date_iso,
         date_human=human_date(date_iso),
         draft_meta=DRAFT_META if draft else "",
+        tags_meta=('  <meta name="post-tags" content="%s">\n'
+                   % html.escape(TAG_SEP.join(tags), quote=True)) if tags else "",
+        tags_html=render_tags(tags, "      "),
         b64=b64,
         slug=slug,
         body_html=body_html,
     )
     with open(os.path.join(BLOG, slug + ".html"), "w", encoding="utf-8") as f:
         f.write(page)
-    update_index(slug, title, date_iso, draft=draft)
+    update_index(slug, title, date_iso, draft=draft, tags=tags)
     return slug
 
 
@@ -230,7 +324,7 @@ def _regroup(text):
     return text.replace("<!--POSTS-->\n", "<!--POSTS-->\n" + block, 1)
 
 
-def update_index(slug, title, date_iso, draft=False):
+def update_index(slug, title, date_iso, draft=False, tags=()):
     """Give this post a card in the blog listing, replacing any it already had.
 
     A draft gets the same card in its "coming soon" form: dashed, unclickable,
@@ -243,7 +337,14 @@ def update_index(slug, title, date_iso, draft=False):
     The card keeps its href in a data-href instead: not a link any more, but
     still the card's identity, which is what lets the dedupe below (and prune,
     and delete) find it when the post is saved again or published.
+
+    Tags are rendered into the card as ribbons. They're a copy of what's in the
+    post file, not a second source of truth: a save always rewrites the whole
+    card from the post it just wrote, so the two can only ever drift if the
+    listing is hand-edited.
     """
+    tags = parse_tags(tags)
+    ribbons = render_tags(tags, "        ")
     with open(INDEX, encoding="utf-8") as f:
         text = f.read()
 
@@ -262,17 +363,19 @@ def update_index(slug, title, date_iso, draft=False):
                 '        <a class="card-link" data-href="%s" aria-disabled="true" aria-label="%s"></a>\n'
                 '        <h2>%s</h2>\n'
                 '        <div class="desc">%s</div>\n'
+                '%s'
                 '      </div>\n'
                 % (href, html.escape(title, quote=True), html.escape(title),
-                   html.escape(COMING_SOON)))
+                   html.escape(COMING_SOON), ribbons))
     else:
         card = ('      <div class="card">\n'
                 '        <a class="card-link" href="%s" aria-label="%s"></a>\n'
                 '        <h2>%s</h2>\n'
                 '        <div class="desc">%s</div>\n'
+                '%s'
                 '      </div>\n'
                 % (href, html.escape(title, quote=True), html.escape(title),
-                   human_date(date_iso)))
+                   human_date(date_iso), ribbons))
 
     # newest first, right under the marker — then _regroup moves it below the
     # divider if it's a draft, and drops the divider if it's no longer needed.
@@ -442,6 +545,7 @@ def load_post(slug):
         "title": html.unescape(title.group(1)) if title else "",
         "date": date.group(1) if date else "",
         "markdown": markdown,
+        "tags": read_tags(src),
         # So re-saving an opened draft keeps it a draft instead of publishing it.
         "draft": is_draft(src),
     }
@@ -525,6 +629,7 @@ def list_posts():
             "slug": os.path.basename(path)[:-5],
             "title": html.unescape(title.group(1)) if title else os.path.basename(path)[:-5],
             "date": date.group(1) if date else "",
+            "tags": read_tags(src),
             "draft": is_draft(src),
         })
     out.sort(key=lambda p: (p["date"], p["slug"]), reverse=True)
@@ -903,6 +1008,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(200, {"images": list_images()})
         if self.path == "/api/posts":
             return self._json(200, {"posts": list_posts()})
+        if self.path == "/api/tags":
+            return self._json(200, {"tags": all_tags()})
         if self.path == "/api/blog-status":
             return self._json(200, {"uncommitted": uncommitted_posts()})
         if self.path == "/api/md-pages":
@@ -966,7 +1073,8 @@ class Handler(SimpleHTTPRequestHandler):
 
                 slug = write_post(title, date_iso, d.get("markdown", ""),
                                   d.get("html", ""), slug=target,
-                                  draft=bool(d.get("draft")))
+                                  draft=bool(d.get("draft")),
+                                  tags=d.get("tags") or [])
                 retired = delete_post(prev) if (moved and slug != prev) else None
                 return self._json(200, {"ok": True, "slug": slug,
                                         "url": "/blog/%s.html" % slug,

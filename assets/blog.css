@@ -49,6 +49,43 @@ h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
 .post-grid .card.coming-soon .desc { color: #a8a29e; font-style: italic; }
 .post-grid .card.empty { color: #6b6560; grid-column: 1 / -1; padding: 16px 0; }
 
+/* Tags, drawn as little ribbons.
+
+   Shape: a banner with a swallowtail notch cut out of the right end, so it
+   reads as a ribbon rather than a flat pill. The notch is a clip-path, which
+   rules out building the fold and sheen from pseudo-elements — a clip-path
+   applies to an element's descendants too, so anything sitting on top would be
+   cut away with it. Both are painted inside the shape instead: an inset shadow
+   for the crease at the left end, a gradient for the fabric highlight.
+
+   The whole rail sits *below* .card-link in the stacking order on purpose —
+   the card is one big click target, and a tag that swallowed the click would
+   break that.
+
+   Named .post-tags, not .tags: this stylesheet is shared by the blog, every
+   commonplace page, the gallery and the editor, and index.html already uses
+   .tags for its own (grey, pill-shaped) project tags. The generic name would
+   be a collision waiting for the day those two pages meet.
+
+   Colour comes in per ribbon as --rb, a hue that server.py picks from a fixed
+   palette by hashing the tag name (see TAG_HUES). Same tag, same hue, on every
+   card and every post, with no colour state to store anywhere. */
+.post-tags { display: flex; flex-wrap: wrap; gap: 7px 9px; margin-top: 12px; }
+.tag-ribbon { display: inline-block;
+              padding: 3px 17px 3px 10px;     /* right pad clears the notch */
+              color: #fff; font-size: 11px; font-weight: 600;
+              letter-spacing: 0.02em; line-height: 1.5; white-space: nowrap;
+              background-color: hsl(var(--rb, 100) 38% 39%);
+              background-image: linear-gradient(hsl(0 0% 100% / 0.15),
+                                                hsl(0 0% 100% / 0) 45%,
+                                                hsl(0 0% 0% / 0.12));
+              box-shadow: inset 3px 0 0 hsl(var(--rb, 100) 38% 26%);
+              clip-path: polygon(0 0, 100% 0, calc(100% - 7px) 50%, 100% 100%, 0 100%); }
+.post-grid .card:hover .tag-ribbon { filter: brightness(1.08); }
+/* Coming-soon cards are deliberately muted, so their ribbons desaturate too —
+   otherwise the brightest thing on a dashed, greyed-out card is its tags. */
+.post-grid .card.coming-soon .tag-ribbon { filter: grayscale(0.55) opacity(0.7); }
+
 /* Splits the published cards from the coming-soon ones. Spans every column so
    it reads as a rule across the grid rather than a cell in it; dashed to match
    the cards below it. */
@@ -65,6 +102,11 @@ h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
 /* Article */
 .post-title { margin-bottom: 6px; }
 article .post-meta { margin-bottom: 32px; }
+/* The same ribbons on the post itself: the tags belong to the post, not to
+   its card, so they shouldn't vanish the moment you open it. Pulls up under
+   the date, which already owns the 32px gap above the body — hence the
+   negative margin rather than adding a second one. */
+article .post-tags { margin: -24px 0 32px; }
 .post-body { font-size: 16px; }
 .post-body > * + * { margin-top: 18px; }
 .post-body h2 { font-size: 22px; margin-top: 32px; }
