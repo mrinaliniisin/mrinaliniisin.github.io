@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About · Mrinalini S</title>
+  <!-- Deliberately no page-kind meta: that marks a page the markdown editor
+       round-trips, and those live at the repo root as <slug>.html. This one is
+       a directory index so the URL can be a bare /about, so it's hand-built
+       HTML instead — edit it via page-editor.html (see EDITABLE_PAGES). -->
+  <link rel="stylesheet" href="/assets/blog.css">
+  <style>
+    /* Fixed box + object-fit so any crop or aspect ratio of the source
+       file lands the same way; width/height on the tag itself reserves
+       the space so the text below does not jump as the image loads. */
+    .portrait { display: block; width: 128px; height: 128px; border-radius: 50%;
+                object-fit: cover; margin: 0 0 22px; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <a class="back" href="/">&larr; Home</a>
+    <article>
+      <img class="portrait" src="/assets/images/mrinalini.png" width="128" height="128"
+           alt="Mrinalini S">
+      <h1 class="post-title">About</h1>
+      <div class="post-body">
+        <p>I love to build tools. Software tools I build are local-first, FOSS
+        and subscription free. You can find the code on
+        <a href="https://github.com/mrinaliniisin" target="_blank" rel="noopener">GitHub</a>,
+        and me on
+        <a href="https://instagram.com/mrinaliniisin" target="_blank" rel="noopener">Instagram</a>.</p>
+
+        <p>I also like documenting offline life things I do.</p>
+      </div>
+    </article>
+  </main>
+  <footer>&copy; 2026 Mrinalini S &middot; <a href="upi://pay?pa=mrinalinis@upi&amp;pn=Mrinalini%20S&amp;cu=INR" title="Pay via UPI (opens a payment app on mobile)"><code>mrinalinis@upi</code></a> &middot; Code licensed under MIT</footer>
+  <script src="/assets/analytics.js" defer></script>
+</body>
+</html>

@@ -51,6 +51,7 @@ EDIT_KEY_FILE = os.path.join(ROOT, ".edit-key")
 # rebuilt from data, so a hand-edit would be lost on the next regenerate.
 EDITABLE_PAGES = [
     "index.html",
+    "about/index.html",
 ]
 
 # Clipboard images arrive as a MIME type, not a filename, so map it to a suffix.
@@ -803,8 +804,19 @@ def delete_image(name):
 # A card block is `      <div class="card"> ... \n      </div>` (6-space indent).
 # Inner tags (desc/credit/gh) close inline or at deeper indent, so the first
 # bare 6-space </div> after a card open is always that card's close.
-CARD_RE = re.compile(r'      <div class="card">\n.*?\n      </div>', re.S)
+# Matches the coming-soon variant too, exactly as BLOG_CARD_RE does: a card
+# the regex can't see is a card reorder_index/remove_card silently drop when
+# they re-emit the grid from these matches alone.
+CARD_RE = re.compile(r'      <div class="card(?: coming-soon)?">\n.*?\n      </div>', re.S)
 GRID_RE = re.compile(r'(    <div class="grid">\n)(.*?)(\n    </div>)', re.S)
+
+# A labelled rule the homepage grid carries above each group of cards. It
+# isn't a
+# card, so the rebuilds below — which re-emit the grid from CARD_RE matches
+# alone — would drop them on the first drag. _divider_anchors/_weave_divider lift
+# it out and put it back.
+GRID_DIVIDER = '      <div class="grid-divider">%s</div>'
+GRID_DIVIDER_RE = re.compile(r'      <div class="grid-divider">(.*?)</div>\n?', re.S)
 
 
 def _edit_key():
@@ -832,6 +844,54 @@ def _card_href(block):
     return m.group(1) if m else ""
 
 
+def _divider_anchors(grid_body):
+    """Every divider in the grid, top to bottom, as (label, chain) pairs.
+
+    A chain is the hrefs of every card below that divider, in order: the card
+    it's pinned above, then the cards it falls back to if that one goes away.
+    The label rides along because a rule can carry a group title, and the
+    rebuild below re-emits the divider from scratch — read it back here or it
+    comes out bare. Empty when the grid carries no dividers at all.
+    """
+    return [(m.group(1),
+             [_card_href(c) for c in CARD_RE.findall(grid_body[m.end():])])
+            for m in GRID_DIVIDER_RE.finditer(grid_body)]
+
+
+def _weave_divider(blocks, chains):
+    """Re-emit a grid body from `blocks` with every divider restored.
+
+    Each rule is pinned to a card rather than to a position, because a
+    position means nothing once the cards have moved: a divider marks where
+    the group below it *starts*, so it travels with the card that starts it —
+    label and all. Deleting that card walks down the chain instead of losing
+    the rule; only when every card that was below it is gone does the divider
+    go too, which is the right answer anyway — there's no longer a group to
+    separate.
+
+    Two chains can resolve to the same card once enough deletions collapse the
+    groups between them. That's one boundary, not two, so the card gets a
+    single rule, and the LAST colliding chain wins: a rule titles the group
+    beneath it, and chains run top to bottom, so the lowest one is the group's
+    own heading while the ones above it are orphans whose cards are all gone.
+    Keeping the first instead would leave a surviving group wearing the title
+    of a deleted one.
+    """
+    present = {_card_href(b) for b in blocks}
+    pins = {}
+    for label, chain in chains:
+        pin = next((h for h in chain if h in present), "")
+        if pin:
+            pins[pin] = label
+    out = []
+    for b in blocks:
+        href = _card_href(b)
+        if href in pins:
+            out.append(GRID_DIVIDER % pins.pop(href))
+        out.append(b)
+    return "\n".join(out)
+
+
 def reorder_index(order):
     """Reorder the homepage cards to match `order` (a list of card-link hrefs).
     Cards not named in `order` are kept, in their original relative order."""
@@ -841,6 +901,7 @@ def reorder_index(order):
     if not m:
         raise ValueError("could not locate the card grid in index.html")
     blocks = CARD_RE.findall(m.group(2))
+    chains = _divider_anchors(m.group(2))
     by_href = {}
     for b in blocks:
         by_href.setdefault(_card_href(b), b)
@@ -852,7 +913,7 @@ def reorder_index(order):
         h = _card_href(b)
         if h not in seen:
             new_blocks.append(b); seen.add(h)
-    new_grid = m.group(1) + "\n".join(new_blocks) + m.group(3)
+    new_grid = m.group(1) + _weave_divider(new_blocks, chains) + m.group(3)
     src = src[:m.start()] + new_grid + src[m.end():]
     with open(INDEX_HTML, "w", encoding="utf-8") as f:
         f.write(src)
@@ -867,10 +928,11 @@ def remove_card(href):
     if not m:
         raise ValueError("could not locate the card grid in index.html")
     blocks = CARD_RE.findall(m.group(2))
+    chains = _divider_anchors(m.group(2))
     keep = [b for b in blocks if _card_href(b) != href]
     if len(keep) == len(blocks):
         raise ValueError("no card links to %r" % href)
-    new_grid = m.group(1) + "\n".join(keep) + m.group(3)
+    new_grid = m.group(1) + _weave_divider(keep, chains) + m.group(3)
     src = src[:m.start()] + new_grid + src[m.end():]
     with open(INDEX_HTML, "w", encoding="utf-8") as f:
         f.write(src)

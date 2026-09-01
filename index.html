@@ -11,6 +11,19 @@
     .wrap { max-width: 880px; margin: 0 auto; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 16px; }
+    /* Group heading: a labelled rule opening each section of the grid.
+       Spans every column so it reads across the grid rather than as a cell
+       in it; dashed to match the card borders. Mirrors .post-divider in
+       assets/blog.css. server.py re-anchors these on every reorder — see
+       _weave_divider. */
+    .grid .grid-divider { grid-column: 1 / -1; display: flex; align-items: center;
+                          gap: 14px; margin: 10px 0 2px; color: #a8a29e;
+                          font-size: 13px; font-style: italic; }
+    .grid .grid-divider::before,
+    .grid .grid-divider::after { content: ""; flex: 1; border-top: 1px dashed #d9d6cf; }
+    /* Unlabelled rule: with no label to sit between them the two halves
+       show as stubs with a gap, so drop one and let the other span. */
+    .grid .grid-divider:empty::after { content: none; }
     .card { display: block; background: white; border: 1px solid #d9d6cf;
             border-radius: 12px; padding: 24px; text-decoration: none; color: inherit;
             position: relative; overflow: hidden; min-height: 168px;
@@ -24,12 +37,34 @@
     .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 9px;
            border-radius: 999px; background: #eceae4; color: #4a4540; letter-spacing: 0.2px; }
 
+    /* An unpublished card: dashed, inert, and visibly not a link yet. The
+       card-link parks its target in data-href (same trick update_index uses
+       for draft posts) so the card keeps its identity for reorder and delete
+       while being unclickable. */
+    .card.coming-soon { border-style: dashed; }
+    .card.coming-soon:hover { transform: none; box-shadow: none; border-color: #e3e0d9; }
+    .card.coming-soon h2,
+    .card.coming-soon:hover h2 { color: #6b6560; }
+    .card.coming-soon .desc { color: #a8a29e; font-style: italic; }
+    .card.coming-soon .soon { margin-top: 10px; font-size: 13px; font-style: italic;
+                              color: #a8a29e; }
+
     /* Stretched-link pattern: overlay makes the whole card clickable while
        letting the credit line and source link keep their own independent links. */
     .card-link { position: absolute; inset: 0; z-index: 1; }
     .credit { position: relative; z-index: 2; margin-top: 12px;
               font-size: 12px; color: #6b6560; }
     .credit a { color: #2d5a27; text-decoration: underline; }
+    /* Ported from secret.html with the cards that use them: the FOSS
+       Internships list and the per-card notify bell. */
+    .items { list-style: none; margin-top: 10px; font-size: 14px; color: #4a4540; }
+    .items li { margin-top: 6px; }
+    .items a { color: #2d5a27; text-decoration: underline;
+               text-underline-offset: 2px; }
+    .card .card-bell { position: absolute; top: 14px; right: 14px; z-index: 2;
+                        width: 32px; height: 32px; }
+    .card .card-bell svg { width: 16px; height: 16px; }
+    .card:has(.card-bell) h2 { padding-right: 40px; }
 
     /* "View source on GitHub" icon-button: sits after the description and
        layers above the stretched card link so it stays independently clickable. */
@@ -117,6 +152,7 @@
   </div>
   <div class="wrap">
     <div class="grid">
+      <div class="grid-divider">Free &amp; Open Source Software</div>
       <div class="card">
         <a class="card-link" href="https://mrinaliniisin.github.io/here-di-tree/" aria-label="Here-Di-Tree"></a>
         <h2>Here-Di-Tree</h2>
@@ -171,6 +207,45 @@
         </a>
       </div>
       <div class="card">
+        <h2>FOSS Internships</h2>
+        <ul class="items">
+          <li>Outreachy for GNOME 2011-2012 &mdash;
+            <a href="https://help.gnome.org/gnome-terminal/" target="_blank" rel="noopener">Terminal</a>
+            and Dictionary</li>
+          <li>Google Summer of Code 2013 for
+            <a href="https://wiki.gnome.org/Apps/Gitg" target="_blank" rel="noopener">Gitg</a></li>
+          <li><a href="https://opensource.googleblog.com/2013/10/google-doc-camp-2013-wrapup.html" target="_blank" rel="noopener">Google Doc Camp 2013</a></li>
+        </ul>
+      </div>
+      <div class="grid-divider">Writing</div>
+      <div class="card coming-soon">
+        <a class="card-link" data-href="/jaago-grahak-jaago.html" aria-disabled="true" aria-label="Jaago Grahak Jaago"></a>
+        <h2>Jaago Grahak Jaago</h2>
+        <div class="desc">An ode to Jaago Grahak Jaago</div>
+        <div class="soon">Coming soon, to be notified hit the 🔔</div>
+      </div>
+      <div class="card">
+        <a class="card-link" href="https://thelifeofscience.com/2018/05/17/poonkuzhalis-cabinet-pharmacology-mysteries/" target="_blank" rel="noopener" aria-label="Into Poonkuzhali&rsquo;s cabinet of pharmacology mysteries"></a>
+        <h2>Into Poonkuzhali&rsquo;s cabinet of pharmacology mysteries</h2>
+        <div class="desc">My one and only paid writing gig, eons ago.</div>
+      </div>
+      <div class="card">
+        <a class="card-link" href="/commonplace/index.html" aria-label="My Commonplace Book"></a>
+        <button class="icon-btn notify-btn card-bell" disabled
+                data-bell-topic="commonplace" data-bell-scope="/commonplace/" data-bell-url="/commonplace/"
+                data-bell-label="Get notified of new content!"
+                aria-label="Get notified of new content!" title="Get notified of new content!">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </button>
+        <h2>My Commonplace Book</h2>
+        <div class="desc">Learn a new factoid or two, you freak.</div>
+      </div>
+      <div class="grid-divider">Re-imagined UI for Fun</div>
+      <div class="card">
         <a class="card-link" href="https://mrinaliniisin.github.io/hot_or_not_menu_bar_apps/" aria-label="Macmenubar catalogue"></a>
         <h2>Macmenubar catalogue</h2>
         <div class="desc">Sift through macmenubar.com apps quickly by swiping left or right</div>
@@ -192,11 +267,32 @@
           <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
         </a>
       </div>
+      <div class="card">
+        <a class="card-link" href="/tv-plot-maps/index.html" aria-label="TV Plot Maps"></a>
+        <button class="icon-btn notify-btn card-bell" disabled
+                data-bell-topic="tvplotmaps" data-bell-scope="/tv-plot-maps/" data-bell-url="/tv-plot-maps/"
+                data-bell-label="Get notified of new content!"
+                aria-label="Get notified of new content!" title="Get notified of new content!">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </button>
+        <h2>TV Plot Maps</h2>
+        <div class="desc">Interactive who's-who diagrams for classic detective TV, starting with Agatha Christie's Poirot.</div>
+        <a class="gh" href="https://github.com/mrinaliniisin/TV-Plot-Maps" target="_blank" rel="noopener" aria-label="View TV Plot Maps source on GitHub" title="View source on GitHub">
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+        </a>
+      </div>
     </div>
 
-    <footer>&copy; 2026 Mrinalini S &middot; <a href="upi://pay?pa=mrinalinis@upi&amp;pn=Mrinalini%20S&amp;cu=INR" title="Pay via UPI (opens a payment app on mobile)"><code>mrinalinis@upi</code></a> &middot; Code licensed under MIT</footer>
+    <footer>&copy; 2026 <a href="/about">Mrinalini S</a> &middot; <a href="upi://pay?pa=mrinalinis@upi&amp;pn=Mrinalini%20S&amp;cu=INR" title="Pay via UPI (opens a payment app on mobile)"><code>mrinalinis@upi</code></a> &middot; Code licensed under MIT</footer>
   </div>
   <script src="/push.js" defer></script>
+  <!-- Drives the per-card [data-bell-topic] bells. Independent of push.js,
+       which owns the #notify button up top under its own "index" topic. -->
+  <script src="/bell.js" defer></script>
   <script src="/assets/analytics.js" defer></script>
   <script>
     // Local-only, key-gated homepage edit mode: drag cards to reorder, saved via
