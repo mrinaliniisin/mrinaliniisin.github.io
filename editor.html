@@ -8,7 +8,62 @@
   <style>
     /* Editor chrome — only loaded locally, never part of a published post. */
     body { padding: 0; }
-    .bar { position: sticky; top: 0; z-index: 10; display: flex; gap: 12px;
+    /* Two views on one page. The dashboard scrolls like any page; the editor
+       pins its panes to the viewport so the Markdown and preview scroll on
+       their own, under the fixed header and toolbar. */
+    body.editing { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    #editor { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+    /* Header: the site's editing tools, one row, on every view. */
+    .top { display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+           background: #111; color: #fff; padding: 10px 20px; border-bottom: 1px solid #2c2c2c; }
+    .top .brand { color: #fff; font-weight: 700; font-size: 15px; text-decoration: none; }
+    .top .brand:hover { color: #8fd17f; }
+    .topnav { display: flex; gap: 18px; }
+    .topnav a { color: #8fd17f; text-decoration: none; font-size: 14px; }
+    .topnav a:hover { text-decoration: underline; }
+    .btn-new { margin-left: auto; background: #2d5a27; color: #fff; text-decoration: none;
+               font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: 6px; }
+    .btn-new:hover { filter: brightness(1.12); }
+
+    /* Dashboard: every post, draft and page as a card, in the shape the blog
+       listing uses (white, hairline border, lift on hover) so a card here
+       looks like the card it becomes on the blog page. */
+    .home { max-width: 1080px; margin: 0 auto; padding: 36px 24px 64px; }
+    .home-head { display: flex; align-items: baseline; gap: 14px; }
+    .home h1 { font-size: 26px; }
+    .home-sub { color: #a8a29e; font-size: 13px; }
+    .home h2.sec { font-size: 12px; font-weight: 600; letter-spacing: 0.07em;
+                   text-transform: uppercase; color: #6b6560; margin: 30px 0 12px; }
+    .ecards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+    .ecard { position: relative; background: #fff; border: 1px solid #e3e0d9; border-radius: 12px;
+             padding: 16px 18px; transition: transform 0.15s ease, box-shadow 0.15s ease,
+             border-color 0.15s ease; }
+    .ecard:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+                   border-color: #2d5a27; }
+    .ecard.draft { border-style: dashed; }
+    .ecard.orphan { border-style: dashed; border-color: #d9b64a; background: #fffdf4; }
+    .ecard.empty { color: #6b6560; border-style: dashed; font-size: 14px; }
+    .ecard.empty:hover { transform: none; box-shadow: none; border-color: #e3e0d9; }
+    /* One big click target, as on the blog page; only "View" sits above it. */
+    .ecard-link { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+    .ecard-view { position: absolute; top: 13px; right: 14px; z-index: 2; font-size: 12px;
+                  color: #a8a29e; text-decoration: none; }
+    .ecard-view:hover { color: #2d5a27; text-decoration: underline; }
+    .ecard h2 { font-size: 17px; font-weight: 600; line-height: 1.3; margin: 8px 0 4px;
+                padding-right: 44px; }
+    .ecard:hover h2 { color: #2d5a27; }
+    .ecard.orphan h2 { color: #6b6560; }
+    .ecard-meta { font-size: 12.5px; color: #a8a29e; }
+    .ecard .post-tags { margin-top: 10px; }
+    .badges { display: flex; gap: 6px; flex-wrap: wrap; min-height: 18px; padding-right: 44px; }
+    .badge { font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+             line-height: 1.6; padding: 0 7px; border-radius: 999px; background: #ebe9e4; color: #6b6560; }
+    .badge.draft { background: #f3e8c7; color: #7a5c00; }
+    .badge.unpushed { background: #e2ecdd; color: #2d5a27; }
+    .badge.orphan { background: #f8dcd7; color: #8a2a1e; }
+
+    .bar { z-index: 10; display: flex; gap: 12px;
            align-items: center; flex-wrap: wrap;
            background: #1a1a1a; color: #fff; padding: 12px 20px; }
     .bar input { font: inherit; border: 1px solid #444; border-radius: 6px;
@@ -56,34 +111,43 @@
     .tagmenu .sw { flex: none; width: 10px; height: 10px; border-radius: 2px;
                    background: hsl(var(--rb, 100) 38% 44%); }
     .tagmenu .n { margin-left: auto; padding-left: 10px; color: #8a847e; font-size: 11px; }
-    .bar .navlink { color: #8fd17f; text-decoration: none; font-size: 14px; }
-    .bar .navlink:hover { text-decoration: underline; }
     .bar .status { font-size: 13px; color: #a8a29e; }
     .bar code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
                 font-size: 0.92em; background: #2a2a2a; color: #e8e6e1;
                 padding: 1px 6px; border-radius: 4px; }
     .bar .status a { color: #8fd17f; }
-    .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 0;
-             height: calc(100vh - 58px); }
+    .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 0; flex: 1; min-height: 0; }
     .panes textarea { border: 0; border-right: 1px solid #d9d6cf; padding: 32px 24px;
                       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
                       font-size: 14px; line-height: 1.6; resize: none; outline: none;
                       background: #fbfaf8; color: #1a1a1a; }
     .preview { overflow-y: auto; padding: 24px; }
     .preview .wrap { padding: 8px 0; }
-    @media (max-width: 720px) { .panes { grid-template-columns: 1fr; height: auto; }
+    @media (max-width: 720px) { body.editing { height: auto; overflow: auto; }
+                                .panes { grid-template-columns: 1fr; }
                                 .panes textarea { min-height: 50vh; } }
-    .fab { position: fixed; right: 24px; bottom: 24px; z-index: 20;
-           width: 56px; height: 56px; border-radius: 50%;
-           display: flex; align-items: center; justify-content: center;
-           background: #2d5a27; color: #fff; text-decoration: none;
-           font-size: 30px; line-height: 1; font-weight: 400;
-           box-shadow: 0 4px 14px rgba(0,0,0,.28);
-           transition: filter .12s, transform .12s; }
-    .fab:hover { filter: brightness(1.12); transform: translateY(-1px); }
   </style>
 </head>
 <body>
+  <header class="top">
+    <a class="brand" href="/editor.html" title="All posts, drafts and pages">Editor</a>
+    <nav class="topnav" aria-label="Site tools">
+      <a href="/blog/" title="The blog listing, as a reader sees it">Blog</a>
+      <a href="/gallery.html">Images</a>
+      <a href="/page-editor.html">Pages</a>
+    </nav>
+    <a class="btn-new" href="/editor.html?new=1">+ New post</a>
+  </header>
+
+  <section class="home" id="home" hidden>
+    <div class="home-head">
+      <h1>Posts</h1>
+      <p class="home-sub" id="homesub">Loading…</p>
+    </div>
+    <div id="homebody"></div>
+  </section>
+
+  <section id="editor" hidden>
   <div class="bar">
     <input class="title" id="title" placeholder="Post title" autocomplete="off">
     <input type="date" id="date">
@@ -109,12 +173,9 @@
              aria-label="Add a tag" role="combobox" aria-expanded="false" aria-autocomplete="list">
       <div class="tagmenu" id="tagmenu" hidden role="listbox" aria-label="Existing tags"></div>
     </div>
-    <select id="open" title="Open an existing post or page to edit"><option value="">Open…</option></select>
     <button id="save">Save</button>
     <button id="del" class="danger" hidden
             title="Delete this post's file and its card from the blog listing">Delete</button>
-    <a class="navlink" href="/gallery.html">Images</a>
-    <a class="navlink" href="/page-editor.html">Pages</a>
     <span class="status" id="status">Unsaved &middot; Save writes to /blog, then <code>git push</code> to publish</span>
   </div>
   <div class="panes">
@@ -123,8 +184,7 @@
       <div class="wrap"><div class="post-body" id="preview"></div></div>
     </div>
   </div>
-
-  <a class="fab" id="fab" href="/editor.html" title="New post" aria-label="New post">+</a>
+  </section>
 
   <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
   <!-- The other direction: HTML -> Markdown, for pasting. Same CDN as marked. -->
@@ -323,7 +383,7 @@
     //   post — a dated blog entry in /blog/, listed on the blog index
     //   page — a standalone markdown page at the repo root, linked from Home
     // The "Page" toggle picks the kind for a NEW doc; opening an existing one
-    // sets it from the picker. currentSlug keeps an opened page's filename
+    // sets it from the URL. currentSlug keeps an opened page's filename
     // stable across re-saves, so its homepage link doesn't break.
     let currentKind = 'post';
     let currentSlug = '';
@@ -556,7 +616,6 @@
       $('date').value = '';
       $('md').value = '';
       render(); dirty = false;
-      $('open').value = slug;
       $('status').innerHTML =
         'Orphaned card &middot; <code>blog/' + slug + '.html</code> is gone, but the blog ' +
         'listing still shows a card for it' + (listed ? ' dated ' + listed : '') +
@@ -564,7 +623,7 @@
       history.replaceState(null, '', '?p=' + slug);
     }
 
-    // Load an existing post or page — from the URL or the "Open…" picker.
+    // Load an existing post or page, from the URL.
     function loadDoc(kind, slug, push) {
       const api = kind === 'page' ? '/api/md-page?p=' : '/api/load?p=';
       return fetch(api + encodeURIComponent(slug))
@@ -580,7 +639,6 @@
           if (kind === 'post') $('date').value = p.date || $('date').value;
           $('md').value = p.markdown;
           render(); dirty = false;
-          $('open').value = slug;
           $('status').textContent = 'Editing ' + (kind === 'page' ? 'page ' : '') + slug +
                                     ($('isdraft').checked ? ' (draft — listed as “Coming soon”)' : '');
           if (push) history.replaceState(null, '', '?' + (kind === 'page' ? 'page' : 'p') + '=' + slug);
@@ -588,76 +646,98 @@
         .catch(() => { $('status').textContent = 'Could not load "' + slug + '"'; });
     }
 
-    // Populate the "Open…" picker: pages first, then posts (newest first), in
-    // labelled groups. Each option remembers its kind so opening sets the mode.
-    Promise.all([
-      fetch('/api/md-pages').then(r => r.json()).catch(() => ({ pages: [] })),
+    // ---- Views -------------------------------------------------------------
+    // One page, two views. /editor.html on its own is the dashboard: every
+    // post, draft and page as a card. ?p=<slug>, ?page=<slug> and ?new open
+    // the editor. Cards are plain links, so opening one is a page load and
+    // the editor always starts clean.
+    const params = new URLSearchParams(location.search);
+    const route = params.get('page') ? 'page' : params.get('p') ? 'post'
+                : params.has('new') ? 'new' : 'home';
+
+    const listAll = () => Promise.all([
       fetch('/api/posts').then(r => r.json()).catch(() => ({ posts: [] })),
-    ]).then(([G, P]) => {
-      if (G.pages && G.pages.length) {
-        const og = document.createElement('optgroup'); og.label = 'Pages';
-        for (const p of G.pages) {
-          const o = document.createElement('option');
-          o.value = p.slug; o.dataset.kind = 'page';
-          o.textContent = p.title + ' · ' + p.slug + '.html';
-          og.appendChild(o);
-        }
-        $('open').appendChild(og);
-      }
-      const posts = P.posts || [];
-      const ogp = document.createElement('optgroup'); ogp.label = 'Posts';
-      for (const p of posts.filter(p => !p.orphan)) {
-        const o = document.createElement('option');
-        o.value = p.slug; o.dataset.kind = 'post';
-        o.textContent = (p.draft ? '✎ ' : '') + p.title + (p.date ? ' · ' + p.date : '');
-        ogp.appendChild(o);
-      }
-      $('open').appendChild(ogp);
+      fetch('/api/md-pages').then(r => r.json()).catch(() => ({ pages: [] })),
+      // Which posts exist on disk but aren't committed — the ones whose card
+      // on the blog page currently reads "coming soon".
+      fetch('/api/blog-status').then(r => r.json()).catch(() => ({ uncommitted: [] })),
+    ]).then(([P, G, S]) => ({ posts: P.posts || [], pages: G.pages || [],
+                              unpushed: new Set(S.uncommitted || []) }));
 
-      // Orphaned cards go last, in their own group: not documents to edit but
-      // stale cards sitting on the blog page waiting to be cleared. The title
-      // and date ride along on the option — the card is the only record left.
+    const esc = v => String(v).replace(/[&<>"]/g,
+      c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const humanDate = iso => {
+      const d = new Date(iso + 'T00:00:00');       // local midnight, not UTC's
+      return isNaN(d) ? iso : d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    };
+
+    function card(p, kind, unpushed) {
+      const badges = [];
+      if (p.orphan) badges.push('<span class="badge orphan">Orphaned card</span>');
+      if (p.draft) badges.push('<span class="badge draft">Draft</span>');
+      if (kind === 'post' && !p.orphan && !p.draft && unpushed.has('/blog/' + p.slug + '.html'))
+        badges.push('<span class="badge unpushed">Not pushed</span>');
+      if (p.layout === 'gallery') badges.push('<span class="badge">Gallery</span>');
+      const open = (kind === 'page' ? '?page=' : '?p=') + encodeURIComponent(p.slug);
+      const view = kind === 'page' ? '/' + p.slug + '.html' : '/blog/' + p.slug + '.html';
+      const meta = p.orphan ? (p.listed ? 'card dated ' + esc(p.listed) : 'no file behind it')
+                 : kind === 'page' ? esc(p.slug) + '.html'
+                 : (p.date ? humanDate(p.date) : '');
+      const tags = (p.tags || []).map(t =>
+        '<span class="tag-ribbon" style="--rb:' + tagHue(t) + '">' + esc(t) + '</span>').join('');
+      return '<div class="ecard' + (p.draft ? ' draft' : '') + (p.orphan ? ' orphan' : '') + '">' +
+        '<a class="ecard-link" href="' + open + '" aria-label="' +
+          (p.orphan ? 'Open orphaned card ' : 'Edit ') + esc(p.title) + '"></a>' +
+        (p.orphan ? '' : '<a class="ecard-view" href="' + view + '" target="_blank" rel="noopener">View ↗</a>') +
+        '<div class="badges">' + badges.join('') + '</div>' +
+        '<h2>' + esc(p.title) + '</h2>' +
+        '<div class="ecard-meta">' + meta + '</div>' +
+        (tags ? '<div class="post-tags">' + tags + '</div>' : '') +
+        '</div>';
+    }
+    const section = (label, cards, empty) =>
+      '<h2 class="sec">' + label + '</h2><div class="ecards">' +
+      (cards.length ? cards.join('') : '<div class="ecard empty">' + empty + '</div>') + '</div>';
+
+    async function showHome() {
+      $('home').hidden = false;
+      const { posts, pages, unpushed } = await listAll();
+      const drafts = posts.filter(p => p.draft && !p.orphan);
+      const published = posts.filter(p => !p.draft && !p.orphan);
       const orphans = posts.filter(p => p.orphan);
-      if (orphans.length) {
-        const ogo = document.createElement('optgroup');
-        ogo.label = 'Orphaned cards (no file — open to delete)';
-        for (const p of orphans) {
-          const o = document.createElement('option');
-          o.value = p.slug; o.dataset.kind = 'post'; o.dataset.orphan = '1';
-          o.dataset.title = p.title; o.dataset.listed = p.listed || '';
-          o.textContent = '⚠ ' + p.title + (p.listed ? ' · ' + p.listed : '');
-          ogo.appendChild(o);
-        }
-        $('open').appendChild(ogo);
-      }
+      const n = (k, w) => k + ' ' + w + (k === 1 ? '' : 's');
+      $('homesub').textContent = published.length + ' published · ' + n(drafts.length, 'draft') +
+                                 (pages.length ? ' · ' + n(pages.length, 'page') : '');
+      let h = '';
+      if (drafts.length) h += section('Drafts', drafts.map(p => card(p, 'post', unpushed)));
+      h += section('Published', published.map(p => card(p, 'post', unpushed)),
+                   'No posts yet — start one with New post.');
+      if (pages.length) h += section('Pages', pages.map(p => card(p, 'page', unpushed)));
+      // Orphaned cards: on the blog page with no file behind them. Not
+      // documents to edit — opening one only offers Delete.
+      if (orphans.length) h += section('Orphaned cards', orphans.map(p => card(p, 'post', unpushed)));
+      $('homebody').innerHTML = h;
+    }
 
-      // Open whatever the URL points at, now that the options exist.
-      const params = new URLSearchParams(location.search);
-      if (params.get('page')) loadDoc('page', params.get('page'), false);
-      else if (params.get('p')) openPost(params.get('p'), false);
-    });
-
-    // Open a post slug, routing to openOrphan when the picker says that slug is
-    // an orphaned card rather than a real file. Used by the ?p= URL, which can't
-    // tell the two apart on its own.
-    function openPost(slug, push) {
-      const o = [...$('open').options]
-                  .find(x => x.value === slug && (x.dataset.kind || 'post') === 'post');
-      if (o && o.dataset.orphan) return openOrphan(slug, o.dataset.title, o.dataset.listed);
+    // Open a post slug, routing to openOrphan when the server lists that slug
+    // as an orphaned card rather than a real file — the ?p= URL can't tell
+    // the two apart on its own.
+    async function openPost(slug, push) {
+      const { posts } = await fetch('/api/posts').then(r => r.json()).catch(() => ({ posts: [] }));
+      const o = (posts || []).find(p => p.slug === slug && p.orphan);
+      if (o) return openOrphan(slug, o.title, o.listed);
       return loadDoc('post', slug, push);
     }
 
-    $('open').addEventListener('change', () => {
-      const opt = $('open').selectedOptions[0];
-      if (!opt || !opt.value) return;
-      const params = new URLSearchParams(location.search);
-      const cur = params.get('page') || params.get('p') || '';
-      if (dirty && !confirm('Discard unsaved changes and open this?')) {
-        $('open').value = cur; return;
-      }
-      if (opt.dataset.orphan) return openOrphan(opt.value, opt.dataset.title, opt.dataset.listed);
-      loadDoc(opt.dataset.kind || 'post', opt.value, true);
-    });
+    if (route === 'home') {
+      showHome();
+    } else {
+      document.body.classList.add('editing');
+      $('editor').hidden = false;
+      if (route === 'page') loadDoc('page', params.get('page'), false);
+      else if (route === 'post') openPost(params.get('p'), false);
+      // 'new': the blank editor, as it stands.
+    }
 
     // Save, answering the one question the server can't decide alone: a retitled
     // post wants to move to the filename its new title slugifies to, but if the
@@ -692,7 +772,7 @@
         // file that's gone. Delete the card, or start a fresh post instead.
         $('status').textContent =
           'That\'s an orphaned card, not a post — its file is gone, so there\'s nothing ' +
-          'to save. Delete clears the card; the “+” button starts a new post.';
+          'to save. Delete clears the card; New post starts a fresh one.';
         return;
       }
       const isPage = $('ispage').checked;
@@ -726,26 +806,6 @@
                                 (d.layout === 'gallery' ? ' &middot; gallery layout' : '') +
                                 ' &middot; now <code>git push</code>';
         history.replaceState(null, '', '?' + (isPage ? 'page' : 'p') + '=' + d.slug);
-        // Keep the picker in sync: a brand-new doc isn't in its list yet, a
-        // retitle changes an existing entry's label, and a rename leaves an
-        // entry for a slug whose file the server just deleted.
-        const grpLabel = isPage ? 'Pages' : 'Posts';
-        const kind = isPage ? 'page' : 'post';
-        const option = slug => [...$('open').options]
-                                 .find(o => o.value === slug && (o.dataset.kind || 'post') === kind);
-        if (d.renamed_from) option(d.renamed_from)?.remove();
-        let o = option(d.slug);
-        if (!o) {
-          let og = [...$('open').querySelectorAll('optgroup')].find(g => g.label === grpLabel);
-          if (!og) { og = document.createElement('optgroup'); og.label = grpLabel; $('open').appendChild(og); }
-          o = document.createElement('option');
-          o.value = d.slug; o.dataset.kind = kind;
-          og.appendChild(o);
-        }
-        o.textContent = (d.draft ? '✎ ' : '') + title +
-                        (isPage ? ' · ' + d.slug + '.html'
-                                : ($('date').value ? ' · ' + $('date').value : ''));
-        $('open').value = d.slug;
         dirty = false;
         if (!isPage) loadKnownTags();
       } catch (e) { $('status').textContent = 'Error: ' + e.message; }
@@ -780,17 +840,6 @@
         if (!confirm(msg)) { $('status').textContent = 'Kept ' + plan.target; return; }
 
         const d = await api('/api/post/delete', { slug });
-        // Drop it from the picker — along with any other orphan the server swept
-        // in the same pass — then open the newest post that's left; the picker
-        // lists posts newest-first, orphans last, so skip those. That way the
-        // editor never sits on a file that no longer exists. Nothing left to
-        // open: fall back to a blank draft.
-        const gone = new Set([slug, ...d.pruned.map(c => c.slug)]);
-        [...$('open').options]
-          .filter(o => gone.has(o.value) && (o.dataset.kind || 'post') === 'post')
-          .forEach(o => o.remove());
-        [...$('open').querySelectorAll('optgroup')]     // don't leave a bare label
-          .filter(g => !g.querySelector('option')).forEach(g => g.remove());
         currentSlug = '';
         currentOrphan = false;
         dirty = false;                            // deleted; nothing to warn about
@@ -803,21 +852,18 @@
                           d.pruned.map(c => '<code>' + c.slug + '</code>').join(', ')
                         : '') +
                      ' &middot; commit &amp; <code>git push</code> to publish the removal';
-        const next = [...$('open').options]
-                       .find(o => o.value && (o.dataset.kind || 'post') === 'post' && !o.dataset.orphan);
-        if (next) {
-          await loadDoc('post', next.value, true);
-          $('status').innerHTML = note + ' &middot; now editing ' + next.value;
-        } else {
-          $('open').value = '';
-          $('title').value = '';
-          $('md').value = '';
-          $('date').value = new Date().toISOString().slice(0, 10);
-          setKind('post');
-          render();
-          history.replaceState(null, '', location.pathname);
-          $('status').innerHTML = note;
-        }
+        // Leave the editor on a blank post with the note; the dashboard, one
+        // click away, no longer lists what was deleted.
+        $('title').value = '';
+        $('md').value = '';
+        $('date').value = new Date().toISOString().slice(0, 10);
+        $('isdraft').checked = false;
+        $('layout').value = 'standard';
+        setTags([]);
+        setKind('post');
+        render();
+        history.replaceState(null, '', '?new=1');
+        $('status').innerHTML = note;
       } catch (e) { $('status').textContent = 'Delete failed: ' + e.message; }
     });
 
@@ -830,11 +876,10 @@
       }
     });
 
-    // New post: warn before discarding an unsaved draft.
-    $('fab').addEventListener('click', e => {
-      if (dirty && !confirm('Discard unsaved changes and start a new post?')) {
-        e.preventDefault();
-      }
+    // Unsaved edits: warn before any way out — New post, the header links, a
+    // closed tab. The browser shows its own wording; the flag is enough.
+    window.addEventListener('beforeunload', e => {
+      if (dirty) { e.preventDefault(); e.returnValue = ''; }
     });
   </script>
 </body>
