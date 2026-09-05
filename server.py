@@ -746,7 +746,8 @@ def list_md_pages():
             continue
         title = re.search(r'name="page-title" content="([^"]*)"', src)
         out.append({"slug": n[:-5],
-                    "title": html.unescape(title.group(1)) if title else n[:-5]})
+                    "title": html.unescape(title.group(1)) if title else n[:-5],
+                    "modified": datetime.fromtimestamp(os.path.getmtime(path)).isoformat(timespec="seconds")})
     return out
 
 
@@ -758,8 +759,20 @@ def post_files():
             if n.endswith(".html") and n != "index.html"]
 
 
+def word_count(markdown):
+    """Words of prose in a post's Markdown: link and image targets, bare
+    URLs, HTML tags and Markdown punctuation don't count — a draft that's
+    nothing but a list of product links has few words, not hundreds."""
+    text = re.sub(r"<[^>]+>", " ", markdown)          # raw HTML (video embeds)
+    text = re.sub(r"\]\([^)]*\)", "]", text)           # (url) after a link/image
+    text = re.sub(r"https?://\S+", " ", text)         # bare URLs
+    text = re.sub(r"[#*_`>|~\[\]!-]+", " ", text)      # markdown punctuation
+    return len(text.split())
+
+
 def list_posts():
-    """Slug + title + date for every post, newest first (for the editor picker).
+    """Slug + title + date for every post, newest first (for the editor
+    dashboard), with when its file last changed and how many words it holds.
 
     Orphaned cards are appended, flagged `orphan`, carrying the date the card
     itself shows rather than an ISO one — there's no file left to read it from.
@@ -773,6 +786,8 @@ def list_posts():
             src = f.read()
         title = re.search(r'name="post-title" content="([^"]*)"', src)
         date = re.search(r'name="post-date" content="([^"]*)"', src)
+        b64 = re.search(r"<!--EDIT:post:b64:(.*?)-->", src, re.S)
+        markdown = base64.b64decode(b64.group(1)).decode("utf-8") if b64 else ""
         out.append({
             "slug": os.path.basename(path)[:-5],
             "title": html.unescape(title.group(1)) if title else os.path.basename(path)[:-5],
@@ -780,6 +795,9 @@ def list_posts():
             "tags": read_tags(src),
             "draft": is_draft(src),
             "layout": read_layout(src),
+            # The file's mtime: the last save, from the editor or by hand.
+            "modified": datetime.fromtimestamp(os.path.getmtime(path)).isoformat(timespec="seconds"),
+            "words": word_count(markdown),
         })
     out.sort(key=lambda p: (p["date"], p["slug"]), reverse=True)
     out += [{"slug": c["slug"], "title": c["title"], "date": "",
