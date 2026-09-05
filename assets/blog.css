@@ -1,5 +1,9 @@
 /* Shared styles for the blog index and individual posts. */
 * { box-sizing: border-box; margin: 0; padding: 0; }
+/* The hidden attribute must win over any display: set below — the browser's
+   own [hidden] rule loses to an author rule like display: flex, which is how
+   a "hidden" gallery cover kept painting behind the image. */
+[hidden] { display: none !important; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
        background: #f4f3f0; color: #1a1a1a; line-height: 1.6; padding: 64px 16px; }
 .wrap { max-width: 680px; margin: 0 auto; }
@@ -123,6 +127,97 @@ article .post-tags { margin: -24px 0 32px; }
 .post-body .video-embed { position: relative; aspect-ratio: 16 / 9; }
 .post-body .video-embed iframe { position: absolute; inset: 0;
                                  width: 100%; height: 100%; border: 0; border-radius: 8px; }
+
+/* Gallery layout (<meta name="post-layout" content="gallery">): the prose in
+   a column on the left, and on the right a gallery in the manner of Finder's
+   gallery view — one image on a big stage, a filmstrip of thumbnails under
+   it. The selected image's caption and alt text are written over the bottom
+   of the image itself. server.py's render_gallery emits the structure with
+   a cover card in place of a selection; assets/gallery.js does the
+   selecting. So the CSS only lays it out — no image-hunting selectors.
+
+   Wider than a standard post's 680px because the stage needs room; the
+   gallery gets the larger share, and the text column, being the narrower
+   one, reads as a margin note beside the pictures. */
+.wrap.gallery { max-width: 1120px; }
+.post-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 620px);
+                gap: 40px; align-items: start; }
+.gallery-main { min-width: 0; }
+
+/* The stage: a fixed 4:3 frame so the strip below doesn't jump as images of
+   different proportions come and go; contain, not cover — the whole image is
+   the point here, the thumbnails are where cropping is fine. */
+.gallery-stage { position: relative; margin: 0; background: #fff; border: 1px solid #e3e0d9;
+                 border-radius: 12px; overflow: hidden; }
+/* The cover: what the stage shows until something is picked from the strip.
+   Same 4:3 frame as the image it gives way to, so nothing shifts on the
+   first click. */
+.gallery-cover { display: flex; flex-direction: column; align-items: center;
+                 justify-content: center; gap: 8px; aspect-ratio: 4 / 3; padding: 24px;
+                 text-align: center; color: #6b6560; background: #faf9f7; }
+.gallery-cover svg { color: #a8a29e; margin-bottom: 6px; }
+.gallery-cover p { font-size: 16px; }
+.gallery-cover .gallery-cover-count { font-size: 13px; color: #a8a29e; }
+.gallery-stage-link { display: block; cursor: zoom-in; }
+.gallery-stage img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; }
+
+/* The caption, laid over the foot of the image on a dark fade so it reads on
+   any picture. Pointer events pass through everywhere but the links, so the
+   image underneath stays clickable for the full-size overlay. */
+.gallery-stage-caption { position: absolute; left: 0; right: 0; bottom: 0;
+                         padding: 48px 16px 14px; color: #fff; pointer-events: none;
+                         background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,
+                                                     rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.78) 100%);
+                         text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+.gallery-stage-caption a { color: #fff; pointer-events: auto; }
+.gallery-stage-index { position: absolute; top: -28px; right: 12px; padding: 2px 8px;
+                       font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+                       color: #fff; background: rgba(0,0,0,0.45); border-radius: 999px; }
+.gallery-stage-title { font-size: 15px; font-weight: 600; line-height: 1.4;
+                       overflow-wrap: anywhere; }
+.gallery-stage-alt { margin-top: 4px; font-size: 13px; line-height: 1.45; opacity: 0.88; }
+
+/* The filmstrip: a scrolling row of square thumbnails on a tray. */
+.gallery-strip { display: flex; gap: 6px; margin-top: 12px; padding: 8px;
+                 overflow-x: auto; scroll-snap-type: x proximity;
+                 background: #ebe9e4; border-radius: 10px; }
+.gallery-card { margin: 0; flex: 0 0 auto; width: 68px; height: 68px; padding: 3px;
+                border: 2px solid transparent; border-radius: 8px; scroll-snap-align: center;
+                transition: border-color 0.15s ease, background 0.15s ease; }
+.gallery-card:hover { background: #dedbd3; }
+.gallery-card.selected { border-color: #2d5a27; background: #fff; }
+.gallery-card-image { display: block; width: 100%; height: 100%; }
+.gallery-card img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+/* The caption stays in the markup for gallery.js and no-JS readers of the
+   source, but on screen it belongs on the stage. */
+.gallery-card figcaption { display: none; }
+
+/* Narrow screens: one column, prose first, then the gallery. */
+@media (max-width: 820px) {
+  .post-columns { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .gallery-card { width: 60px; height: 60px; }
+}
+
+/* The gallery overlay (assets/gallery.js): a <dialog> holding the full image
+   and its caption. The box itself is transparent and unpadded so the image is
+   the only visible shape, and so a click anywhere outside it lands on the
+   dialog element, which the script treats as "close". */
+.lightbox { border: 0; padding: 0; background: transparent; overflow: visible;
+            max-width: min(92vw, 1100px); max-height: 92vh;
+            /* The reset above zeroes every margin, which silently undoes the
+               browser's own margin:auto that centres a modal dialog. */
+            margin: auto; }
+.lightbox::backdrop { background: rgba(20, 18, 15, 0.88); }
+.lightbox img { display: block; margin: 0 auto; max-width: min(92vw, 1100px); max-height: 78vh;
+                width: auto; height: auto; border-radius: 8px;
+                box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+.lightbox-caption { margin: 14px auto 0; max-width: 640px; text-align: center;
+                    color: #f4f3f0; font-size: 14px; line-height: 1.5; }
+.lightbox-caption a { color: #cfe3cb; }
+.lightbox-close { position: fixed; top: 16px; right: 16px; width: 40px; height: 40px;
+                  border: 0; border-radius: 50%; background: rgba(255,255,255,0.12);
+                  color: #fff; font-size: 26px; line-height: 1; cursor: pointer; }
+.lightbox-close:hover { background: rgba(255,255,255,0.25); }
 
 footer { max-width: 680px; margin: 48px auto 0; font-size: 12px;
          color: #a8a29e; text-align: center; }

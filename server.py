@@ -3,9 +3,10 @@
 
 Serves the static site AND backs editor.html with two endpoints:
 
-  POST /api/save   {title, date, markdown, html, tags} -> writes blog/<slug>.html
+  POST /api/save   {title, date, markdown, html, tags, layout}
+                                                   -> writes blog/<slug>.html
                                                       and updates blog/index.html
-  GET  /api/load?p=<slug>                          -> {title, date, markdown, tags}
+  GET  /api/load?p=<slug>                          -> {title, date, markdown, tags, layout}
   GET  /api/tags                                   -> every tag in use, most-used first
 
 Posts are pre-rendered: editor.html renders markdown -> HTML with marked.js at
@@ -68,23 +69,21 @@ POST_TEMPLATE = """<!DOCTYPE html>
   <title>{title_attr} · Mrinalini S</title>
   <meta name="post-title" content="{title_attr}">
   <meta name="post-date" content="{date_iso}">
-{tags_meta}{draft_meta}  <link rel="stylesheet" href="/assets/blog.css">
+{layout_meta}{tags_meta}{draft_meta}  <link rel="stylesheet" href="/assets/blog.css">
 </head>
 <body>
-  <main class="wrap">
+  <main class="wrap{wrap_class}">
     <a class="back" href="/blog/">← All posts</a>
     <article>
       <h1 class="post-title">{title_html}</h1>
       <p class="post-meta">{date_human}</p>
 {tags_html}<!--EDIT:post:b64:{b64}-->
-      <div class="post-body" data-edit-id="post" data-edit-file="blog/{slug}.html">
-{body_html}
-      </div>
+{content}
 <!--/EDIT:post-->
     </article>
   </main>
   <footer>&copy; 2026 Mrinalini S · <a href="upi://pay?pa=mrinalinis@upi&amp;pn=Mrinalini%20S&amp;cu=INR" title="Pay via UPI (opens a payment app on mobile)"><code>mrinalinis@upi</code></a> · Code licensed under MIT</footer>
-  <script src="/assets/analytics.js" defer></script>
+{layout_script}  <script src="/assets/analytics.js" defer></script>
 </body>
 </html>
 """
@@ -96,6 +95,141 @@ POST_TEMPLATE = """<!DOCTYPE html>
 # still reachable by anyone holding the URL, so at least keep it out of search.
 DRAFT_META = ('  <meta name="post-draft" content="1">\n'
               '  <meta name="robots" content="noindex">\n')
+
+
+# Post layouts. "standard" is the one centred column every post has had so
+# far: text and images in a single flow. "gallery" splits the body in two —
+# the prose stays in a column on the left, and every top-level image is lifted
+# out into a column of cards on the right (see split_gallery for the rule).
+# The choice is stamped into the post's <head> as <meta name="post-layout">,
+# exactly as post-draft is, so load_post reads it back and a re-save keeps the
+# layout instead of quietly dropping the post back into a single column.
+# "standard" is the absence of the meta, so no existing post has to change.
+LAYOUTS = ("standard", "gallery")
+
+STANDARD_BODY = """      <div class="post-body" data-edit-id="post" data-edit-file="blog/{slug}.html">
+{body_html}
+      </div>"""
+
+# Both columns sit inside the EDIT markers: everything here is rendered *from*
+# the post body, not written by hand, so it's all part of what a re-save
+# replaces.
+#
+# The prose on the left; on the right, a gallery in the manner of Finder's
+# gallery view — one image on a big stage with a filmstrip of thumbnails
+# under it. What's known about the selected image (its caption, with any
+# link, and its alt text) is written over the bottom of the image itself
+# rather than in a panel beside it.
+#
+# Nothing is selected to begin with: the stage shows a cover card inviting
+# the reader to pick from the strip. assets/gallery.js does the selecting;
+# without it the cover stays and every thumbnail is a plain link to its image
+# file, so the page still works, just as a strip of links.
+GALLERY_BODY = """      <div class="post-columns">
+        <div class="post-body" data-edit-id="post" data-edit-file="blog/{slug}.html">
+{body_html}
+        </div>
+        <div class="gallery-main">
+          <figure class="gallery-stage">
+            <div class="gallery-cover">
+              <svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="12" width="32" height="26" rx="3"/><path d="M6 32V10a3 3 0 0 1 3-3h24"/><circle cx="19" cy="21" r="3"/><path d="M42 31l-8-8-11 11-4-4-9 8"/></svg>
+              <p>Click on images below to browse gallery</p>
+              <p class="gallery-cover-count">{count} images</p>
+            </div>
+            <a class="gallery-stage-link" target="_blank" rel="noopener" hidden><img alt=""></a>
+            <figcaption class="gallery-stage-caption" aria-live="polite" hidden>
+              <span class="gallery-stage-index"></span>
+              <div class="gallery-stage-title"></div>
+              <p class="gallery-stage-alt"></p>
+            </figcaption>
+          </figure>
+          <div class="gallery-strip" role="list" aria-label="Images from this post">
+{cards_html}
+          </div>
+        </div>
+      </div>"""
+
+# Drives the stage, filmstrip and overlay (assets/gallery.js). Only a gallery
+# post carries it: a standard post has nothing for it to do.
+GALLERY_SCRIPT = '  <script src="/assets/gallery.js" defer></script>\n'
+
+# One filmstrip thumbnail. Still a real link to the image file, so without
+# JavaScript a click opens the image — and the figcaption, hidden by CSS, is
+# where gallery.js reads the caption from when the card is selected.
+GALLERY_CARD = """            <figure class="gallery-card" role="listitem">
+              <a class="gallery-card-image" href="{src}" target="_blank" rel="noopener" aria-label="Show image {n} of {count}">{img}</a>
+{caption}            </figure>"""
+
+# A top-level paragraph of marked's output that opens with an image. Group 1
+# is the run of <img> tags at its start (two images on consecutive Markdown
+# lines share one <p>), group 2 whatever inline content trails the last image.
+# Markdown puts the image and the line written straight under it — no blank
+# line between — in the same paragraph, so that trailing content is the caption.
+GALLERY_P_RE = re.compile(
+    r'^<p>\s*((?:<img\b[^>]*>\s*(?:<br\s*/?>)?\s*)+)(.*?)</p>[ \t]*\n?', re.M | re.S)
+
+# Block containers whose paragraphs are NOT top-level. A <p> inside one of
+# these starts at column 0 in marked's output just like a top-level one, so
+# the regex alone can't tell them apart; split_gallery skips matches that fall
+# inside these spans. Nested blockquotes are the one shape this simple
+# non-greedy match gets wrong, and they're rare enough in a photo post.
+GALLERY_SKIP_RE = re.compile(r'<(blockquote|ul|ol|table|pre)\b.*?</\1>', re.S)
+
+
+def split_gallery(body_html):
+    """Lift every top-level image paragraph out of a post body.
+
+    Returns (text_html, items): the body with those paragraphs removed, and
+    one dict per image — its <img> tag, src, alt, and caption. The caption is
+    the inline content written on the line directly under the image (see
+    GALLERY_P_RE), else the image's alt text, else nothing. Images inside a
+    blockquote, list, table or code block stay where they are — they're part
+    of that block's meaning, not a gallery item."""
+    skip = [m.span() for m in GALLERY_SKIP_RE.finditer(body_html)]
+    items = []
+
+    def lift(m):
+        if any(a <= m.start() < b for a, b in skip):
+            return m.group(0)
+        imgs = re.findall(r'<img\b[^>]*>', m.group(1))
+        caption = m.group(2).strip()
+        for i, img in enumerate(imgs):
+            src = re.search(r'\bsrc="([^"]*)"', img)
+            alt = re.search(r'\balt="([^"]*)"', img)
+            alt = alt.group(1).strip() if alt else ""
+            # One caption line under two images captions the last of them.
+            cap = caption if i == len(imgs) - 1 else ""
+            items.append({"img": img, "src": src.group(1) if src else "",
+                          "alt": alt, "caption": cap or alt})
+        return ""
+
+    text = GALLERY_P_RE.sub(lift, body_html).strip("\n")
+    return text, items
+
+
+def render_gallery(slug, body_html):
+    """The gallery layout's body block: the prose, then the Finder-style
+    stage and strip built from the post's images. A gallery post with no
+    images at all is just a standard body — there's nothing to put on the
+    stage."""
+    text, items = split_gallery(body_html)
+    if not items:
+        return STANDARD_BODY.format(slug=slug, body_html=body_html)
+    count = len(items)
+    cards = []
+    for n, it in enumerate(items, 1):
+        cards.append(GALLERY_CARD.format(
+            n=n, count=count, src=it["src"], img=it["img"],
+            caption=("              <figcaption>%s</figcaption>\n" % it["caption"])
+                    if it["caption"] else ""))
+    return GALLERY_BODY.format(slug=slug, body_html=text, count=count,
+                               cards_html="\n".join(cards))
+
+
+def read_layout(src):
+    """Which layout a post's HTML declares (see LAYOUTS); standard if none."""
+    m = re.search(r'name="post-layout" content="([^"]*)"', src)
+    return m.group(1) if m and m.group(1) in LAYOUTS else "standard"
 
 
 # A standalone "page": same markdown round-trip as a
@@ -228,7 +362,7 @@ def human_date(iso):
 
 
 def write_post(title, date_iso, markdown, body_html, slug=None, draft=False,
-               tags=()):
+               tags=(), layout="standard"):
     """Render a post to blog/<slug>.html and give it a card in the listing.
 
     `draft` still gives the post a card — it just renders as the "coming soon"
@@ -246,26 +380,38 @@ def write_post(title, date_iso, markdown, body_html, slug=None, draft=False,
 
     `tags` is normalised here rather than at the endpoint so every route into a
     post file (the API today, a script tomorrow) gets the same cleanup, and so
-    the meta line and the listing card can't disagree about what the tags are."""
+    the meta line and the listing card can't disagree about what the tags are.
+
+    `layout` picks the page shape (see LAYOUTS). Anything unknown falls back to
+    standard rather than erroring: the worst case is a post rendered in one
+    column, which is what every post was until now."""
     slug = slugify(slug or title)
     tags = parse_tags(tags)
+    layout = layout if layout in LAYOUTS else "standard"
     # The title comes from the title field and is rendered by the template, so
     # drop a leading <h1> from the body to avoid showing the title twice.
     body_html = re.sub(r"^\s*<h1\b[^>]*>.*?</h1>\s*", "", body_html,
                        count=1, flags=re.S | re.I)
     b64 = base64.b64encode(markdown.encode("utf-8")).decode("ascii")
+    if layout == "gallery":
+        content = render_gallery(slug, body_html)
+    else:
+        content = STANDARD_BODY.format(slug=slug, body_html=body_html)
     page = POST_TEMPLATE.format(
         title_attr=html.escape(title, quote=True),
         title_html=html.escape(title),
         date_iso=date_iso,
         date_human=human_date(date_iso),
         draft_meta=DRAFT_META if draft else "",
+        layout_meta=('  <meta name="post-layout" content="%s">\n' % layout)
+                    if layout != "standard" else "",
+        wrap_class=" gallery" if layout == "gallery" else "",
+        layout_script=GALLERY_SCRIPT if layout == "gallery" else "",
         tags_meta=('  <meta name="post-tags" content="%s">\n'
                    % html.escape(TAG_SEP.join(tags), quote=True)) if tags else "",
         tags_html=render_tags(tags, "      "),
         b64=b64,
-        slug=slug,
-        body_html=body_html,
+        content=content,
     )
     with open(os.path.join(BLOG, slug + ".html"), "w", encoding="utf-8") as f:
         f.write(page)
@@ -549,6 +695,7 @@ def load_post(slug):
         "tags": read_tags(src),
         # So re-saving an opened draft keeps it a draft instead of publishing it.
         "draft": is_draft(src),
+        "layout": read_layout(src),
     }
 
 
@@ -632,6 +779,7 @@ def list_posts():
             "date": date.group(1) if date else "",
             "tags": read_tags(src),
             "draft": is_draft(src),
+            "layout": read_layout(src),
         })
     out.sort(key=lambda p: (p["date"], p["slug"]), reverse=True)
     out += [{"slug": c["slug"], "title": c["title"], "date": "",
@@ -1136,11 +1284,14 @@ class Handler(SimpleHTTPRequestHandler):
                 slug = write_post(title, date_iso, d.get("markdown", ""),
                                   d.get("html", ""), slug=target,
                                   draft=bool(d.get("draft")),
-                                  tags=d.get("tags") or [])
+                                  tags=d.get("tags") or [],
+                                  layout=d.get("layout") or "standard")
                 retired = delete_post(prev) if (moved and slug != prev) else None
                 return self._json(200, {"ok": True, "slug": slug,
                                         "url": "/blog/%s.html" % slug,
                                         "draft": bool(d.get("draft")),
+                                        "layout": (d.get("layout") if d.get("layout")
+                                                   in LAYOUTS else "standard"),
                                         "renamed_from": retired and retired["slug"]})
             if self.path == "/api/save-page":
                 d = self._body()

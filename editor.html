@@ -94,6 +94,14 @@
            title="List this post as &quot;Coming soon&quot; instead of publishing it: the card shows on the blog page with the bell prompt, but doesn't link to the post yet.">
       <input type="checkbox" id="isdraft"> Draft
     </label>
+    <label class="toggle" id="layoutlabel"
+           title="Standard: one centred column, text and images in a single flow. Gallery: text on the left, every image lifted out into a column of cards on the right. A card's caption is the line written directly under the image (no blank line between), or else the image's alt text.">
+      Layout
+      <select id="layout" aria-label="Post layout">
+        <option value="standard">Standard</option>
+        <option value="gallery">Gallery</option>
+      </select>
+    </label>
     <div class="tagfield" id="tagfield"
          title="Tags for this post. They show as ribbons on the post and on its card on the blog page.">
       <span id="chips"></span>
@@ -343,7 +351,10 @@
       // Tags exist to be shown on the blog listing, and a page has no card
       // there — so, like Draft, the field is a post-only affair.
       $('tagfield').style.display = (kind === 'page') ? 'none' : '';
-      if (kind === 'page') { $('isdraft').checked = false; setTags([]); }
+      // Layout is a post affair too: the gallery split is done by write_post,
+      // and a page goes through write_md_page, which knows only one shape.
+      $('layoutlabel').style.display = (kind === 'page') ? 'none' : '';
+      if (kind === 'page') { $('isdraft').checked = false; setTags([]); $('layout').value = 'standard'; }
       syncDelete();
     }
 
@@ -363,6 +374,7 @@
     });
 
     $('isdraft').addEventListener('change', markDirty);
+    $('layout').addEventListener('change', markDirty);
 
     // ---- Tags -----------------------------------------------------------
     // The post's tags, and the vocabulary to pick from: every tag already in
@@ -539,6 +551,7 @@
       setKind('post');
       $('isdraft').checked = false;
       setTags([]);
+      $('layout').value = 'standard';
       $('title').value = title || slug;
       $('date').value = '';
       $('md').value = '';
@@ -561,6 +574,7 @@
           currentOrphan = false;
           setKind(kind);                  // clears the draft box, so set it after
           $('isdraft').checked = (kind === 'post' && !!p.draft);
+          $('layout').value = (kind === 'post' && p.layout) || 'standard';
           setTags(kind === 'post' ? p.tags : []);
           $('title').value = p.title;
           if (kind === 'post') $('date').value = p.date || $('date').value;
@@ -697,7 +711,7 @@
               markdown: $('md').value, html: toBody($('md').value) }
           : { title, date: $('date').value,
               slug: (currentKind === 'post' ? currentSlug : ''),
-              draft: $('isdraft').checked, tags,
+              draft: $('isdraft').checked, tags, layout: $('layout').value,
               markdown: $('md').value, html: toBody($('md').value) };
         const d = await postSave(isPage ? '/api/save-page' : '/api/save', payload);
         currentKind = isPage ? 'page' : 'post';
@@ -709,6 +723,7 @@
                                                   d.renamed_from + '.html</code>' : '') +
                                 (d.draft ? ' &middot; <b>draft</b> — listed as &ldquo;Coming soon&rdquo;'
                                          : '') +
+                                (d.layout === 'gallery' ? ' &middot; gallery layout' : '') +
                                 ' &middot; now <code>git push</code>';
         history.replaceState(null, '', '?' + (isPage ? 'page' : 'p') + '=' + d.slug);
         // Keep the picker in sync: a brand-new doc isn't in its list yet, a
