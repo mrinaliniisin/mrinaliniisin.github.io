@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Care Guide — Sindhu S. ('Mrinalini')</title>
+<style>
+  :root{
+    --ink:#1d1d1b;
+    --green:#1e5138;
+    --green-tint:#eef4ef;
+    --line:#d9ddd7;
+    --muted:#6b7269;
+    --paper:#ffffff;
+    --amber:#8a5a1f;
+    --amber-tint:#f6efe3;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#e9ebe7;color:var(--ink);
+    font-family:"Segoe UI",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  .sheet{background:var(--paper);width:840px;max-width:calc(100% - 32px);
+    margin:28px auto;padding:40px 44px 30px;box-shadow:0 8px 30px rgba(0,0,0,.10);}
+
+  .top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;}
+  h1{font-size:34px;line-height:1.05;font-weight:800;margin:0;letter-spacing:-.4px;}
+  .latin{font-style:italic;color:var(--muted);font-size:15px;margin-top:4px;}
+  .pills{display:flex;flex-direction:column;gap:6px;align-items:flex-end;}
+  .badge{background:var(--green);color:#fff;font-size:11px;font-weight:700;
+    letter-spacing:.6px;padding:6px 12px;border-radius:999px;white-space:nowrap;}
+  .rail{font-size:10px;letter-spacing:1.5px;color:var(--muted);font-weight:700;text-align:right;margin-top:4px;}
+  .rule{height:2px;background:var(--green);margin:14px 0 16px;}
+
+  .fieldnotes{display:grid;grid-template-columns:1fr 1fr;gap:8px 34px;margin-bottom:20px;}
+  .fieldnotes div{font-size:12px;line-height:1.5;color:#3a3f37;}
+  .fieldnotes b{color:var(--green);font-weight:800;letter-spacing:.5px;}
+
+  .about{background:var(--green-tint);border-left:3px solid var(--green);padding:14px 18px;margin-bottom:22px;}
+  .about .tag{display:flex;align-items:center;gap:8px;font-weight:700;font-size:12px;
+    letter-spacing:.8px;color:var(--green);margin-bottom:6px;}
+  .about .tag i{width:10px;height:10px;background:var(--green);display:inline-block;}
+  .about p{margin:0;font-size:13.5px;line-height:1.55;color:#33372f;}
+
+  .photo{border:1.5px dashed var(--line);border-radius:6px;height:140px;display:flex;
+    align-items:center;justify-content:center;color:#a7ada2;font-size:12px;letter-spacing:.5px;
+    margin-bottom:24px;background:#fbfcfb;}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 34px;}
+  .sec h2{font-size:12px;font-weight:800;letter-spacing:1px;color:var(--green);margin:0 0 10px;
+    padding-bottom:6px;border-bottom:1px solid var(--line);}
+  .sec h2 span{font-weight:600;color:var(--muted);letter-spacing:.3px;}
+  .sec ul{margin:0;padding:0;list-style:none;}
+  .sec li{font-size:12.5px;line-height:1.5;margin-bottom:9px;padding-left:14px;position:relative;color:#2a2e27;}
+  .sec li::before{content:"";position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--green);}
+  .sec li b{font-weight:700;color:var(--ink);}
+
+  .season{grid-column:1 / -1;background:var(--amber-tint);border-left:3px solid var(--amber);padding:14px 18px;}
+  .season h2{color:var(--amber);border-color:#e6d8c0;}
+  .season li::before{background:var(--amber);}
+
+  .handling{margin-top:26px;border-top:2px solid var(--green);padding-top:12px;}
+  .handling .tag{font-weight:800;font-size:12px;letter-spacing:.9px;color:var(--green);margin-bottom:6px;}
+  .handling p{margin:0;font-size:12px;line-height:1.55;color:#3a3f37;}
+  .foot{margin-top:20px;display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:1px;
+    color:var(--muted);border-top:1px solid var(--line);padding-top:8px;}
+
+  @media (max-width:640px){.grid,.fieldnotes{grid-template-columns:1fr;}.sheet{padding:28px 22px;}h1{font-size:27px;}}
+  @media print{
+    html,body{background:#fff;}
+    .sheet{box-shadow:none;margin:0;width:100%;max-width:100%;padding:24px 26px;}
+    .sec,.season,.about{break-inside:avoid;}
+    @page{size:A4;margin:12mm;}
+  }
+</style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="top">
+      <div>
+        <h1>Sindhu S. <span>('Mrinalini')</span></h1>
+        <div class="latin">Homo faber var. bengalurensis</div>
+      </div>
+      <div class="pills">
+        <div class="badge">AUTONOMOUS</div>
+        <div class="badge">PET-LOVER</div>
+        <div class="rail">HOUSEHOLD CARE GUIDE</div>
+      </div>
+    </div>
+    <div class="rule"></div>
+
+    <div class="fieldnotes">
+      <div><b>AUTONOMY</b> &mdash; Functions independently, with little need for assistance in life &mdash; except when ASV is around.</div>
+      <div><b>COMPANY</b> &mdash; A pet-lover: corgis, dachshunds, chihuahuas, and an equal-opportunity fan of friends' pets.</div>
+    </div>
+
+    <div class="about">
+      <div class="tag"><i></i>ABOUT THIS SPECIMEN</div>
+      <p>Cultivated at Ather Energy (2017&ndash;2020), spent a season under Singapore glass, then repotted to Bengaluru in 2025 for a growth phase she calls <em>Part&nbsp;B</em>. A mechanism-finder by nature &mdash; reaches past the surface of any felt state for the actual how-it-works underneath. Treats lived experience as strength-training, not a lookup manual. Low fuss, high yield: thrives when handed a real problem and left to trellis up it.</p>
+    </div>
+
+    <div class="photo">[ drop a photo here &mdash; the way each plant gets its portrait ]</div>
+
+    <div class="grid">
+      <div class="sec">
+        <h2>SUNLIGHT <span>&middot; attention &amp; engagement</span></h2>
+        <ul>
+          <li><b>Exposure:</b> Likes the sun &mdash; from the comfort of a nicely shaded spot (think a water-view suite at a Ramada resort).</li>
+          <li><b>Sleep:</b> Needs complete darkness or very low light to fall asleep, every night.</li>
+          <li><b>Affirmation:</b> Every 2 hours, a "You are pwetty" or "You are genius-est and prettiest" keeps her mood feeling like a good day.</li>
+          <li><b>Low light:</b> Tolerates long unstructured stretches and solitude better than most. Keeps making regardless of who is watching.</li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h2>WATERING <span>&middot; upkeep + actual water</span></h2>
+        <ul>
+          <li><b>Frequency:</b> Largely self-watering. Here "water" means show up when asked &mdash; not on a fixed schedule.</li>
+          <li><b>Actual water:</b> Once the day climbs past 28&deg;C she takes it cold, and only from a Tiger Corporation bottle. Lately with soluble fibre (zesty lime). Always encourage her to drink.</li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h2>FEEDING <span>&middot; feed on time</span></h2>
+        <ul>
+          <li><b>Timing:</b> Breakfast 8:30&ndash;10:30am; lunch by 12:00pm, 2:00pm at the very latest. Feed her on schedule.</li>
+          <li><b>Dinner:</b> Usually optional &mdash; often skipped after a heavy lunch.</li>
+          <li><b>Dinner favourites:</b> cold oranges, room-temperature bananas, or curd rice with fresh tempering and a splash of dal.</li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h2>ACTIVITY &amp; FUN</h2>
+        <ul>
+          <li><b>Monthly mix:</b> A good month blends indoor bouldering, aerial silks and regular pole classes.</li>
+          <li><b>Outings:</b> Every 45&ndash;60 days, a tiny stress-free trip somewhere nice &mdash; need-to-take basis, not mandatory.</li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h2>QUIRKS <span>&middot; field marks</span></h2>
+        <ul>
+          <li>Prefers to talk it out with Claude &mdash; taking a feeling apart to see how it's built, then devising ways to self-soothe.</li>
+          <li>Hands out "Mrinalini" freely; makes people <em>earn</em> the legal name.</li>
+          <li>Curated access, not cold &mdash; two-tier WhatsApp, an Instagram flipped from scoreboard to canvas.</li>
+          <li>Says memories aloud to move them from feeling into language she can inspect.</li>
+          <li>Expects the kitchen spotless at any hour &mdash; crumb-free, grease-free, and every appliance pushed back against the wall.</li>
+          <li>Chores get finished before "closing shop" at the end of the day.</li>
+          <li>Expects ASV to do a quick mental scan on opening the fridge &mdash; sorting what to eat asap from what to use slowly (nearest &rarr; short-term &rarr; long-term future).</li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h2>ENVIRONMENT &amp; CARE</h2>
+        <ul>
+          <li><b>Climate:</b> Bengaluru. A sleeveless or strappy base with an open cardigan as the AC layer.</li>
+          <li><b>Companion planting:</b> Best grown adjacent to Anita &mdash; chosen family since 2016, future Nandi Meraki neighbour. Friction over chores is normal, not poor health.</li>
+          <li><b>Younger cousins:</b> Enjoys outings with them, but only activity-directed ones &mdash; not the plebeian "let's catch up" kind.</li>
+          <li><b>Growth:</b> A builder. Hand her a real problem and she grows toward it, indefinitely. But she only works on her ideas when there's brain space for it &mdash; back-to-back errands and adulting with no downtime pause skill and growth work until she's had reasonable time to recuperate.</li>
+        </ul>
+      </div>
+
+      <div class="sec" style="grid-column:1 / -1">
+        <h2>IMPORTANT TO KNOW</h2>
+        <ul>
+          <li><b>Recovery:</b> A day spent driving or running errands should be followed by an R&amp;R day &mdash; otherwise tiredness accumulates and she runs short on patience and energy.</li>
+          <li><b>Screen time:</b> Never speak over the TV or video she's watching or playing. Signal for a pause first, or hit pause yourself on the remote/keyboard, then talk.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sec season" style="margin-top:26px;">
+      <h2>HANDLING NOTE <span>&middot; luteal phase (present even with a Mirena)</span></h2>
+      <ul>
+        <li><b>Tells:</b> unusually pedantic, functionally fixed, bristles at the slightest disrespect, may pick a fight. Mood dips; irritability and resentment rise.</li>
+        <li><b>Care:</b> meet it with extra love, reassurance and pampering &mdash; a shopping run or good food land well.</li>
+        <li><b>House rule:</b> anything she concludes in this window is a <em>current read, not a verdict</em> &mdash; re-read once the front passes.</li>
+      </ul>
+    </div>
+
+    <div class="foot">
+      <span>HOUSEHOLD CARE GUIDE &middot; F-1405</span>
+      <span>TEND WITH SPECIFICITY</span>
+    </div>
+  </div>
+</body>
+</html>
