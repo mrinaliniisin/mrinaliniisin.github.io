@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Endometriosis Case File · Mrinalini S</title>
+  <meta name="robots" content="noindex">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+           background: #f4f3f0; color: #1a1a1a; line-height: 1.6; padding: 64px 16px; }
+    .wrap { max-width: 760px; margin: 0 auto; }
+
+    .back { display: inline-block; margin-bottom: 24px; font-size: 14px;
+            color: #6b6560; text-decoration: none; }
+    .back:hover { color: #2d5a27; }
+
+    .eyebrow { font-size: 13px; color: #a8a29e; margin-bottom: 6px; }
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+
+    /* Summary: three cards, same shape as the site's index cards. */
+    .answers { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+               gap: 16px; margin-top: 24px; }
+    .answer { background: #fff; border: 1px solid #d9d6cf; border-radius: 12px; padding: 20px 22px; }
+    .answer .q { font-size: 13px; color: #6b6560; margin-bottom: 8px; }
+    .answer .big { font-size: 34px; font-weight: 700; line-height: 1.05; letter-spacing: -0.5px;
+                   font-variant-numeric: tabular-nums; }
+    .answer .big small { font-size: 14px; font-weight: 500; color: #6b6560; margin-left: 4px;
+                         letter-spacing: 0; }
+    .answer .note { font-size: 13px; color: #6b6560; margin-top: 10px; line-height: 1.5; }
+    .answer .days { list-style: none; }
+    .answer .days li { padding-left: 12px; position: relative; }
+    .answer .days li::before { content: ""; position: absolute; left: 0; top: 8px;
+                               width: 4px; height: 4px; border-radius: 50%; background: #a8a29e; }
+
+    h2 { font-size: 20px; font-weight: 600; margin: 44px 0 14px; }
+    p { max-width: 66ch; }
+
+    /* Stage table */
+    .table-wrap { overflow-x: auto; background: #fff; border: 1px solid #d9d6cf; border-radius: 12px; }
+    .spans { width: 100%; border-collapse: collapse; font-size: 14px;
+             font-variant-numeric: tabular-nums; }
+    .spans th, .spans td { text-align: left; padding: 11px 16px; border-bottom: 1px solid #eceae4;
+                           vertical-align: top; }
+    .spans tr:last-child td { border-bottom: 0; }
+    .spans th { font-size: 12px; font-weight: 600; color: #a8a29e; background: #faf9f7; }
+    .spans td:last-child, .spans th:last-child { text-align: right; white-space: nowrap; }
+    .spans .em td { color: #2d5a27; font-weight: 600; background: #f3f6f2; }
+
+    /* Timeline: dated rail on the left, entries on the right. */
+    .timeline { list-style: none; position: relative; margin-top: 4px; }
+    .timeline::before { content: ""; position: absolute; left: 117px; top: 10px; bottom: 10px;
+                        width: 2px; background: #d9d6cf; }
+    .event { display: grid; grid-template-columns: 100px 1fr; gap: 0 36px;
+             padding-bottom: 28px; position: relative; }
+    .event:last-child { padding-bottom: 0; }
+    .event .when { font-size: 13px; color: #a8a29e; text-align: right; line-height: 1.45;
+                   padding-top: 2px; font-variant-numeric: tabular-nums; }
+    .event .when b { display: block; color: #1a1a1a; font-weight: 600; }
+    .event::before { content: ""; position: absolute; left: 112px; top: 7px; width: 12px; height: 12px;
+                     border-radius: 50%; background: #f4f3f0; border: 2px solid #2d5a27; }
+    .event.major::before { width: 16px; height: 16px; left: 110px; top: 5px; background: #2d5a27;
+                           box-shadow: 0 0 0 4px #e3ebe0; }
+    .event h3 { font-size: 16px; font-weight: 600; line-height: 1.35; margin-bottom: 4px; }
+    .event.major h3 { font-size: 18px; color: #2d5a27; }
+    .event p { font-size: 14px; color: #4a4540; max-width: 56ch; }
+    .event .who { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 9px;
+                  border-radius: 999px; background: #eceae4; color: #4a4540; letter-spacing: 0.2px;
+                  margin-top: 8px; }
+    .gap { display: grid; grid-template-columns: 100px 1fr; gap: 0 36px; padding-bottom: 28px; }
+    .gap span { grid-column: 2; font-size: 12px; font-style: italic; color: #a8a29e; }
+    .gap span::before { content: ""; display: inline-block; width: 18px; height: 0;
+                        border-top: 1px dashed #d9d6cf; vertical-align: middle;
+                        margin: 0 8px 0 -36px; }
+
+    .caveat { margin-top: 28px; font-size: 13px; color: #6b6560; line-height: 1.55; }
+
+    footer { margin-top: 48px; font-size: 12px; color: #a8a29e; text-align: center; }
+    footer a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+    @media (max-width: 560px) {
+      body { padding-top: 40px; }
+      .timeline::before { left: 7px; }
+      .event, .gap { grid-template-columns: 1fr; gap: 4px 0; padding-left: 28px; }
+      .event .when { text-align: left; padding-top: 0; }
+      .event .when b { display: inline; margin-right: 8px; }
+      .event::before { left: 2px; }
+      .event.major::before { left: 0; }
+      .gap span { grid-column: 1; }
+      .gap span::before { margin-left: -28px; width: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <a class="back" href="/secret.html">← Secret</a>
+
+    <div class="eyebrow">Manipal Hospital, HAL Airport Road · Bengaluru</div>
+    <h1>Endometriosis Case File</h1>
+
+    <section class="answers" aria-label="Summary">
+      <div class="answer">
+        <div class="q">Spent at Manipal, out of pocket</div>
+        <div class="big">₹99,800</div>
+        <ul class="note days">
+          <li>This amount includes consultations, tests, injections.</li>
+          <li>₹18,501 is the patient share of the surgery.</li>
+          <li>Insurance paid ₹3,31,832 more.</li>
+        </ul>
+      </div>
+      <div class="answer">
+        <div class="q">Days at the hospital</div>
+        <div class="big">30<small>days</small></div>
+        <ul class="note days">
+          <li>5 days in 2020</li>
+          <li>21 days in 2022, including the four-day admission</li>
+          <li>4 days in 2023</li>
+        </ul>
+      </div>
+      <div class="answer">
+        <div class="q">Recommendation to sign-off</div>
+        <div class="big">64<small>days</small></div>
+        <div class="note">Surgery advised 25 Aug 2022. Anaesthesia clearance and consent signed 28 Oct 2022.</div>
+      </div>
+    </section>
+
+    <h2>How long each stage took</h2>
+    <div class="table-wrap">
+      <table class="spans">
+        <thead><tr><th>From</th><th>To</th><th>Time</th></tr></thead>
+        <tbody>
+          <tr><td>First visit, 31 Aug 2020</td><td>Surgery recommended, 25 Aug 2022</td><td>724 days · ~2 yrs</td></tr>
+          <tr><td>Cysts confirmed on scan, 22 Apr 2022</td><td>Surgery recommended</td><td>125 days · ~4 mo</td></tr>
+          <tr class="em"><td>Surgery recommended</td><td>Sign-off, 28 Oct 2022</td><td>64 days · ~9 wks</td></tr>
+          <tr><td>Surgery recommended</td><td>Surgery, 9 Nov 2022</td><td>76 days · ~2.5 mo</td></tr>
+          <tr><td>First visit</td><td>Surgery</td><td>800 days · ~2 yrs 2 mo</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Timeline of major events</h2>
+    <ol class="timeline">
+
+      <li class="event">
+        <div class="when"><b>31 Aug 2020</b>Mon</div>
+        <div>
+          <h3>First consultation for severe period pain</h3>
+          <p>Blood tests and a pelvic scan the same day. The scan shows a small haemorrhagic cyst on the left ovary. Duphaston prescribed for three months.</p>
+          <span class="who">Dr Amrita Rao</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>11 Nov 2020</b>Wed</div>
+        <div>
+          <h3>Endometriosis first suspected</h3>
+          <p>Vaginal ultrasound reports a right-ovary cyst, queried as haemorrhagic or endometriotic (4.3 cc). Treated with tablets. No further scan for 17 months.</p>
+        </div>
+      </li>
+
+      <li class="gap"><span>17 months on tablets</span></li>
+
+      <li class="event">
+        <div class="when"><b>22 Apr 2022</b>Fri</div>
+        <div>
+          <h3>Endometriotic cysts confirmed in both ovaries</h3>
+          <p>Right ovary cyst of 104 cc with recent bleeding; three to four cysts on the left; ovaries adherent to each other and to the uterus. Dydrogesterone for four months.</p>
+          <span class="who">Dr Amrita Rao</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>23 Aug 2022</b>Tue</div>
+        <div>
+          <h3>3D scan shows deep disease</h3>
+          <p>Right cyst halved to 59 cc, left cysts slightly larger. Kissing ovaries, bowel loops adherent to the uterus, rectosigmoid deep infiltrating endometriosis. CA-125 at 102.9.</p>
+        </div>
+      </li>
+
+      <li class="event major">
+        <div class="when"><b>25 Aug 2022</b>Thu</div>
+        <div>
+          <h3>Surgery recommended</h3>
+          <p>Laparoscopic cystectomy, adhesiolysis and resection of bowel endometriosis, with a pre-anaesthesia check after tests. Egg freezing suggested. Dienogest to continue until surgery.</p>
+          <span class="who">Dr Amrita Rao</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>12 Sep 2022</b>and 17 Oct</div>
+        <div>
+          <h3>Two Decapeptyl injections</h3>
+          <p>3.75 mg GnRH agonist, one month apart, to shrink the disease before surgery. ₹7,506 each. On 17 Oct the plan is written as laparoscopic bilateral cystectomy.</p>
+        </div>
+      </li>
+
+      <li class="event major">
+        <div class="when"><b>28 Oct 2022</b>Fri</div>
+        <div>
+          <h3>Signed off for surgery</h3>
+          <p>Pre-anaesthesia evaluation cleared after the 24 Oct tests, ECG and chest X-ray. Operative consent signed the same day, with the risks to bowel, bladder and ureter explained.</p>
+          <span class="who">Dr G. Parameswara · Dr Amrita Rao</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>3 Nov 2022</b>Thu</div>
+        <div>
+          <h3>Case handed to a new surgeon</h3>
+          <p>Dr Gayathri Karthik takes over, repeats the 3D scan and sets the date for 9 Nov. Referred to Dr Sumit Talwar, general surgeon, for the cyclical rectal bleeding.</p>
+          <span class="who">Dr Gayathri Karthik</span>
+        </div>
+      </li>
+
+      <li class="event major">
+        <div class="when"><b>9 Nov 2022</b>admitted 8–11 Nov</div>
+        <div>
+          <h3>Laparoscopic surgery for endometriosis</h3>
+          <p>Under general anaesthesia. Diagnosis on discharge: bilateral endometriotic cysts with adenomyosis. Total bill ₹3,74,127, insurance paid ₹3,31,832, patient share ₹18,501. Lupride 11.25 mg given on 10 Nov.</p>
+          <span class="who">Dr Gayathri Karthik</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>18 Nov 2022</b>Fri</div>
+        <div>
+          <h3>Stitches out, first post-op review</h3>
+          <p>Follow-up care moves to Dr Aditi Godse. Lupride continues until July 2023, then dienogest.</p>
+          <span class="who">Dr Aditi Godse</span>
+        </div>
+      </li>
+
+      <li class="gap"><span>10 months of follow-up</span></li>
+
+      <li class="event">
+        <div class="when"><b>2 Sep 2023</b>Sat</div>
+        <div>
+          <h3>Follow-up scan, Mirena planned</h3>
+          <p>Scan finds a 1 cm endometriotic cyst and some adhesion, judged nothing to worry about. Mirena inserted on 12 Sep 2023.</p>
+          <span class="who">Dr Mala Sibal</span>
+        </div>
+      </li>
+
+    </ol>
+
+
+    <p class="caveat">Figures are from the Manipal bills on file only. 6 of the consultations on file have no bill, so the true spend is likely a few thousand rupees higher.</p>
+
+    <footer>&copy; 2026 Mrinalini S &middot; <a href="upi://pay?pa=mrinalinis@upi&amp;pn=Mrinalini%20S&amp;cu=INR" title="Pay via UPI (opens a payment app on mobile)"><code>mrinalinis@upi</code></a> &middot; Code licensed under MIT</footer>
+  </main>
+  <script src="/assets/analytics.js" defer></script>
+</body>
+</html>
