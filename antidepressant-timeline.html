@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Antidepressant Timeline · Mrinalini S</title>
+  <meta name="robots" content="noindex">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+           background: #f4f3f0; color: #1a1a1a; line-height: 1.6; padding: 64px 16px; }
+    .wrap { max-width: 760px; margin: 0 auto; }
+
+    .back { display: inline-block; margin-bottom: 24px; font-size: 14px;
+            color: #6b6560; text-decoration: none; }
+    .back:hover { color: #2d5a27; }
+
+    .eyebrow { font-size: 13px; color: #a8a29e; margin-bottom: 6px; }
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    .lede { font-size: 15px; color: #4a4540; max-width: 62ch; }
+
+    .answers { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+               gap: 16px; margin-top: 24px; }
+    .answers + .answers { margin-top: 16px; }
+    .answer { background: #fff; border: 1px solid #d9d6cf; border-radius: 12px; padding: 20px 22px; }
+    .answer .q { font-size: 13px; color: #6b6560; margin-bottom: 8px; }
+    .answer .big { font-size: 34px; font-weight: 700; line-height: 1.05; letter-spacing: -0.5px;
+                   font-variant-numeric: tabular-nums; }
+    .answer .big small { font-size: 14px; font-weight: 500; color: #6b6560; margin-left: 4px;
+                         letter-spacing: 0; }
+    .answer .note { font-size: 13px; color: #6b6560; margin-top: 10px; line-height: 1.5; }
+    .answer .days { list-style: none; }
+    .answer .days li { padding-left: 12px; position: relative; }
+    .answer .days li::before { content: ""; position: absolute; left: 0; top: 8px;
+                               width: 4px; height: 4px; border-radius: 50%; background: #a8a29e; }
+
+    h2 { font-size: 20px; font-weight: 600; margin: 44px 0 14px; }
+    p { max-width: 66ch; }
+
+    .table-wrap { overflow-x: auto; background: #fff; border: 1px solid #d9d6cf; border-radius: 12px; }
+    .spans { width: 100%; border-collapse: collapse; font-size: 14px;
+             font-variant-numeric: tabular-nums; }
+    .spans th, .spans td { text-align: left; padding: 11px 16px; border-bottom: 1px solid #eceae4;
+                           vertical-align: top; }
+    .spans tr:last-child td { border-bottom: 0; }
+    .spans th { font-size: 12px; font-weight: 600; color: #a8a29e; background: #faf9f7; }
+    .spans td:last-child, .spans th:last-child { text-align: right; white-space: nowrap; }
+    .ladder td:last-child, .ladder th:last-child { text-align: left; white-space: normal; }
+    .spans .em td { color: #2d5a27; font-weight: 600; background: #f3f6f2; }
+
+    /* Dose ladder: two drugs side by side, month by month. */
+    .ladder td.bar { padding: 6px 16px; }
+    .ladder td:first-child { white-space: nowrap; }
+    .bar span + em { white-space: nowrap; }
+    .bar em.wrap { white-space: normal; }
+    .bar span { display: inline-block; height: 12px; border-radius: 3px; vertical-align: middle;
+                margin-right: 8px; }
+    .bar .m { background: #b8a9d9; }
+    .bar .a { background: #2d5a27; }
+    .bar .c { background: #d9a441; }
+    .bar .sos { opacity: 0.45; }
+    .bar em { font-style: normal; font-size: 13px; color: #4a4540; }
+    .legend { font-size: 12px; color: #6b6560; margin: 8px 2px 0; }
+    .legend span { display: inline-block; width: 12px; height: 12px; border-radius: 3px;
+                   vertical-align: middle; margin: 0 4px 0 12px; }
+
+    .timeline { list-style: none; position: relative; margin-top: 4px; }
+    .timeline::before { content: ""; position: absolute; left: 117px; top: 10px; bottom: 10px;
+                        width: 2px; background: #d9d6cf; }
+    .event { display: grid; grid-template-columns: 100px 1fr; gap: 0 36px;
+             padding-bottom: 28px; position: relative; }
+    .event:last-child { padding-bottom: 0; }
+    .event .when { font-size: 13px; color: #a8a29e; text-align: right; line-height: 1.45;
+                   padding-top: 2px; font-variant-numeric: tabular-nums; }
+    .event .when b { display: block; color: #1a1a1a; font-weight: 600; }
+    .event::before { content: ""; position: absolute; left: 112px; top: 7px; width: 12px; height: 12px;
+                     border-radius: 50%; background: #f4f3f0; border: 2px solid #2d5a27; }
+    .event.major::before { width: 16px; height: 16px; left: 110px; top: 5px; background: #2d5a27;
+                           box-shadow: 0 0 0 4px #e3ebe0; }
+    .event.side::before { border-color: #a8a29e; }
+    .event h3 { font-size: 16px; font-weight: 600; line-height: 1.35; margin-bottom: 4px; }
+    .event.major h3 { font-size: 18px; color: #2d5a27; }
+    .event p { font-size: 14px; color: #4a4540; max-width: 56ch; }
+    .event .who { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 9px;
+                  border-radius: 999px; background: #eceae4; color: #4a4540; letter-spacing: 0.2px;
+                  margin-top: 8px; margin-right: 6px; }
+    .event .who.rx { background: #e3ebe0; color: #2d5a27; }
+    .gap { display: grid; grid-template-columns: 100px 1fr; gap: 0 36px; padding-bottom: 28px; }
+    .gap span { grid-column: 2; font-size: 12px; font-style: italic; color: #a8a29e; }
+    .gap span::before { content: ""; display: inline-block; width: 18px; height: 0;
+                        border-top: 1px dashed #d9d6cf; vertical-align: middle;
+                        margin: 0 8px 0 -36px; }
+
+    .caveat { margin-top: 28px; font-size: 13px; color: #6b6560; line-height: 1.55; }
+
+    footer { margin-top: 48px; font-size: 12px; color: #a8a29e; text-align: center; }
+    footer a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+    @media (max-width: 560px) {
+      body { padding-top: 40px; }
+      .timeline::before { left: 7px; }
+      .event, .gap { grid-template-columns: 1fr; gap: 4px 0; padding-left: 28px; }
+      .event .when { text-align: left; padding-top: 0; }
+      .event .when b { display: inline; margin-right: 8px; }
+      .event::before { left: 2px; }
+      .event.major::before { left: 0; }
+      .gap span { grid-column: 1; }
+      .gap span::before { margin-left: -28px; width: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <a class="back" href="/secret.html">← Secret</a>
+
+    <div class="eyebrow">St John's Medical College Hospital · Manipal Hospital, HAL Airport Road · Bengaluru</div>
+    <h1>Antidepressant Timeline</h1>
+    <p class="lede">One depressive episode with severe anxiety, first treated in April 2023.</p>
+    <section class="answers" aria-label="At a glance">
+      <div class="answer">
+        <div class="q">Medications</div>
+        <div class="big">3</div>
+        <ul class="note days">
+          <li>Clonazepam, nightly from Apr 2023, SOS since 2024</li>
+          <li>Mirtazapine, May 2023 to Oct 2024</li>
+          <li>Amitriptyline, Mar 2024 to today, cross-tapered from mirtazapine</li>
+        </ul>
+      </div>
+      <div class="answer">
+        <div class="q">Psychiatrists</div>
+        <div class="big">8</div>
+        <ul class="note days">
+          <li>7 at St John's</li>
+          <li>1 at Manipal</li>
+        </ul>
+      </div>
+      <div class="answer">
+        <div class="q">Taper, still under way</div>
+        <div class="big">5<small>months</small></div>
+        <div class="note">150 mg down to 90 mg since 15 Apr 2026. One attempt at 75 mg was reversed.</div>
+      </div>
+    </section>
+
+    <section class="answers" aria-label="Summary">
+      <div class="answer">
+        <div class="q">On antidepressants</div>
+        <div class="big">3<small>yrs 4 mo</small></div>
+        <ul class="note days">
+          <li>Mirtazapine, 17 May 2023 to late Oct 2024 (17.5 months)</li>
+          <li>Amitriptyline, 9 Mar 2024 to today (2.5 years)</li>
+          <li>Cross-tapered from one to the other over 7.7 months in 2024</li>
+        </ul>
+      </div>
+      <div class="answer">
+        <div class="q">Highest dose</div>
+        <div class="big">150<small>mg</small></div>
+        <div class="note">Amitriptyline at night, held for 13 months from 9 Mar 2025 to 15 Apr 2026. Mirtazapine peaked at 37.5 mg in Feb 2024.</div>
+      </div>
+      <div class="answer">
+        <div class="q">Psychiatry visits on file</div>
+        <div class="big">25<small>visits</small></div>
+        <ul class="note days">
+          <li>24 at St John's under 7 doctors</li>
+          <li>1 at Manipal, 20 Aug 2026</li>
+          <li>Longest gap: 6 months in 2025</li>
+        </ul>
+      </div>
+    </section>
+
+    <h2>How long each stage took</h2>
+    <div class="table-wrap">
+      <table class="spans">
+        <thead><tr><th>Stage</th><th>From → To</th><th>Time</th></tr></thead>
+        <tbody>
+          <tr><td>Clonazepam only</td><td>19 Apr 2023 → 17 May 2023</td><td>28 days · 4 wks</td></tr>
+          <tr><td>Mirtazapine alone, 7.5 → 37.5 mg</td><td>17 May 2023 → 9 Mar 2024</td><td>297 days · ~10 mo</td></tr>
+          <tr><td>Cross-taper, mirtazapine to amitriptyline 10 → 125 mg</td><td>9 Mar 2024 → ~30 Oct 2024</td><td>235 days · ~7.7 mo</td></tr>
+          <tr><td>Amitriptyline alone, 135 → 150 mg</td><td>~30 Oct 2024 → 9 Mar 2025</td><td>130 days · ~4.3 mo</td></tr>
+          <tr class="em"><td>Held at 150 mg</td><td>9 Mar 2025 → 15 Apr 2026</td><td>402 days · ~13 mo</td></tr>
+          <tr><td>Tapering, 150 → 90 mg so far</td><td>15 Apr 2026 → today</td><td>153 days · ~5 mo</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Dose ladder</h2>
+    <div class="table-wrap">
+      <table class="spans ladder">
+        <thead><tr><th>From</th><th>Mirtazapine</th><th>Amitriptyline</th><th>Clonazepam</th></tr></thead>
+        <tbody>
+          <tr><td>19 Apr 2023</td><td class="bar"><em>—</em></td><td class="bar"><em>—</em></td><td class="bar"><span class="c" style="width:40px"></span><em>0.5 mg nightly</em></td></tr>
+          <tr><td>17 May 2023</td><td class="bar"><span class="m" style="width:12px"></span><em>7.5 mg</em></td><td class="bar"><em>—</em></td><td class="bar"><span class="c sos" style="width:40px"></span><em>0.5 mg SOS</em></td></tr>
+          <tr><td>31 May 2023</td><td class="bar"><span class="m" style="width:24px"></span><em>15 mg</em></td><td class="bar"><em>—</em></td><td class="bar"><span class="c sos" style="width:20px"></span><em>0.25 mg SOS</em></td></tr>
+          <tr><td>17 Jun 2023</td><td class="bar"><span class="m" style="width:24px"></span><em>15 mg</em></td><td class="bar"><em>—</em></td><td class="bar"><span class="c" style="width:40px"></span><em>0.5 mg nightly</em></td></tr>
+          <tr><td>26 Jul 2023</td><td class="bar"><span class="m" style="width:24px"></span><em>15 mg</em></td><td class="bar"><em>—</em></td><td class="bar"><span class="c" style="width:20px"></span><em>0.25 mg nightly</em></td></tr>
+          <tr><td>2 Nov 2023</td><td class="bar"><span class="m" style="width:36px"></span><em>22.5 mg</em></td><td class="bar"><em>—</em></td><td class="bar"><span class="c" style="width:10px"></span><em class="wrap">0.125 mg alternate nights</em></td></tr>
+          <tr><td>6 Jan 2024</td><td class="bar"><span class="m" style="width:48px"></span><em>30 mg</em></td><td class="bar"><em>—</em></td><td class="bar"><em>—</em></td></tr>
+          <tr><td>16 Feb 2024</td><td class="bar"><span class="m" style="width:60px"></span><em>37.5 mg</em></td><td class="bar"><em>—</em></td><td class="bar"><em>—</em></td></tr>
+          <tr><td>9 Mar 2024</td><td class="bar"><span class="m" style="width:60px"></span><em>37.5 mg</em></td><td class="bar"><span class="a" style="width:8px"></span><em>10 mg</em></td><td class="bar"><em>—</em></td></tr>
+          <tr><td>13 Apr 2024</td><td class="bar"><span class="m" style="width:48px"></span><em>30 mg</em></td><td class="bar"><span class="a" style="width:20px"></span><em>25 mg</em></td><td class="bar"><em>—</em></td></tr>
+          <tr><td>6 Jul 2024</td><td class="bar"><span class="m" style="width:48px"></span><em>30 mg</em></td><td class="bar"><span class="a" style="width:40px"></span><em>50 mg</em></td><td class="bar"><span class="c sos" style="width:20px"></span><em>0.25 mg SOS</em></td></tr>
+          <tr><td>24 Jul 2024</td><td class="bar"><span class="m" style="width:48px"></span><em>30 mg</em></td><td class="bar"><span class="a" style="width:48px"></span><em>60 mg</em></td><td class="bar"><em>—</em></td></tr>
+          <tr><td>7 Aug 2024</td><td class="bar"><span class="m" style="width:48px"></span><em>30 mg</em></td><td class="bar"><span class="a" style="width:56px"></span><em>70 mg</em></td><td class="bar"><em>—</em></td></tr>
+          <tr><td>18 Sep 2024</td><td class="bar"><span class="m" style="width:36px"></span><em>22.5 mg</em></td><td class="bar"><span class="a" style="width:84px"></span><em>105 mg</em></td><td class="bar"><em>—</em></td></tr>
+          <tr><td>20 Oct 2024</td><td class="bar"><span class="m" style="width:12px"></span><em>7.5 mg, one week</em></td><td class="bar"><span class="a" style="width:100px"></span><em>125 mg</em></td><td class="bar"><em>—</em></td></tr>
+          <tr><td>20 Nov 2024</td><td class="bar"><em>stopped</em></td><td class="bar"><span class="a" style="width:108px"></span><em>135 mg</em></td><td class="bar"><span class="c sos" style="width:20px"></span><em>0.25 mg SOS</em></td></tr>
+          <tr class="em"><td>9 Mar 2025</td><td class="bar"><em>—</em></td><td class="bar"><span class="a" style="width:120px"></span><em>150 mg</em></td><td class="bar"><span class="c sos" style="width:20px"></span><em>0.25 mg SOS</em></td></tr>
+          <tr><td>15 Apr 2026</td><td class="bar"><em>—</em></td><td class="bar"><span class="a" style="width:80px"></span><em class="wrap">100 mg, then 87.5 mg after 45 days</em></td><td class="bar"><em>—</em></td></tr>
+          <tr><td>~Jul 2026</td><td class="bar"><em>—</em></td><td class="bar"><span class="a" style="width:60px"></span><em class="wrap">75 mg tried, back to 100 mg</em></td><td class="bar"><em>—</em></td></tr>
+          <tr><td>20 Aug 2026</td><td class="bar"><em>—</em></td><td class="bar"><span class="a" style="width:72px"></span><em>90 mg</em></td><td class="bar"><span class="c sos" style="width:20px"></span><em class="wrap">0.25 mg SOS, intense panic only</em></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="legend">Antidepressant doses are once nightly; clonazepam as marked. A dash means the drug was not on that script.<span style="background:#b8a9d9"></span>Mirtazapine<span style="background:#2d5a27"></span>Amitriptyline<span style="background:#d9a441"></span>Clonazepam</div>
+
+    <h2>Timeline</h2>
+    <ol class="timeline">
+
+      <li class="event">
+        <div class="when"><b>19 Apr 2023</b>Wed</div>
+        <div>
+          <h3>First psychiatry visit at St John's</h3>
+          <p>Clonazepam 0.5 mg at night for three weeks. No antidepressant yet. Review set for 6 May.</p>
+          <span class="who">Dr Miriyam Joseph</span>
+        </div>
+      </li>
+
+      <li class="event major">
+        <div class="when"><b>17 May 2023</b>Wed</div>
+        <div>
+          <h3>Mirtazapine started</h3>
+          <p>7.5 mg at night for two weeks, with clonazepam 0.5 mg kept as a rescue tablet (five). Two weeks later the dose steps to 15 mg and clonazepam drops to 0.25 mg as needed.</p>
+          <span class="who">Dr Miriyam Joseph</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>17 Jun 2023</b>Sat</div>
+        <div>
+          <h3>Settled on 15 mg, clonazepam back to nightly</h3>
+          <p>Two months of mirtazapine 15 mg. Clonazepam 0.5 mg nightly for 30 days, then 0.25 mg nightly for 30 days. On 26 Jul the same combination is written for a further 90 days.</p>
+          <span class="who">Dr N. Sachin</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>2 Nov 2023</b>Thu</div>
+        <div>
+          <h3>Mirtazapine up to 22.5 mg, clonazepam tapered</h3>
+          <p>15 mg plus 7.5 mg at night for two months. Clonazepam cut to half of 0.25 mg on alternate days. Review on 8 Jan 2024.</p>
+          <span class="who">Dr Milan Varghese</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>6 Jan 2024</b>Sat</div>
+        <div>
+          <h3>Up to 30 mg, blood work ordered</h3>
+          <p>15 mg × 1½ for four days, then 15 mg × 2 for 28 days. Thyroid, complete hemogram, B12, vitamin D, calcium, electrolytes and a fasting lipid profile ordered at an NABL lab.</p>
+          <span class="who">Dr Sachin Nagendrappa</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>16 Feb 2024</b>Fri</div>
+        <div>
+          <h3>Peak mirtazapine, 37.5 mg, plus vitamin D</h3>
+          <p>30 mg plus 7.5 mg nightly for a month. Vitamin D 60,000 IU once a week for six weeks, so the January bloods found a deficiency.</p>
+          <span class="who">Dr Miriyam Joseph</span>
+        </div>
+      </li>
+
+      <li class="event major">
+        <div class="when"><b>9 Mar 2024</b>Sat</div>
+        <div>
+          <h3>Amitriptyline added</h3>
+          <p>10 mg at night alongside mirtazapine 37.5 mg. Propranolol (Betacap TR 20 mg) as a rescue for physical anxiety, ten tablets.</p>
+          <span class="who">Dr Miriyam Joseph</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>6 Apr 2024</b>Sat</div>
+        <div>
+          <h3>Cross-titration begins</h3>
+          <p>Amitriptyline 10 mg × 1½ for three months. Quetiapine 25 mg, half a tablet as needed (20), and propranolol 10 mg as needed (20). A week later, on 13 Apr, amitriptyline goes to 25 mg and the extra 7.5 mg of mirtazapine is crossed out, bringing it back to 30 mg.</p>
+          <span class="who">Dr Aiswarya Balagopal</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>6 Jul 2024</b>Sat</div>
+        <div>
+          <h3>Amitriptyline doubled to 50 mg</h3>
+          <p>Mirtazapine 30 mg, amitriptyline 50 mg, clonazepam 0.25 mg and Betacap TR 40 mg as rescue tablets. Three weeks later 60 mg, and on 7 Aug 70 mg.</p>
+          <span class="who">Dr Aiswarya Balagopal</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>18 Sep 2024</b>Wed</div>
+        <div>
+          <h3>Amitriptyline passes 100 mg, mirtazapine starts down</h3>
+          <p>75 mg plus 25 mg plus half of 10 mg (105 mg). Mirtazapine reduced to 22.5 mg. An undated script from Dr Bhuvaneshwari in early October repeats this for two weeks.</p>
+          <span class="who">Dr Aiswarya Balagopal</span>
+        </div>
+      </li>
+
+      <li class="event major">
+        <div class="when"><b>20 Oct 2024</b>Sun</div>
+        <div>
+          <h3>Mirtazapine stopped</h3>
+          <p>Amitriptyline 75 mg plus 25 mg × 2 (125 mg), with 25 mg extra as needed. On 23 Oct mirtazapine is written as 7.5 mg for one final week. By 20 Nov it is gone and amitriptyline is 135 mg for three months, with clonazepam 0.25 mg mouth-dissolving as a rescue (five).</p>
+          <span class="who">Dr Bhuvaneshwari S</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>8 Jan 2025</b>Wed</div>
+        <div>
+          <h3>Same 135 mg, another three months</h3>
+          <p>Pharmacy bill for the four amitriptyline strengths and clonazepam. Two months later, on 9 Mar, the dose is simplified to 75 mg × 2 at night for four months.</p>
+          <span class="who">Dr Bhuvaneshwari S</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>3 May 2025</b>Sat</div>
+        <div>
+          <h3>Clonazepam top-up only</h3>
+          <p>Six tablets of 0.25 mg mouth-dissolving. No change to amitriptyline.</p>
+          <span class="who">Dr Bhuvaneshwari S</span>
+        </div>
+      </li>
+
+      <li class="gap"><span>Five months without a psychiatry visit, on 150 mg throughout</span></li>
+
+      <li class="event side">
+        <div class="when"><b>24 Sep 2025</b>Wed</div>
+        <div>
+          <h3>Emergency visit for a kidney stone</h3>
+          <p>Right loin-to-groin pain from 7 pm, pain score 9, pulse 118 on arrival. Ultrasound finds a 2 mm stone in the right kidney and 2.5 mm in the left, both non-obstructive; diagnosis a probably passed ureteric stone. IV pantoprazole, ondansetron, paracetamol and a diclofenac suppository. Discharged at 5 am. Regular medications left blank on the summary.</p>
+          <span class="who">Dr Shashi Vadhan · Dr Dwarak V M</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>4 Oct 2025</b>Sat</div>
+        <div>
+          <h3>150 mg for four more months</h3>
+          <p>75 mg × 2 at 6 pm. On 14 Nov, 180 tablets of Tryptomer 75 mg bought at Manipal pharmacy, a 90-day supply.</p>
+          <span class="who">Dr Bhuvaneshwari S</span>
+        </div>
+      </li>
+
+      <li class="event major">
+        <div class="when"><b>15 Apr 2026</b>Wed</div>
+        <div>
+          <h3>Taper begins</h3>
+          <p>Down from 150 mg to 100 mg at once: 75 mg for 120 days plus 25 mg for 45 days, then half of 25 mg for the next 45 days (87.5 mg). Review after four months.</p>
+          <span class="who">Dr Priya Sreedaran</span>
+        </div>
+      </li>
+
+      <li class="event">
+        <div class="when"><b>~Jul 2026</b></div>
+        <div>
+          <h3>75 mg tried, then back to 100 mg</h3>
+          <p>Recorded at the August Manipal visit: a drop to 75 mg about a month earlier brought a rise in emotional sensitivity, so the dose went back up.</p>
+        </div>
+      </li>
+
+      <li class="event side">
+        <div class="when"><b>10 Aug 2026</b>Mon</div>
+        <div>
+          <h3>Bruxism: pain in the left face, tender jaw muscle</h3>
+          <p>Left masseter and trapezius tender on examination. Etoshine MR twice a day for four days and a physiotherapy referral. The bruxism is later flagged as recently worse.</p>
+          <span class="who">Dr Kishan Panicker</span>
+        </div>
+      </li>
+
+      <li class="event major">
+        <div class="when"><b>20 Aug 2026</b>Thu</div>
+        <div>
+          <h3>Switched to new psychiatrist at Manipal Hospitals</h3>
+          <p>History summarised: one depressive episode with severe anxiety in 2022–23, mirtazapine to 30 mg, then amitriptyline to 150 mg with significant overall improvement. Now wants to taper off. Amitriptyline 75 mg plus 10 mg × 1½ (90 mg) for 30 days. Clonazepam 0.25 mg only for intense panic, four tablets. Pulse 106, BP 100/69. Next visit in a month.</p>
+          <span class="who">Dr Sachin Reddy K R</span>
+        </div>
+      </li>
+
+      <li class="event side">
+        <div class="when"><b>28 Aug 2026</b>Fri</div>
+        <div>
+          <h3>Gastroenterology for bloating and burning</h3>
+          <p>Bloating with discomfort and a burning sensation, no dysuria. Abdominal ultrasound advised.</p>
+          <span class="who">Dr Anand Dotihal</span>
+        </div>
+      </li>
+
+    </ol>
+
+    <h2>Money on file</h2>
+    <div class="table-wrap">
+      <table class="spans">
+        <thead><tr><th>What</th><th>When</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr><td>St John's pharmacy, amitriptyline and clonazepam</td><td>20 Nov 2024</td><td>₹1,297</td></tr>
+          <tr><td>St John's pharmacy, amitriptyline and clonazepam</td><td>8 Jan 2025</td><td>₹1,071</td></tr>
+          <tr><td>St John's pharmacy</td><td>29 Mar 2025</td><td>₹1,473</td></tr>
+          <tr><td>St John's pharmacy, clonazepam</td><td>3 May 2025</td><td>₹14</td></tr>
+          <tr><td>Manipal emergency, kidney stone</td><td>24 Sep 2025</td><td>₹9,261</td></tr>
+          <tr><td>Manipal pharmacy, 180 × Tryptomer 75 mg</td><td>14 Nov 2025</td><td>₹1,045</td></tr>
+          <tr><td>St John's psychiatry consultation</td><td>15 Apr 2026</td><td>₹400</td></tr>
+          <tr><td>Manipal dental consultation and Etoshine</td><td>10 Aug 2026</td><td>₹970</td></tr>
+          <tr><td>Manipal pharmacy, Tryptomer and Clonotril</td><td>20 Aug 2026</td><td>₹298</td></tr>
+          <tr><td>Manipal gastroenterology consultation</td><td>28 Aug 2026</td><td>₹1,300</td></tr>
+          <tr class="em"><td>Total on file</td><td></td><td>₹17,129</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="caveat">Built from 25 prescriptions and 11 bills. St John's consultation fees are on file for only one visit, and pharmacy bills for only five of the roughly 30 refills, so the true spend is several thousand rupees higher. The Manipal psychiatry consultation on 20 Aug 2026 has no bill in the set. Doses are read from handwritten scripts; the 13 Apr 2024 amitriptyline dose is written over and read as 25 mg.</p>
+
+    <footer>&copy; 2026 Mrinalini S &middot; <a href="upi://pay?pa=mrinalinis@upi&amp;pn=Mrinalini%20S&amp;cu=INR" title="Pay via UPI (opens a payment app on mobile)"><code>mrinalinis@upi</code></a> &middot; Code licensed under MIT</footer>
+  </main>
+  <script src="/assets/analytics.js" defer></script>
+</body>
+</html>
