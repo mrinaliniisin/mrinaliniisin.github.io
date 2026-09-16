@@ -58,6 +58,14 @@
     .ladder th, .ladder td { padding-left: 12px; padding-right: 12px; }
     .ladder td.bar { padding: 6px 12px; }
     .ladder td:first-child { white-space: nowrap; }
+    /* Amitriptyline column is mirrored: label then bar, flush right, so the mirtazapine
+       bar (growing from the left) and the amitriptyline bar (growing from the right)
+       face each other and the cross-taper reads at a glance. */
+    .ladder th:nth-child(3), .ladder td:nth-child(3) { text-align: right; }
+    /* The bar floats right; the label is a block formatting context beside it, so a
+       wrapped label stays to the left of the bar instead of running underneath. */
+    .ladder td:nth-child(3).bar span { float: right; margin: 5px 0 0 8px; }
+    .ladder td:nth-child(3).bar em { display: block; overflow: hidden; }
     .bar span + em { white-space: nowrap; }
     .bar em.wrap { white-space: normal; }
     .bar span { display: inline-block; height: 12px; border-radius: 3px; vertical-align: middle;
@@ -68,6 +76,28 @@
     .bar .sos { opacity: 0.45; }
     .bar em { font-style: normal; font-size: 13px; color: #4a4540; }
     .legend { font-size: 12px; color: #6b6560; margin: 8px 2px 0; }
+
+    /* Dose over time: step chart drawn by the script at the bottom of the page. */
+    .chart-wrap { position: relative; overflow: visible; padding: 16px 16px 10px; }
+    .chart-wrap svg { display: block; width: 100%; overflow: visible; }
+    .chart-wrap .grid { stroke: #eceae4; stroke-width: 1; }
+    .chart-wrap .axis { fill: #a8a29e; font-size: 11px; font-variant-numeric: tabular-nums; }
+    .chart-wrap .ptitle { fill: #6b6560; font-size: 12px; font-weight: 600; }
+    .chart-wrap .lbl { fill: #4a4540; font-size: 12px; }
+    .chart-wrap .line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+    .chart-wrap .line.sos { stroke-dasharray: 4 4; }
+    .chart-wrap .dot { stroke: #fff; stroke-width: 2; }
+    .chart-wrap .xhair { stroke: #a8a29e; stroke-width: 1; visibility: hidden; }
+    .chart-wrap .hit { fill: transparent; cursor: crosshair; touch-action: none; }
+    .chart-tip { position: absolute; z-index: 2; pointer-events: none; display: none; white-space: nowrap;
+                 background: #fff; border: 1px solid #d9d6cf; border-radius: 8px; padding: 8px 10px;
+                 font-size: 12px; color: #4a4540; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    .chart-tip b { display: block; color: #1a1a1a; margin-bottom: 4px; }
+    .chart-tip div { line-height: 1.5; }
+    .chart-tip i, .keys i { display: inline-block; width: 14px; border-top: 2px solid; vertical-align: middle; }
+    .chart-tip i { margin-right: 6px; }
+    .keys i { margin: 0 6px 0 14px; }
+    .keys i:first-child { margin-left: 0; }
     .ladder-head { display: flex; align-items: baseline; justify-content: space-between;
                    flex-wrap: wrap; gap: 4px 16px; margin: 44px 0 14px; }
     .ladder-head h2 { margin: 0; }
@@ -222,13 +252,22 @@
           <tr><td>20 Oct 2024</td><td class="bar"><span class="m" style="width:12px"></span><em>7.5 mg, one week</em></td><td class="bar"><span class="a" style="width:100px"></span><em>125 mg</em></td><td class="bar"><em>—</em></td><td>31 days</td></tr>
           <tr><td>20 Nov 2024</td><td class="bar"><em>stopped</em></td><td class="bar"><span class="a" style="width:108px"></span><em>135 mg</em></td><td class="bar"><span class="c sos" style="width:20px"></span><em>0.25 mg SOS</em></td><td>109 days · ~3.6 mo</td></tr>
           <tr class="em"><td>9 Mar 2025</td><td class="bar"><em>—</em></td><td class="bar"><span class="a" style="width:120px"></span><em>150 mg</em></td><td class="bar"><span class="c sos" style="width:20px"></span><em>0.25 mg SOS</em></td><td>402 days · ~13.2 mo</td></tr>
-          <tr><td>15 Apr 2026</td><td class="bar"><em>—</em></td><td class="bar"><span class="a" style="width:80px"></span><em class="wrap">100 mg, then 87.5 mg after 45 days</em></td><td class="bar"><em>—</em></td><td>96 days · ~3.2 mo</td></tr>
-          <tr><td>~Jul 2026</td><td class="bar"><em>—</em></td><td class="bar"><span class="a" style="width:60px"></span><em class="wrap">75 mg tried, back to 100 mg</em></td><td class="bar"><em>—</em></td><td>31 days</td></tr>
+          <tr><td>15 Apr 2026</td><td class="bar"><em>—</em></td><td class="bar"><span class="a" style="width:80px"></span><em>100 mg</em></td><td class="bar"><em>—</em></td><td>45 days · ~1.5 mo</td></tr>
+          <tr><td>30 May 2026</td><td class="bar"><em>—</em></td><td class="bar"><span class="a" style="width:70px"></span><em>87.5 mg</em></td><td class="bar"><em>—</em></td><td>45 days · ~1.5 mo</td></tr>
+          <tr><td>14 Jul 2026</td><td class="bar"><em>—</em></td><td class="bar"><span class="a" style="width:60px"></span><em>75 mg</em></td><td class="bar"><em>—</em></td><td>7 days</td></tr>
+          <tr><td>21 Jul 2026</td><td class="bar"><em>—</em></td><td class="bar"><span class="a" style="width:80px"></span><em>100 mg</em></td><td class="bar"><em>—</em></td><td>30 days · ~1 mo</td></tr>
           <tr><td>20 Aug 2026</td><td class="bar"><em>—</em></td><td class="bar"><span class="a" style="width:72px"></span><em>90 mg</em></td><td class="bar"><span class="c sos" style="width:20px"></span><em class="wrap">0.25 mg SOS, intense panic only</em></td><td>26 days so far</td></tr>
         </tbody>
       </table>
     </div>
     <div class="legend">Antidepressant doses are once nightly; clonazepam as marked. A dash means the drug was not on that script.</div>
+
+    <div class="ladder-head">
+      <h2>Dose over time</h2>
+      <div class="legend keys"><i style="border-color:#7a58c8"></i>Mirtazapine<i style="border-color:#2d6e2b"></i>Amitriptyline<i style="border-color:#b8790f"></i>Clonazepam</div>
+    </div>
+    <div class="table-wrap ladder-wrap chart-wrap" id="dose-chart"><div class="chart-tip" role="status" aria-live="polite"></div></div>
+    <div class="legend">Same steps as the ladder, on a real time axis. Dashed segments are as-needed (SOS) doses; a gap means the drug was off the script. Hover or touch the chart for the doses on any date.</div>
 
     <h2>Timeline</h2>
     <ol class="timeline">
@@ -373,16 +412,16 @@
         <div class="when"><b>15 Apr 2026</b>Wed</div>
         <div>
           <h3>Taper begins</h3>
-          <p>Down from 150 mg to 100 mg at once: 75 mg for 120 days plus 25 mg for 45 days, then half of 25 mg for the next 45 days (87.5 mg). Review after four months.</p>
+          <p>Down from 150 mg to 100 mg at once: 75 mg for 120 days plus 25 mg for 45 days, then half of 25 mg for the next 45 days (87.5 mg). That works out to 100 mg until 30 May, 87.5 mg until 14 Jul, then 75 mg alone until 13 Aug. Review after four months.</p>
           <span class="who">Dr Priya Sreedaran</span>
         </div>
       </li>
 
       <li class="event">
-        <div class="when"><b>~Jul 2026</b></div>
+        <div class="when"><b>14 Jul 2026</b>Tue</div>
         <div>
-          <h3>75 mg tried, then back to 100 mg</h3>
-          <p>Recorded at the August Manipal visit: a drop to 75 mg about a month earlier brought a rise in emotional sensitivity, so the dose went back up.</p>
+          <h3>75 mg reached, then back to 100 mg</h3>
+          <p>Day 90 of the April script: the 25 mg tablets are used up, leaving 75 mg alone. Recorded at the August Manipal visit: the drop brought a rise in emotional sensitivity, and after a week, on 21 Jul, the dose went back up to 100 mg.</p>
         </div>
       </li>
 
@@ -417,6 +456,177 @@
 
     <footer>&copy; 2026 Mrinalini S &middot; <a href="upi://pay?pa=mrinalinis@upi&amp;pn=Mrinalini%20S&amp;cu=INR" title="Pay via UPI (opens a payment app on mobile)"><code>mrinalinis@upi</code></a> &middot; Code licensed under MIT</footer>
   </main>
+  <script>
+  (function () {
+    var wrap = document.getElementById('dose-chart');
+    if (!wrap) return;
+    var tip = wrap.querySelector('.chart-tip');
+    var NS = 'http://www.w3.org/2000/svg';
+    function D(s) { return new Date(s + 'T00:00:00'); }
+    var X0 = D('2023-04-01'), X1 = D('2026-10-01'), END = D('2026-09-15');
+
+    // [start date, dose in mg, mode]. Each step holds until the next one; 0 = off the script.
+    var series = [
+      { name: 'Mirtazapine', color: '#7a58c8', panel: 0, steps: [
+        ['2023-05-17', 7.5], ['2023-05-31', 15], ['2023-11-02', 22.5], ['2024-01-06', 30],
+        ['2024-02-16', 37.5], ['2024-04-13', 30], ['2024-09-18', 22.5], ['2024-10-20', 7.5],
+        ['2024-11-20', 0] ] },
+      { name: 'Amitriptyline', color: '#2d6e2b', panel: 0, endBelow: true, steps: [
+        ['2024-03-09', 10], ['2024-04-13', 25], ['2024-07-06', 50], ['2024-07-24', 60],
+        ['2024-08-07', 70], ['2024-09-18', 105], ['2024-10-20', 125], ['2024-11-20', 135],
+        ['2025-03-09', 150], ['2026-04-15', 100], ['2026-05-30', 87.5], ['2026-07-14', 75],
+        ['2026-07-21', 100], ['2026-08-20', 90] ] },
+      { name: 'Clonazepam', color: '#b8790f', panel: 1, steps: [
+        ['2023-04-19', 0.5, 'nightly'], ['2023-05-17', 0.5, 'SOS'], ['2023-05-31', 0.25, 'SOS'],
+        ['2023-06-17', 0.5, 'nightly'], ['2023-07-26', 0.25, 'nightly'],
+        ['2023-11-02', 0.125, 'alternate nights'], ['2024-01-06', 0], ['2024-07-06', 0.25, 'SOS'],
+        ['2024-07-24', 0], ['2024-11-20', 0.25, 'SOS'], ['2026-04-15', 0], ['2026-08-20', 0.25, 'SOS'] ] }
+    ];
+    var panels = [
+      { title: 'Antidepressants, mg at night', max: 150, ticks: [0, 50, 100, 150], h: 200 },
+      { title: 'Clonazepam, mg', max: 0.5, ticks: [0, 0.25, 0.5], h: 64 }
+    ];
+    // Peak and end labels; everything else lives in the ladder and the tooltip.
+    var labels = [
+      { s: 0, at: '2024-03-15', text: '37.5 mg', dy: -8 },
+      { s: 1, at: '2025-09-25', text: '150 mg', dy: -8 },
+      { s: 0, at: '2024-11-20', text: 'stopped', dx: 8, dy: -6 }
+    ];
+
+    series.forEach(function (sr) {
+      sr.iv = sr.steps.map(function (st, i) {
+        var next = sr.steps[i + 1];
+        return { start: D(st[0]), end: next ? D(next[0]) : END, dose: st[1], mode: st[2] || '' };
+      });
+    });
+
+    var ML = 48, MR = 20, MT = 36, GAP = 40, MB = 26;
+    function el(n, a, t) {
+      var e = document.createElementNS(NS, n);
+      for (var k in a) e.setAttribute(k, a[k]);
+      if (t != null) e.textContent = t;
+      return e;
+    }
+    function fmtDate(d) { return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); }
+    function doseAt(sr, d) {
+      for (var i = 0; i < sr.iv.length; i++) {
+        var v = sr.iv[i];
+        if (d >= v.start && d < v.end) return v;
+      }
+      return null;
+    }
+
+    var state = {};
+    function render() {
+      var old = wrap.querySelector('svg');
+      if (old) old.remove();
+      var W = wrap.clientWidth - 32;
+      if (W < 100) return;
+      var plotW = W - ML - MR;
+      var narrow = plotW < 500; // phone: year labels only, end values left to the tooltip
+      var tops = [MT, MT + panels[0].h + GAP];
+      var H = tops[1] + panels[1].h + MB;
+      var svg = el('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, role: 'img',
+                            'aria-label': 'Dose of each medicine over time, April 2023 to September 2026' });
+      function x(d) { return ML + (d - X0) / (X1 - X0) * plotW; }
+      function y(pi, v) { return tops[pi] + panels[pi].h - v / panels[pi].max * panels[pi].h; }
+
+      // Time gridlines: January (year label) and July of each year.
+      var bottom = tops[1] + panels[1].h;
+      for (var yr = 2023; yr <= 2026; yr++) {
+        [0, 6].forEach(function (m) {
+          var d = new Date(yr, m, 1);
+          if (d < X0 || d > X1) return;
+          var gx = x(d);
+          svg.appendChild(el('line', { class: 'grid', x1: gx, x2: gx, y1: tops[0], y2: bottom }));
+          if (narrow ? m !== 0 : gx - ML < 70) return; // skip Jul on phones; skip Jul 2023 when it would touch "Apr 2023"
+          svg.appendChild(el('text', { class: 'axis', x: gx, y: bottom + 18, 'text-anchor': 'middle' },
+                             m === 0 ? String(yr) : 'Jul'));
+        });
+      }
+      if (!narrow) svg.appendChild(el('text', { class: 'axis', x: ML, y: bottom + 18, 'text-anchor': 'start' }, 'Apr 2023'));
+      // Panels: title, value gridlines and ticks.
+      panels.forEach(function (p, pi) {
+        svg.appendChild(el('text', { class: 'ptitle', x: ML, y: tops[pi] - 22 }, p.title));
+        p.ticks.forEach(function (t, ti) {
+          var gy = y(pi, t);
+          svg.appendChild(el('line', { class: 'grid', x1: ML, x2: W - MR, y1: gy, y2: gy }));
+          svg.appendChild(el('text', { class: 'axis', x: ML - 8, y: gy + 4, 'text-anchor': 'end' },
+                             ti === p.ticks.length - 1 ? t + ' mg' : String(t)));
+        });
+      });
+      // Step lines. Verticals and scheduled doses are solid; SOS spans are dashed;
+      // a zero dose is a gap.
+      series.forEach(function (sr) {
+        var solid = '', dashed = '';
+        sr.iv.forEach(function (v, i) {
+          var xa = x(v.start), xb = x(v.end), yv = y(sr.panel, v.dose);
+          if (i > 0) solid += 'M' + xa + ' ' + y(sr.panel, sr.iv[i - 1].dose) + 'V' + yv;
+          if (v.dose > 0) {
+            var seg = 'M' + xa + ' ' + yv + 'H' + xb;
+            if (v.mode === 'SOS') dashed += seg; else solid += seg;
+          }
+        });
+        if (solid) svg.appendChild(el('path', { class: 'line', d: solid, stroke: sr.color }));
+        if (dashed) svg.appendChild(el('path', { class: 'line sos', d: dashed, stroke: sr.color }));
+        var last = sr.iv[sr.iv.length - 1];
+        var ex = last.dose > 0 ? x(END) : x(last.start);
+        svg.appendChild(el('circle', { class: 'dot', cx: ex, cy: y(sr.panel, last.dose), r: 4, fill: sr.color }));
+        if (last.dose > 0 && !narrow) {
+          svg.appendChild(el('text', { class: 'lbl', x: ex, y: y(sr.panel, last.dose) + (sr.endBelow ? 18 : -10), 'text-anchor': 'end' },
+                             last.dose + ' mg' + (last.mode ? ' ' + last.mode : '')));
+        }
+      });
+      labels.forEach(function (L) {
+        var sr = series[L.s], d = D(L.at), v = doseAt(sr, d);
+        var dose = v ? v.dose : 0;
+        svg.appendChild(el('text', { class: 'lbl', x: x(d) + (L.dx || 0), y: y(sr.panel, dose) + L.dy,
+                                     'text-anchor': L.dx ? 'start' : 'middle' }, L.text));
+      });
+      // Hover layer: crosshair across both panels, one tooltip listing every series.
+      var xhair = el('line', { class: 'xhair', x1: 0, x2: 0, y1: tops[0], y2: bottom });
+      var hit = el('rect', { class: 'hit', x: ML, y: tops[0], width: plotW, height: bottom - tops[0] });
+      svg.appendChild(xhair);
+      svg.appendChild(hit);
+      wrap.appendChild(svg);
+      state = { x: x, plotW: plotW, xhair: xhair, hit: hit, W: W };
+    }
+
+    function show(ev) {
+      var r = state.hit.getBoundingClientRect();
+      var px = Math.min(Math.max(ev.clientX - r.left, 0), state.plotW);
+      var d = new Date(X0.getTime() + px / state.plotW * (X1 - X0));
+      if (d > END) d = END;
+      var sx = state.x(d);
+      state.xhair.setAttribute('x1', sx); state.xhair.setAttribute('x2', sx);
+      state.xhair.style.visibility = 'visible';
+      while (tip.firstChild) tip.removeChild(tip.firstChild);
+      var head = document.createElement('b'); head.textContent = fmtDate(d); tip.appendChild(head);
+      series.forEach(function (sr) {
+        var v = doseAt(sr, d), row = document.createElement('div'), key = document.createElement('i');
+        key.style.borderColor = sr.color;
+        row.appendChild(key);
+        var txt = v && v.dose > 0 ? v.dose + ' mg' + (v.mode ? ' ' + v.mode : '') : '\u2014';
+        row.appendChild(document.createTextNode(txt + '  ' + sr.name));
+        tip.appendChild(row);
+      });
+      tip.style.display = 'block';
+      var left = sx + 12;
+      if (left + tip.offsetWidth > state.W + 16) left = sx - tip.offsetWidth - 12;
+      tip.style.left = left + 'px';
+      tip.style.top = (MT + 8) + 'px';
+    }
+    function hide() { tip.style.display = 'none'; state.xhair.style.visibility = 'hidden'; }
+
+    wrap.addEventListener('pointermove', function (ev) { if (state.hit && ev.target === state.hit) show(ev); });
+    wrap.addEventListener('pointerdown', function (ev) { if (state.hit && ev.target === state.hit) show(ev); });
+    wrap.addEventListener('pointerleave', hide);
+
+    render();
+    if (window.ResizeObserver) new ResizeObserver(render).observe(wrap);
+    else window.addEventListener('resize', render);
+  })();
+  </script>
   <script src="/assets/analytics.js" defer></script>
 </body>
 </html>
