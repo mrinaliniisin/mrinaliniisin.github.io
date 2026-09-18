@@ -30,6 +30,9 @@ the page mirrors YouTube, it isn't a log.
 Nothing is written when the list is unchanged (the "updated" date on the
 page is therefore the last change, not the last run).
 
+Script mode: `--rerender` redraws index.html from the saved likes.json
+without calling the API (use after changing the markup or CSS).
+
 Env (script mode):
   YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN   from youtube_auth.py
   YT_MAX_VIDEOS   optional cap on how many likes to mirror (default 300)
@@ -169,17 +172,18 @@ def render(videos, updated):
     for key, vids in groups:
         out.append('<section class="likes-group">')
         out.append('  <h2>%s</h2>' % html.escape(month_label(vids[0]["first_seen"])))
-        out.append('  <ul class="likes">')
+        out.append('  <div class="likes">')
         for v in vids:
             t, ch = html.escape(v["title"]), html.escape(v["channel"])
+            # Same shape as the homepage cards: a stretched link makes the
+            # whole card clickable, thumbnail on top, title, channel below.
             out.append(
-                '    <li>'
-                '<a class="thumb" href="%(u)s" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">'
-                '<img src="https://i.ytimg.com/vi/%(id)s/mqdefault.jpg" alt="" loading="lazy" width="120" height="68"></a>'
-                '<div class="what"><a href="%(u)s" target="_blank" rel="noopener">%(t)s</a>'
-                '<span class="channel">%(ch)s</span></div>'
-                '</li>' % {"u": html.escape(v["url"]), "id": v["id"], "t": t, "ch": ch})
-        out.append('  </ul>')
+                '    <div class="card">'
+                '<a class="card-link" href="%(u)s" target="_blank" rel="noopener" aria-label="%(t)s"></a>'
+                '<img class="thumb" src="https://i.ytimg.com/vi/%(id)s/mqdefault.jpg" alt="" loading="lazy" width="320" height="180">'
+                '<div class="card-body"><h3>%(t)s</h3><div class="channel">%(ch)s</div></div>'
+                '</div>' % {"u": html.escape(v["url"]), "id": v["id"], "t": t, "ch": ch})
+        out.append('  </div>')
         out.append('</section>')
     return "\n".join(out)
 
@@ -217,6 +221,15 @@ def sync(creds, today=None):
 
 
 def main():
+    if "--rerender" in sys.argv[1:]:
+        # Re-draw the page from the saved likes.json without touching the
+        # API — for template/CSS changes.
+        previous = load_previous()
+        if not previous:
+            sys.exit("Nothing to re-render: no likes.json yet.")
+        write_page(render(previous["videos"], previous["updated"]))
+        print("Re-rendered %d liked videos." % len(previous["videos"]))
+        return
     try:
         r = sync(creds_from_env())
     except SyncError as e:
