@@ -1,0 +1,49 @@
+name: Sync YouTube likes
+
+# Manual fallback for the weekly mirror of the account's "Liked videos" onto
+# /youtube-likes. The scheduled run lives in server.py (the always-on local
+# editor on :5666, see its youtube-likes section); this workflow is only
+# "Run workflow" from the Actions tab, e.g. when that machine is off. It is
+# deliberately not on a cron: two schedulers committing the same two files
+# from different clones would race each other into merge conflicts.
+#
+# Needs three repository secrets printed by .github/scripts/youtube_auth.py:
+# YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN. See youtube-likes/README.md.
+# The script only writes when the list changed; commits made with
+# GITHUB_TOKEN don't trigger other workflows (notify.yml doesn't track this
+# page anyway). Remember to `git pull` locally afterwards.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: youtube-likes
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Fetch liked videos
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: python3 .github/scripts/sync_youtube_likes.py
+      - name: Commit the page if it changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add youtube-likes
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "Sync YouTube likes ($(date -u +%Y-%m-%d))"
+          git push

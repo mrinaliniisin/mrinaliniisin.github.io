@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Likes · Mrinalini S</title>
+  <!-- Directory index like /about, so the URL is a bare /youtube-likes.
+       The list between the likes:start / likes:end markers is machine
+       written — see .github/scripts/sync_youtube_likes.py, which the
+       "Sync YouTube likes" Action runs weekly. Edit anything outside the
+       markers by hand; edits inside them are overwritten on the next sync. -->
+  <link rel="stylesheet" href="/assets/blog.css">
+  <style>
+    .likes-group { margin-top: 36px; }
+    .likes-group h2 { font-size: 15px; font-weight: 600; color: #a8a29e;
+                      font-style: italic; display: flex; align-items: center; gap: 14px; }
+    .likes-group h2::after { content: ""; flex: 1; border-top: 1px dashed #d9d6cf; }
+    .likes { list-style: none; margin: 14px 0 0; padding: 0; }
+    .likes li { display: flex; gap: 14px; align-items: flex-start; padding: 10px 0;
+                border-bottom: 1px solid #eceae4; }
+    .likes li:last-child { border-bottom: 0; }
+    .likes .thumb { flex: none; }
+    .likes .thumb img { display: block; width: 120px; height: 68px; object-fit: cover;
+                        border-radius: 6px; background: #eceae4; }
+    .likes .what { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .likes .what a { font-size: 15px; font-weight: 600; color: #1a1a1a;
+                     text-decoration: none; }
+    .likes .what a:hover { color: #2d5a27; text-decoration: underline;
+                           text-underline-offset: 2px; }
+    .likes .channel { font-size: 13px; color: #6b6560; }
+    .likes-empty { color: #6b6560; font-style: italic; }
+    @media (max-width: 480px) {
+      .likes .thumb img { width: 96px; height: 54px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <a class="back" href="/">&larr; Home</a>
+    <article>
+      <h1 class="post-title">YouTube Likes</h1>
+      <div class="post-body">
+        <p>Videos I've liked on YouTube, mirrored here once a week. Newest
+        first; the month is when the sync first caught the like.</p>
+      </div>
+      <!-- likes:start -->
+      <p class="likes-empty">Nothing here yet &mdash; the first weekly sync hasn't run.</p>
+      <!-- likes:end -->
+    </article>
+  </main>
+  <footer>&copy; 2026 <a href="/about">Mrinalini S</a> &middot; <a href="upi://pay?pa=mrinalinis@upi&amp;pn=Mrinalini%20S&amp;cu=INR" title="Pay via UPI (opens a payment app on mobile)"><code>mrinalinis@upi</code></a> &middot; Code licensed under MIT</footer>
+  <script src="/assets/analytics.js" defer></script>
+</body>
+</html>

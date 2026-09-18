@@ -14,3 +14,6 @@ push-worker/SECRETS.local.txt
 # Wrangler local state/cache
 push-worker/.wrangler/
 .edit-key
+
+# YouTube likes sync: local credentials + sync state (see youtube-likes/README.md)
+*.local.json

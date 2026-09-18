@@ -8,6 +8,9 @@ Serves the static site AND backs editor.html with two endpoints:
                                                       and updates blog/index.html
   GET  /api/load?p=<slug>                          -> {title, date, markdown, tags, layout}
   GET  /api/tags                                   -> every tag in use, most-used first
+  GET  /api/youtube-likes                          -> sync status for /youtube-likes
+  POST /api/youtube-likes/sync                     -> mirror liked videos now
+                                                      (also runs weekly on its own)
 
 Posts are pre-rendered: editor.html renders markdown -> HTML with marked.js at
 save time and POSTs both; this server just writes files. The markdown source is
@@ -28,7 +31,10 @@ import re
 import subprocess
 import sys
 import zlib
-from datetime import datetime
+import importlib.util
+import threading
+import time
+from datetime import datetime, timedelta
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
@@ -1203,6 +1209,140 @@ def delete_card(href):
             "deleted": deleted, "unlinked": unlinked}
 
 
+# ---------------------------------------------------------------------------
+# YouTube likes: a weekly mirror of the account's liked videos onto
+# /youtube-likes. The fetch + render lives in
+# .github/scripts/sync_youtube_likes.py (shared with the manual GitHub
+# Action, so it's loaded from that path rather than duplicated); this server
+# owns *when* it runs — a timer thread every YT_EVERY, plus the dashboard's
+# "Sync now" — and where the credentials come from: youtube-likes/
+# auth.local.json (git-ignored; youtube_auth.py writes it). With no auth file
+# the feature is dormant and the dashboard says so. The timer's bookkeeping
+# (last run, last result) is a second git-ignored file next to it, so a
+# restart of the runit service doesn't reset the week.
+#
+# By default a sync only writes files — publishing stays "a normal git push",
+# same as every other edit. Set "auto_push": true in auth.local.json to have
+# a changed sync commit just the two youtube-likes files and push.
+YT_DIR = os.path.join(ROOT, "youtube-likes")
+YT_AUTH = os.path.join(YT_DIR, "auth.local.json")
+YT_STATE = os.path.join(YT_DIR, "sync-state.local.json")
+YT_SCRIPT = os.path.join(ROOT, ".github", "scripts", "sync_youtube_likes.py")
+YT_EVERY = timedelta(days=7)
+YT_STARTUP_DELAY = 30          # seconds; don't hammer YouTube in a restart loop
+YT_POLL = 3600                 # how often the timer re-checks whether it's due
+_yt_lock = threading.Lock()
+
+
+def _yt_module():
+    spec = importlib.util.spec_from_file_location("sync_youtube_likes", YT_SCRIPT)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def yt_auth():
+    try:
+        with open(YT_AUTH, encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, ValueError):
+        return None
+
+
+def _yt_state():
+    try:
+        with open(YT_STATE, encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, ValueError):
+        return {}
+
+
+def _yt_save_state(st):
+    with open(YT_STATE, "w", encoding="utf-8") as f:
+        json.dump(st, f, indent=1)
+
+
+def _now():
+    return datetime.now().replace(microsecond=0)
+
+
+def yt_status():
+    st, auth = _yt_state(), yt_auth()
+    last = st.get("last_run")
+    due = (datetime.fromisoformat(last) + YT_EVERY) if last else _now()
+    try:
+        with open(os.path.join(YT_DIR, "likes.json"), encoding="utf-8") as f:
+            data = json.load(f)
+    except (FileNotFoundError, ValueError):
+        data = {}
+    return {
+        "configured": bool(auth),
+        "auto_push": bool(auth and auth.get("auto_push")),
+        "running": _yt_lock.locked(),
+        "last_run": last,
+        "last_trigger": st.get("last_trigger"),
+        "last_result": st.get("last_result"),
+        "last_error": st.get("last_error"),
+        "next_due": due.isoformat(),
+        "count": len(data.get("videos", [])),
+        "updated": data.get("updated"),
+    }
+
+
+def _yt_push():
+    """Commit only the two sync outputs and push. Anything else left
+    uncommitted in the tree stays that way."""
+    files = ["youtube-likes/index.html", "youtube-likes/likes.json"]
+    steps = (["git", "add", "--"] + files,
+             ["git", "commit", "-q", "-m", "Sync YouTube likes (%s)" % _now().date(), "--"] + files,
+             ["git", "push", "-q"])
+    for cmd in steps:
+        r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+        if r.returncode:
+            raise RuntimeError("%s failed: %s" % (" ".join(cmd[:2]), (r.stderr or r.stdout).strip()))
+    return True
+
+
+def yt_sync(trigger):
+    """Run one sync now. Returns the module's summary plus `pushed`; raises
+    on any failure after recording it in the state file."""
+    auth = yt_auth()
+    if not auth:
+        raise RuntimeError("No youtube-likes/auth.local.json — run "
+                           ".github/scripts/youtube_auth.py first")
+    if not _yt_lock.acquire(blocking=False):
+        raise RuntimeError("A sync is already running")
+    st = _yt_state()
+    st.update(last_run=_now().isoformat(), last_trigger=trigger)
+    try:
+        mod = _yt_module()
+        try:
+            result = mod.sync(auth)
+            result["pushed"] = bool(result["changed"] and auth.get("auto_push") and _yt_push())
+        except mod.SyncError as e:
+            raise RuntimeError(str(e))
+        st.update(last_result=result, last_error=None)
+        return result
+    except Exception as e:
+        st.update(last_result=None, last_error=str(e))
+        raise
+    finally:
+        _yt_save_state(st)
+        _yt_lock.release()
+
+
+def _yt_timer():
+    time.sleep(YT_STARTUP_DELAY)
+    while True:
+        try:
+            s = yt_status()
+            if s["configured"] and not s["running"] and datetime.fromisoformat(s["next_due"]) <= _now():
+                yt_sync("timer")
+        except Exception as e:  # recorded in the state file; keep the timer alive
+            print("youtube-likes sync failed: %s" % e)
+        time.sleep(YT_POLL)
+
+
 class Handler(SimpleHTTPRequestHandler):
     def end_headers(self):
         # Local dev only (never runs on GitHub Pages, which serves the
@@ -1252,6 +1392,8 @@ class Handler(SimpleHTTPRequestHandler):
             rel = parse_qs(urlparse(self.path).query).get("p", [""])[0]
             page = load_page(rel)
             return self._json(200 if page else 404, page or {"error": "not found"})
+        if self.path == "/api/youtube-likes":
+            return self._json(200, yt_status())
         return super().do_GET()
 
     def do_POST(self):
@@ -1346,6 +1488,8 @@ class Handler(SimpleHTTPRequestHandler):
                 if not key_ok(d.get("key")):
                     return self._json(403, {"error": "bad key"})
                 return self._json(200, {"ok": True, **delete_card(d.get("href") or "")})
+            if self.path == "/api/youtube-likes/sync":
+                return self._json(200, {"ok": True, **yt_sync("manual"), **yt_status()})
             if self.path == "/api/page/save":
                 d = self._body()
                 return self._json(200, {"ok": True,
@@ -1364,4 +1508,5 @@ if __name__ == "__main__":
     print("  editor:  http://localhost:%d/editor.html" % port)
     print("  gallery: http://localhost:%d/gallery.html" % port)
     print("  blog:    http://localhost:%d/blog/" % port)
+    threading.Thread(target=_yt_timer, name="youtube-likes", daemon=True).start()
     ThreadingHTTPServer(("", port), Handler).serve_forever()

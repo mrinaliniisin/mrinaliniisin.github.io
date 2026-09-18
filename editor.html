@@ -56,6 +56,20 @@
     .ecard-progress { margin-top: 6px; color: #6b6560; }
     .ecard-progress:first-of-type { margin-top: 0; }
     .ecard .post-tags { margin-top: 10px; }
+    /* Feed cards (YouTube Likes): the card still opens the page, but its
+       controls sit above the stretched link so the button stays clickable —
+       same layering trick as the source-link on index.html's cards. */
+    .feed-actions { position: relative; z-index: 2; display: flex; gap: 10px;
+                    align-items: center; margin-top: 12px; }
+    .feed-actions button { font: inherit; font-size: 12px; border: 1px solid #d9d6cf;
+                           background: #f7f6f3; color: #1a1a1a; border-radius: 6px;
+                           padding: 5px 10px; cursor: pointer; }
+    .feed-actions button:hover { filter: brightness(0.97); }
+    .feed-actions button:disabled { opacity: .55; cursor: default; }
+    .feed-actions .feed-msg { font-size: 12px; color: #6b6560; }
+    .feed-actions .feed-msg.err { color: #8a2a1e; }
+    .badge.err { background: #f8dcd7; color: #8a2a1e; }
+    .badge.off { background: #f3e8c7; color: #7a5c00; }
     .badges { display: flex; gap: 6px; flex-wrap: wrap; }
     .badge { font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
              line-height: 1.6; padding: 0 7px; border-radius: 999px; background: #ebe9e4; color: #6b6560; }
@@ -769,8 +783,62 @@
       // Orphaned cards: on the blog page with no file behind them. Not
       // documents to edit — opening one only offers Delete.
       if (orphans.length) h += section('Orphaned cards', orphans.map(p => card(p, 'post', unpushed)));
+      // Feeds: pages this server fills in on its own (YouTube Likes, weekly).
+      h += '<hr class="sec-divider">' + section('Feeds', [feedCard(await feedStatus())]);
       $('homebody').innerHTML = h;
     }
+
+    // The YouTube Likes mirror: server.py runs it weekly and on "Sync now";
+    // /api/youtube-likes says where it stands. Rendered as a card so the
+    // dashboard shows the whole site, including the parts nobody types.
+    const feedStatus = () => fetch('/api/youtube-likes').then(r => r.json())
+      .catch(() => ({ configured: false, error: 'server unreachable' }));
+    function feedCard(s) {
+      const badges = [];
+      if (!s.configured) badges.push('<span class="badge off">Not set up</span>');
+      else if (s.last_error) badges.push('<span class="badge err">Last sync failed</span>');
+      if (s.auto_push) badges.push('<span class="badge unpushed">Auto-push</span>');
+      const meta = s.configured
+        ? (s.count ? '<b>' + plural(s.count, 'video') + '</b>' +
+                     (s.updated ? ' &middot; updated ' + humanDate(s.updated) : '')
+                   : 'Nothing mirrored yet')
+        : 'Run <code>.github/scripts/youtube_auth.py</code> once to connect your account';
+      const when = !s.configured ? ''
+        : s.running ? 'Syncing now…'
+        : s.last_run ? 'Last sync ' + ago(s.last_run) + (s.last_trigger === 'timer' ? ' (weekly timer)' : '') +
+                       ' &middot; next ' + humanDate(s.next_due.slice(0, 10))
+        : 'Never synced — runs on its own within a minute of starting';
+      return '<div class="ecard" id="feed-yt">' +
+        '<a class="ecard-link" href="/youtube-likes/" aria-label="Open the YouTube Likes page"></a>' +
+        (badges.length ? '<div class="badges">' + badges.join('') + '</div>' : '') +
+        '<h2>YouTube Likes</h2>' +
+        '<div class="ecard-meta">' + meta + '</div>' +
+        (when ? '<div class="ecard-meta ecard-progress">' + when + '</div>' : '') +
+        '<div class="feed-actions">' +
+          '<button type="button" id="ytsync"' + (s.configured && !s.running ? '' : ' disabled') + '>Sync now</button>' +
+          '<span class="feed-msg' + (s.last_error ? ' err' : '') + '">' +
+            (s.last_error ? esc(s.last_error) : '') + '</span>' +
+        '</div></div>';
+    }
+    // One handler on the dashboard body: the card is re-rendered after each
+    // sync, so binding to the button itself would be lost.
+    $('homebody').addEventListener('click', async e => {
+      const b = e.target.closest('#ytsync'); if (!b) return;
+      b.disabled = true; b.textContent = 'Syncing…';
+      const msg = b.nextElementSibling; msg.className = 'feed-msg'; msg.textContent = '';
+      let s;
+      try {
+        s = await fetch('/api/youtube-likes/sync', { method: 'POST' }).then(r => r.json());
+      } catch (err) { s = { error: String(err) }; }
+      if (s.error) s = { ...(await feedStatus()), last_error: s.error };
+      $('feed-yt').outerHTML = feedCard(s);
+      if (!s.error && !s.last_error) {
+        const m = $('feed-yt').querySelector('.feed-msg');
+        m.textContent = s.changed ? 'Updated: ' + plural(s.count, 'video') + ', ' + s.new + ' new' +
+                                    (s.pushed ? ', pushed' : ' — git push to publish')
+                                  : 'No change';
+      }
+    });
 
     // Open a post slug, routing to openOrphan when the server lists that slug
     // as an orphaned card rather than a real file — the ?p= URL can't tell
