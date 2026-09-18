@@ -26,6 +26,17 @@
         site's public repository and nothing else. It never reads anyone
         else's data, and it is used by nobody but me.</p>
 
+        <h2>Payments</h2>
+        <p>The <a href="/pay">pay page</a> uses Razorpay to take contributions.
+        Razorpay's checkout only loads once you press the pay button, and it
+        is Razorpay, not this site, that handles your card, UPI, or bank
+        details; I never see them. What I keep is the payment ID, the amount,
+        and any note you typed, plus the email or phone number Razorpay
+        passes back with a payment, so that a mistaken payment can be traced
+        and <a href="/refund">refunded</a>. Razorpay's own
+        <a href="https://razorpay.com/privacy/" target="_blank" rel="noopener">privacy policy</a>
+        applies to what happens inside the checkout.</p>
+
         <h2>Analytics</h2>
         <p>Pages load a self-hosted, cookie-free analytics script that counts
         visits without identifying visitors.</p>
@@ -34,7 +45,7 @@
       </div>
     </article>
   </main>
-  <footer>&copy; 2026 <a href="/about">Mrinalini S</a> &middot; Code licensed under MIT &middot; <a href="/privacy">Privacy</a> &middot; <a href="/tos">Terms</a> &middot; <a href="/refund">Refunds</a> &middot; <a href="/contact">Contact</a></footer>
+  <footer>&copy; 2026 <a href="/about">Mrinalini S</a> &middot; like something? <a href="/pay">chip in here</a> or via <a href="upi://pay?pa=mrinalinis@upi&amp;pn=Mrinalini%20S&amp;cu=INR" title="Pay via UPI (opens a payment app on mobile)"><code>mrinalinis@upi</code></a> &middot; Code licensed under MIT &middot; <a href="/privacy">Privacy</a> &middot; <a href="/tos">Terms</a> &middot; <a href="/refund">Refunds</a> &middot; <a href="/contact">Contact</a></footer>
   <script src="/assets/analytics.js" defer></script>
 </body>
 </html>

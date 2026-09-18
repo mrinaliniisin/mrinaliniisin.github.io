@@ -1,0 +1,29 @@
+// Cloudflare Worker config for the Razorpay backend. Public, non-secret
+// settings only. The three secrets are set once with `wrangler secret put`
+// (see README.md) and never live in this repo.
+{
+  "name": "mrinaliniisin-pay",
+  "main": "worker.js",
+  "compatibility_date": "2026-07-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+
+  "vars": {
+    // Browser origins allowed to call /order and /verify. The GitHub Pages
+    // site plus the local editor server, so /pay can be tried before a push.
+    "ALLOW_ORIGINS": "https://mrinaliniisin.github.io,http://localhost:5666",
+    // Whole rupees. The Worker rejects anything outside this range, so the
+    // limits hold even if someone bypasses the page and calls /order directly.
+    "MIN_AMOUNT_INR": 10,
+    "MAX_AMOUNT_INR": 50000,
+    // Shown as the merchant name at the top of the Razorpay checkout sheet.
+    "SITE_NAME": "Mrinalini S"
+  },
+
+  // Records every order created and every payment seen (from checkout
+  // verification and from webhooks). Create with:
+  //   wrangler kv namespace create PAYMENTS
+  "kv_namespaces": [
+    { "binding": "PAYMENTS", "id": "7b9b51d031524085a6955b7020da2556" }
+  ]
+}

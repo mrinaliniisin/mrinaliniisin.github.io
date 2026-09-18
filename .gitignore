@@ -17,3 +17,7 @@ push-worker/.wrangler/
 
 # YouTube likes sync: local credentials + sync state (see youtube-likes/README.md)
 *.local.json
+
+# Any Worker directory: Wrangler local state and `wrangler dev` secrets
+.wrangler/
+.dev.vars

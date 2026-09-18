@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pay · Mrinalini S</title>
+  <!-- Razorpay Standard Checkout. The page only ever holds the PUBLIC key id,
+       which arrives with each order from pay-worker/ (the Cloudflare Worker
+       that owns the secret, creates the order, and verifies the signature).
+       Razorpay's checkout.js is fetched on the first click, not at load, so
+       reading this page pulls in nothing third-party. Directory index like
+       /about so the URL is a bare /pay. -->
+  <link rel="stylesheet" href="/assets/blog.css">
+  <style>
+    .amounts { display: flex; flex-wrap: wrap; gap: 10px; }
+    .amounts button { font: inherit; font-size: 15px; padding: 8px 16px; cursor: pointer;
+                      background: #fff; color: #1a1a1a; border: 1px solid #d9d6cf;
+                      border-radius: 999px; transition: border-color 0.15s ease; }
+    .amounts button:hover { border-color: #1a1a1a; }
+    .amounts button[aria-pressed="true"] { background: #2d5a27; color: #fff; border-color: #2d5a27; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 13px; color: #6b6560; }
+    .field input { font: inherit; padding: 9px 12px; background: #fff; color: #1a1a1a;
+                   border: 1px solid #d9d6cf; border-radius: 8px; }
+    .field input:focus { outline: 2px solid #2d5a27; outline-offset: 1px; border-color: #2d5a27; }
+    /* The rupee sign sits inside the box, so the number reads as money. */
+    .rupee { position: relative; }
+    .rupee input { padding-left: 28px; width: 100%; }
+    .rupee::before { content: "\20B9"; position: absolute; left: 12px; top: 50%;
+                     transform: translateY(-50%); color: #6b6560; pointer-events: none; }
+    .pay-btn { font: inherit; font-size: 16px; font-weight: 600; padding: 11px 22px; cursor: pointer;
+               background: #2d5a27; color: #fff; border: 0; border-radius: 8px; }
+    .pay-btn:hover { background: #244a1f; }
+    .pay-btn:disabled { opacity: 0.55; cursor: default; }
+    .status { font-size: 14px; color: #6b6560; min-height: 1.5em; }
+    .status.ok { color: #2d5a27; }
+    .status.err { color: #a32d2d; }
+    .status code { font-size: 0.95em; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <a class="back" href="/">&larr; Home</a>
+    <article>
+      <h1 class="post-title">Pay</h1>
+      <div class="post-body">
+        <p>If something here was useful to you, this is where you can send a
+        contribution. Cards, UPI, netbanking, and wallets all work; the
+        payment itself is handled by Razorpay, and I never see your card
+        details. Nothing is sold here, so please read the
+        <a href="/refund">refund policy</a> first.</p>
+
+        <form id="pay-form" novalidate>
+          <div class="field">
+            <label id="amount-label">Amount</label>
+            <div class="amounts" role="group" aria-labelledby="amount-label">
+              <button type="button" data-amount="100">&#8377;100</button>
+              <button type="button" data-amount="250" aria-pressed="true">&#8377;250</button>
+              <button type="button" data-amount="500">&#8377;500</button>
+              <button type="button" data-amount="1000">&#8377;1,000</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="amount">Or any amount, in whole rupees</label>
+            <div class="rupee"><input id="amount" type="number" inputmode="numeric"
+                 min="10" max="50000" step="1" value="250"></div>
+          </div>
+          <div class="field">
+            <label for="note">A note, if you like (optional)</label>
+            <input id="note" type="text" maxlength="256" placeholder="e.g. for the closet post">
+          </div>
+          <p><button class="pay-btn" id="pay" type="submit">Pay &#8377;250</button></p>
+          <p class="status" id="status" aria-live="polite"></p>
+        </form>
+
+        <p>Prefer UPI directly? Send to <code>mrinalinis@upi</code>. Both routes
+        end up in the same place.</p>
+      </div>
+    </article>
+  </main>
+  <footer>&copy; 2026 <a href="/about">Mrinalini S</a> &middot; Code licensed under MIT &middot; <a href="/privacy">Privacy</a> &middot; <a href="/tos">Terms</a> &middot; <a href="/refund">Refunds</a> &middot; <a href="/contact">Contact</a></footer>
+  <script src="/assets/analytics.js" defer></script>
+  <script>
+  (() => {
+    // The Worker that creates and verifies orders. The live Worker also allows
+    // the local editor server's origin, so a page served from localhost:5666
+    // can run a real test-mode checkout before a push. Add ?worker=local to
+    // talk to `wrangler dev` on 8787 instead (see pay-worker/README.md).
+    const WORKER = new URLSearchParams(location.search).get("worker") === "local"
+      ? "http://localhost:8787"
+      : "https://mrinaliniisin-pay.mustardseed.workers.dev";
+    const MIN = 10, MAX = 50000;
+
+    const form = document.getElementById("pay-form");
+    const amountEl = document.getElementById("amount");
+    const noteEl = document.getElementById("note");
+    const payBtn = document.getElementById("pay");
+    const statusEl = document.getElementById("status");
+    const chips = [...document.querySelectorAll(".amounts button")];
+
+    const fmt = n => "₹" + Number(n).toLocaleString("en-IN");
+    const setStatus = (text, kind) => { statusEl.textContent = text; statusEl.className = "status" + (kind ? " " + kind : ""); };
+    const setBusy = on => { payBtn.disabled = on; };
+
+    // Keep the chips, the input, and the button label agreeing with each other.
+    const sync = () => {
+      const v = Math.round(Number(amountEl.value));
+      chips.forEach(c => c.setAttribute("aria-pressed", String(Number(c.dataset.amount) === v)));
+      payBtn.textContent = Number.isFinite(v) && v > 0 ? "Pay " + fmt(v) : "Pay";
+    };
+    chips.forEach(c => c.addEventListener("click", () => { amountEl.value = c.dataset.amount; sync(); }));
+    amountEl.addEventListener("input", sync);
+
+    // Razorpay's script is only fetched once someone actually decides to pay.
+    let checkoutLoaded;
+    const loadCheckout = () => checkoutLoaded ||= new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = "https://checkout.razorpay.com/v1/checkout.js";
+      s.onload = resolve;
+      s.onerror = () => { checkoutLoaded = null; reject(new Error("checkout.js failed to load")); };
+      document.head.appendChild(s);
+    });
+
+    const post = async (path, body) => {
+      const res = await fetch(WORKER + path, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      return { ok: res.ok, status: res.status, data };
+    };
+
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      const amount = Math.round(Number(amountEl.value));
+      if (!Number.isInteger(amount) || amount < MIN || amount > MAX) {
+        setStatus(`Please enter a whole amount from ${fmt(MIN)} to ${fmt(MAX)}.`, "err");
+        amountEl.focus();
+        return;
+      }
+      const note = noteEl.value.trim();
+      setBusy(true);
+      setStatus("Setting up the payment…");
+      try {
+        const [order] = await Promise.all([post("/order", { amount, note }), loadCheckout()]);
+        if (!order.ok) {
+          // A 400 is the Worker's own amount check, worded for people. Anything
+          // else (Razorpay down, secrets missing) gets one generic sentence.
+          setStatus(order.status === 400 && order.data.error
+            ? order.data.error
+            : "Could not start the payment. Try again in a minute, or use UPI below.", "err");
+          setBusy(false);
+          return;
+        }
+        const d = order.data;
+        const rzp = new Razorpay({
+          key: d.key_id, amount: d.amount, currency: d.currency, order_id: d.order_id,
+          name: d.name || "Mrinalini S",
+          description: note || "Contribution to mrinaliniisin.github.io",
+          theme: { color: "#2d5a27" },
+          retry: { enabled: true, max_count: 3 },
+          modal: { ondismiss: () => { setStatus("Payment cancelled."); setBusy(false); } },
+          handler: async resp => {
+            setStatus("Verifying…");
+            const v = await post("/verify", resp).catch(() => ({ ok: false, data: {} }));
+            if (v.ok && v.data.ok) {
+              statusEl.innerHTML = "";
+              statusEl.append("Thank you! Payment ", Object.assign(document.createElement("code"), { textContent: resp.razorpay_payment_id }), " went through.");
+              statusEl.className = "status ok";
+              form.reset(); sync();
+            } else {
+              statusEl.innerHTML = "";
+              statusEl.append("Razorpay reported success but I could not confirm it. Keep this ID and ",
+                Object.assign(document.createElement("a"), { href: "/contact", textContent: "get in touch" }),
+                ": ", Object.assign(document.createElement("code"), { textContent: resp.razorpay_payment_id }));
+              statusEl.className = "status err";
+            }
+            setBusy(false);
+          },
+        });
+        rzp.on("payment.failed", resp => {
+          setStatus("Payment failed: " + (resp.error?.description || "unknown reason") + ". You can try again.", "err");
+          setBusy(false);
+        });
+        rzp.open();
+      } catch (err) {
+        setStatus("Something went wrong before the payment started. Try again, or use UPI below.", "err");
+        setBusy(false);
+      }
+    });
+
+    sync();
+  })();
+  </script>
+</body>
+</html>
