@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mirena, Emotions &amp; Behavioral Changes · Mrinalini S</title>
+  <meta name="robots" content="noindex">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+           background: #f4f3f0; color: #1a1a1a; line-height: 1.6; padding: 64px 16px; }
+    .wrap { max-width: 760px; margin: 0 auto; }
+
+    .back { display: inline-block; margin-bottom: 24px; font-size: 14px;
+            color: #6b6560; text-decoration: none; }
+    .back:hover { color: #2d5a27; }
+
+    .eyebrow { font-size: 13px; color: #a8a29e; margin-bottom: 6px; }
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+
+    h2 { font-size: 20px; font-weight: 600; margin: 44px 0 14px; }
+    p { max-width: 66ch; }
+
+    /* The chart is wider than the column: it breaks out to up to 1000px, centred,
+       and shrinks with the viewport instead of scrolling. */
+    .chart { --w: min(1000px, calc(100vw - 32px)); width: var(--w);
+             margin: 28px 0 0 calc((100% - var(--w)) / 2); }
+    .chart img { display: block; width: 100%; height: auto; border: 1px solid #d9d6cf;
+                 border-radius: 14px; background: #fbf9f7; }
+    .chart figcaption { font-size: 12px; color: #a8a29e; margin-top: 8px; text-align: center; }
+
+    .phases { list-style: none; display: grid; gap: 10px; }
+    .phases li { display: grid; grid-template-columns: 14px 1fr; gap: 12px; align-items: start;
+                 font-size: 14px; color: #4a4540; }
+    .phases i { display: block; width: 14px; height: 14px; border-radius: 4px; margin-top: 5px; }
+    .phases b { color: #1a1a1a; font-weight: 600; }
+    .phases .fol { background: #5ba88a; }
+    .phases .ovu { background: #e0a32e; }
+    .phases .lut { background: #8b6da8; }
+    .phases .rage { background: #c0435a; }
+    .phases .spot { background: #9a5060; }
+
+    /* Appointment notes: two spoken statements as quotes, four groups between them. */
+    .appt h3 { font-size: 15px; font-weight: 600; margin: 28px 0 8px; }
+    .appt h3 small { font-weight: 400; color: #6b6560; }
+    .appt ul { list-style: none; display: grid; gap: 8px; }
+    .appt li { position: relative; padding-left: 16px; font-size: 14px; color: #4a4540; max-width: 66ch; }
+    .appt li::before { content: ""; position: absolute; left: 0; top: 9px; width: 5px; height: 5px;
+                       border-radius: 50%; background: #a8a29e; }
+    .appt blockquote { background: #fff; border: 1px solid #d9d6cf; border-left: 4px solid #2d5a27;
+                       border-radius: 12px; padding: 16px 20px; font-size: 15px; color: #1a1a1a;
+                       max-width: none; }
+    .appt blockquote p { max-width: 66ch; }
+    .appt blockquote p + p { margin-top: 10px; }
+    .appt .say { font-size: 12px; font-weight: 600; color: #a8a29e; letter-spacing: 0.3px;
+                 text-transform: uppercase; margin: 28px 0 8px; }
+    .appt blockquote + .say, .appt h2 + .say { margin-top: 0; }
+
+    footer { margin-top: 48px; font-size: 12px; color: #a8a29e; text-align: center; }
+    footer a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+    @media (max-width: 560px) {
+      body { padding-top: 40px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <a class="back" href="/secret.html">← Secret</a>
+
+    <div class="eyebrow">Mirena IUD · perimenopause · one cycle, ~28 days</div>
+    <h1>Mirena, Emotions &amp; Behavioral Changes</h1>
+
+    <figure class="chart">
+      <img src="/assets/cycle-gantt-mine.svg" alt="Gantt-style chart of one cycle on a Mirena during perimenopause. Top row, the unseen hormonal phases: follicular from about day 1 to 14, a possible ovulation around day 14, luteal from about day 14 to 28. Bottom row, what is felt and seen: a mood lift around day 14, a dip and rage crest in the last week, then one to four days of spotting right after the rage crest, followed by relief as the next follicular phase rises." width="820" height="470">
+      <figcaption>Timing is approximate. The whole cycle stretches or compresses month to month, but the sequence holds.</figcaption>
+    </figure>
+
+    <h2>Reading the chart</h2>
+    <ul class="phases" aria-label="Chart legend">
+      <li><i class="fol"></i><span><b>Follicular, ~day 1 to 14.</b> Oestrogen building. Steady energy, mood at baseline or better.</span></li>
+      <li><i class="ovu"></i><span><b>Ovulation, ~day 14.</b> Often but not always in perimenopause. The mood lift sits here.</span></li>
+      <li><i class="lut"></i><span><b>Luteal, ~day 14 to 28.</b> Progesterone rises, then drops sharply at the end.</span></li>
+      <li><i class="rage"></i><span><b>Dip and rage crest, last week.</b> The progesterone drop takes the brake off. Irritability peaks for a few days.</span></li>
+      <li><i class="spot"></i><span><b>Spotting, ~day 27 to 28.</b> One core day, sometimes stretching to three or four. Patchy shedding, not a true period.</span></li>
+    </ul>
+
+    <section class="appt" aria-labelledby="appt">
+      <h2 id="appt">For the appointment</h2>
+
+      <div class="say">Open with</div>
+      <blockquote>
+        <p>I've noticed a cyclical pattern for years: severe irritability and rage that reliably tracks with my luteal phase (the days before and around spotting) and lifts once it passes. It's not tied to what's happening in my life; the same ordinary friction produces a 10-minute reaction most of the month and a multi-hour explosion in that window. I think it may be PMDD and I'd like to assess for it.</p>
+      </blockquote>
+
+      <h3>The evidence <small>· this is the strongest card</small></h3>
+      <ul>
+        <li>About 25 years of observation. I used to think circumstances coincided with my period; I've since realised the causality is reversed. My threshold for anger collapses in the luteal phase, so normal triggers detonate.</li>
+        <li>Some of the worst fights of my life map onto PMS days. Too consistent to be coincidence.</li>
+        <li>The rage remits when bleeding or spotting starts. The remission is the signature that distinguishes PMDD from a general mood disorder or "just stress".</li>
+      </ul>
+
+      <h3>The medication interaction to flag</h3>
+      <ul>
+        <li>On amitriptyline. At higher doses (125 mg and above) the cyclical rage was buffered or masked. As the taper has come down (now about 90 mg) the underlying pattern is surfacing again on spotting days. The taper and the cyclical dip are interacting: the dose that keeps me even may need to account for the luteal dip, not just baseline.</li>
+        <li>Mirena IUD is in the picture. Relevant to the hormonal assessment: spotting plus mood dips now, rather than full periods.</li>
+      </ul>
+
+      <h3>The specific symptoms <small>· name them plainly</small></h3>
+      <ul>
+        <li>Severe irritability and rage, disproportionate to the trigger</li>
+        <li>Anxiety spike</li>
+        <li>Physical: bloating, gut and flank discomfort, worsened by the anticholinergic gut-slowing from amitriptyline when meals or fibre are off</li>
+        <li>Timing: luteal phase, resolving with spotting</li>
+      </ul>
+
+      <h3>What I want from the appointment <small>· ask directly</small></h3>
+      <ul>
+        <li>To be assessed for PMDD specifically</li>
+        <li>Whether prospective daily symptom tracking over about two cycles is the right next step. It's the gold-standard confirmation, and a logged chart of mood against cycle is very hard to dismiss.</li>
+        <li>Whether treatment options that differ from general anxiety or depression care apply if it's confirmed, such as luteal-phase-dosed SSRIs or hormonal adjustments</li>
+      </ul>
+
+      <div class="say">Close with</div>
+      <blockquote>
+        <p>I'm not saying my anger is never warranted. Often the thing I'm angry about is real. What I'm describing is that the magnitude and duration of the reaction spikes cyclically. I want the cyclical amplifier looked at, not the validity of the underlying concerns dismissed.</p>
+      </blockquote>
+    </section>
+
+    <footer>&copy; 2026 Mrinalini S &middot; <a href="upi://pay?pa=mrinalinis@upi&amp;pn=Mrinalini%20S&amp;cu=INR" title="Pay via UPI (opens a payment app on mobile)"><code>mrinalinis@upi</code></a> &middot; Code licensed under MIT</footer>
+  </main>
+  <script src="/assets/analytics.js" defer></script>
+</body>
+</html>
