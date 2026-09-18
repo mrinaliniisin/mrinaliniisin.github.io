@@ -6,6 +6,10 @@
   <title>Mrinalini S</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* The browser's own [hidden] rule loses to an author display: rule, so
+       the search couldn't hide a .card (display: block) without this. Same
+       rule as assets/blog.css. */
+    [hidden] { display: none !important; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
            background: #f4f3f0; color: #1a1a1a; line-height: 1.5; padding: 64px 16px; }
     .wrap { max-width: 880px; margin: 0 auto; }
@@ -91,6 +95,22 @@
     /* Subscribed: invert to a filled black bell — stays black & white. */
     .notify-btn[data-on="1"] { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
 
+    /* --- Search: filters the cards in place and, below the grid, lists
+       matching entries from the sections those cards link to. Same look as
+       .cpb-search in the Commonplace Book. --- */
+    .search { margin-bottom: 22px; }
+    .search input { width: 100%; font: inherit; font-size: 15px; padding: 10px 14px;
+                    border: 1px solid #d9d6cf; border-radius: 8px; background: #fff;
+                    color: #1a1a1a; outline: none; -webkit-appearance: none; appearance: none; }
+    .search input:focus { border-color: #2d5a27; }
+    .search-count { font-size: 13px; color: #a8a29e; margin-top: 8px; min-height: 20px; }
+    /* Hits are rendered as ordinary cards in a second grid so the edit-mode
+       reorder (which reads the first .grid) never sees them. */
+    .search-hits { margin-top: 16px; }
+    .search-hits:empty { display: none; }
+    .search-hits .card { min-height: 0; }
+    .search-hits mark { background: #f1ecb8; color: inherit; padding: 0 1px; border-radius: 2px; }
+
     /* --- Local, key-gated edit mode (drag to reorder cards) --- */
     .edit-gate { position: fixed; inset: 0; z-index: 100; display: none;
                  align-items: center; justify-content: center; background: rgba(0,0,0,0.45); }
@@ -151,6 +171,11 @@
     </button>
   </div>
   <div class="wrap">
+    <form class="search" role="search" onsubmit="return false">
+      <input id="siteSearch" type="search" placeholder="Search&hellip;  (press / to jump here)"
+             autocomplete="off" spellcheck="false" aria-label="Search this site">
+      <div class="search-count" id="searchCount" aria-live="polite"></div>
+    </form>
     <div class="grid">
       <div class="grid-divider">Free &amp; Open Source Software</div>
       <div class="card">
@@ -300,6 +325,156 @@
        which owns the #notify button up top under its own "index" topic. -->
   <script src="/bell.js" defer></script>
   <script src="/assets/analytics.js" defer></script>
+  <!-- Homepage search. Everything it can return is derived from the cards in
+       the grid above, so the index can never include a page the homepage
+       doesn't already point at: (1) the cards themselves — title, description,
+       tags, list items — and (2) the entries of any same-origin section a card
+       links to (a folder such as /commonplace/ or /tv-plot-maps/), read from
+       that section's own index page, fetched once on first use. secret.html and
+       everything reachable only from it never enter the index because no card
+       links there. No build step: the index is whatever the homepage links to
+       at the moment someone searches. -->
+  <script>
+    (function () {
+      const input = document.getElementById('siteSearch');
+      const count = document.getElementById('searchCount');
+      const hits  = document.getElementById('searchHits');
+      const grid  = document.querySelector('.grid');
+      if (!input || !grid) return;
+
+      const squash = s => (s || '').replace(/\s+/g, ' ').trim();
+      const norm = s => squash(s).toLowerCase();
+      const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+      const cards = [...grid.querySelectorAll('.card')].map(el => ({ el, text: norm(el.textContent) }));
+      const dividers = [...grid.querySelectorAll('.grid-divider')];
+
+      // Sections: same-origin folders the cards link to. "/commonplace/index.html"
+      // and "/youtube-likes/" both name a folder whose index lists entries; a bare
+      // page such as /last-time-i-emailed-a-ceo.html is already a card and has
+      // nothing to expand. Off-site cards are left alone.
+      const sections = [];
+      for (const c of cards) {
+        const a = c.el.querySelector('.card-link[href]');
+        if (!a) continue;
+        const url = new URL(a.getAttribute('href'), location.href);
+        if (url.origin !== location.origin) continue;
+        if (url.pathname === '/' || !/\/(index\.html)?$/.test(url.pathname)) continue;
+        const folder = url.pathname.replace(/index\.html$/, '');
+        const h = c.el.querySelector('h2');
+        sections.push({ folder, title: squash(h ? h.textContent : folder), entries: [] });
+      }
+
+      // One section's entries: every link on its index page that stays inside
+      // the folder. Title comes from the link's heading (or its text); the body
+      // from a data-text attribute (Commonplace) or any paragraph in the link.
+      async function loadSection(s) {
+        try {
+          const res = await fetch(s.folder, { credentials: 'same-origin' });
+          if (!res.ok) return;
+          const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+          const seen = new Set();
+          for (const a of doc.querySelectorAll('a[href]')) {
+            const u = new URL(a.getAttribute('href'), location.origin + s.folder);
+            if (u.origin !== location.origin || !u.pathname.startsWith(s.folder)) continue;
+            if (!u.pathname.endsWith('.html') || u.pathname.endsWith('/index.html')) continue;
+            if (seen.has(u.pathname)) continue;
+            const h = a.querySelector('h1, h2, h3, .title');
+            const title = squash(h ? h.textContent : a.textContent);
+            if (!title) continue;
+            seen.add(u.pathname);
+            const body = squash(a.dataset.text ||
+              [...a.querySelectorAll('p, .desc, .blurb')].map(p => p.textContent).join(' '));
+            s.entries.push({ href: u.pathname, title, body, text: norm(title + ' ' + body) });
+          }
+        } catch (e) { /* a section that won't load just contributes nothing */ }
+      }
+      let loading = null;
+      const ensureLoaded = () => loading || (loading = Promise.all(sections.map(loadSection)));
+
+      const terms = q => norm(q).split(' ').filter(Boolean);
+      const matches = (text, ts) => ts.every(t => text.includes(t));
+
+      // ~160 chars of body around the first term that occurs in it.
+      function snippet(body, ts) {
+        if (!body) return '';
+        const low = body.toLowerCase();
+        let i = -1;
+        for (const t of ts) { i = low.indexOf(t); if (i >= 0) break; }
+        const start = Math.max(0, i - 60);
+        let s = body.slice(start, start + 160);
+        if (start > 0) s = '\u2026' + s;
+        if (start + 160 < body.length) s += '\u2026';
+        return s;
+      }
+      // Split on the terms first, escape each piece, then wrap the matches —
+      // escaping after marking would let a term match inside an entity or tag.
+      const highlight = (s, re) =>
+        s.split(re).map((piece, i) => i % 2 ? '<mark>' + esc(piece) + '</mark>' : esc(piece)).join('');
+
+      const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
+
+      let seq = 0;
+      async function apply() {
+        const ts = terms(input.value);
+        if (!ts.length) {
+          for (const c of cards) c.el.hidden = false;
+          for (const d of dividers) d.hidden = false;
+          hits.innerHTML = '';
+          count.textContent = '';
+          seq++;
+          return;
+        }
+        let shown = 0;
+        for (const c of cards) { const hit = matches(c.text, ts); c.el.hidden = !hit; if (hit) shown++; }
+        // A group heading stays only while a card under it is still visible.
+        for (const d of dividers) {
+          let any = false;
+          for (let n = d.nextElementSibling; n && !n.classList.contains('grid-divider'); n = n.nextElementSibling)
+            if (!n.hidden) { any = true; break; }
+          d.hidden = !any;
+        }
+        const mine = ++seq;
+        count.textContent = plural(shown, 'card', 'cards') + (sections.length ? ' \u00b7 looking inside sections\u2026' : '');
+        await ensureLoaded();
+        if (mine !== seq) return;   // a later keystroke owns the results now
+        const re = new RegExp('(' + ts.map(escRe).join('|') + ')', 'gi');
+        let html = '', found = 0;
+        for (const s of sections) {
+          const got = s.entries.filter(e => matches(e.text, ts));
+          if (!got.length) continue;
+          found += got.length;
+          html += '<div class="grid-divider">' + esc(s.title) + '</div>';
+          for (const e of got) {
+            html += '<a class="card" href="' + esc(e.href) + '"><h2>' + highlight(e.title, re) + '</h2>' +
+                    (e.body ? '<div class="desc">' + highlight(snippet(e.body, ts), re) + '</div>' : '') +
+                    '</a>';
+          }
+        }
+        hits.innerHTML = html;
+        const parts = [plural(shown, 'card', 'cards')];
+        if (found) parts.push(plural(found, 'entry', 'entries') + ' inside sections');
+        count.textContent = (shown || found) ? parts.join(' \u00b7 ') : 'No matches';
+      }
+
+      input.addEventListener('input', apply);
+      input.addEventListener('focus', ensureLoaded, { once: true });
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { input.value = ''; apply(); input.blur(); }
+      });
+      // "/" jumps to the box from anywhere that isn't already a text field.
+      document.addEventListener('keydown', e => {
+        if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+        const t = document.activeElement;
+        if (t && (t === input || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
+        e.preventDefault();
+        input.focus();
+      });
+      // Back/forward restores the typed text without firing input; re-apply.
+      if (input.value) apply();
+    })();
+  </script>
   <script>
     // Local-only, key-gated homepage edit mode: drag cards to reorder, saved via
     // server.py. Wired ONLY on localhost (the write API exists only there), so the
