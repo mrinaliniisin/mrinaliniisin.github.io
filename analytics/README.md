@@ -15,40 +15,52 @@ Every main-site page includes one file:
 ```
 
 [`assets/analytics.js`](../assets/analytics.js) holds the Worker URL and site id
-in **one place** and injects Counterscale's `tracker.js`. Until `WORKER` is set
-to a real URL it is a **no-op** — nothing is requested, nothing is tracked. So
-the site can ship wired-but-dormant and be switched on with a one-line edit.
+in **one place** and injects Counterscale's `tracker.js`. If `WORKER` is ever reset to the placeholder it becomes a **no-op** — nothing is
+requested, nothing is tracked — so the tracker can be switched off with a
+one-line edit.
 
-## Part A — Deploy Counterscale (your part; ~5 min)
+## Part A — Deploy Counterscale (done 2026-09-18)
 
-Same shape as `push-worker`. Counterscale can't be deployed by the editor tools —
-it goes into *your* Cloudflare account.
+Same shape as `push-worker`: the collector lives in *your* Cloudflare account.
+Worker name `counterscale`, URL **https://counterscale.mustardseed.workers.dev**,
+site id `mrinaliniisin`. Dashboard at that URL (password-protected).
 
-1. **Enable Analytics Engine**: Cloudflare dashboard → *Storage & Databases →
-   Analytics Engine → Enable* (free).
-2. **Create an API token** with **Account Analytics** read permission (the
-   dashboard queries your pageviews back out through Cloudflare's GraphQL API).
-3. **Run the installer** (Node 20+):
+> **Don't use `npx @counterscale/cli install`.** As of CLI 3.4.1 with Wrangler
+> 4.110+, it dies with `Worker "counterscale" not found` before prompting for
+> anything: it probes the Worker by listing its secrets and only tolerates the
+> not-found error when Wrangler tags it `[code: 10007]`, which newer Wrangler
+> no longer does. Its bundled config also binds an R2 bucket that R2-less
+> accounts can't satisfy. R2 is only used by a nightly rollup cron, gated by
+> the `CF_STORAGE_ENABLED` secret, so the dashboard doesn't need it.
+
+How it was actually deployed (repeat to upgrade):
+
+1. **Enable Analytics Engine** in the dashboard (free): Storage & Databases →
+   Analytics Engine. The deploy fails with `[code: 10089]` until this is done.
+2. Use **Node 22+** (`nvm use 25`); Wrangler 4.110 refuses Node 20. `npx
+   wrangler login` if needed.
+3. Let npx fetch the packages, then stage a config: copy
+   `@counterscale/server/wrangler.json` (from the npx cache, e.g.
+   `~/.npm/_npx/*/node_modules/@counterscale/server/`), make `main` and
+   `assets.directory` absolute, add `account_id`, and delete `r2_buckets` and
+   `triggers`.
+4. From the server package dir:
+   `npx wrangler deploy --config <staged.json> --var VERSION:<server version>`
+5. Secrets (all via `wrangler secret put <NAME> --config <staged.json>`):
+   `CF_ACCOUNT_ID`, `CF_STORAGE_ENABLED=false`, plus the credential ones set
+   interactively:
    ```sh
-   npx wrangler login                      # likely still logged in from push-worker
-   npx @counterscale/cli@latest install
+   npx @counterscale/cli@latest auth enable    # dashboard password
+   npx @counterscale/cli@latest env token      # Analytics API token
    ```
-   It prompts for the API token, asks whether to **password-protect the
-   dashboard** (say **yes** — the workers.dev URL is public otherwise), and
-   deploys. It prints the Worker URL, e.g.
-   `https://counterscale.<your-subdomain>.workers.dev`.
-4. The dashboard lives at that Worker URL (log in with the password you set).
+   The token needs **Account Analytics: Read** (My Profile → API Tokens); the
+   dashboard uses it to read pageviews back out through Cloudflare's GraphQL API.
 
-## Part B — Switch it on (one line)
+## Part B — Switch it on (done)
 
-In [`assets/analytics.js`](../assets/analytics.js), set:
-
-```js
-var WORKER = "https://counterscale.<your-subdomain>.workers.dev";
-```
-
-Commit + push. That's it — every wired page starts reporting. The site id is
-`mrinaliniisin` (change `SITE_ID` if you want a different label in the dashboard).
+[`assets/analytics.js`](../assets/analytics.js) has `WORKER` set to the URL
+above. Every wired page loads the tracker. Change `SITE_ID` if you want a
+different label in the dashboard.
 
 ## Coverage — whole site
 

@@ -4,11 +4,11 @@
 // so the Worker URL and site id live in exactly ONE place — set them once below
 // and the whole site is wired. New pages just need the same include.
 //
-// Until WORKER is set to your real Counterscale Worker URL, this is a NO-OP:
-// nothing is requested and no tracking happens. After you deploy Counterscale
-// (npx @counterscale/cli@latest install), paste its URL into WORKER and commit.
+// If WORKER is reset to the YOUR-SUBDOMAIN placeholder this becomes a NO-OP:
+// nothing is requested and no tracking happens. Deploy/upgrade steps are in
+// analytics/README.md (don't use the counterscale installer; it's broken).
 (function () {
-  var WORKER = "https://counterscale.YOUR-SUBDOMAIN.workers.dev"; // <-- set after deploy
+  var WORKER = "https://counterscale.mustardseed.workers.dev";
   var SITE_ID = "mrinaliniisin";
 
   if (WORKER.indexOf("YOUR-SUBDOMAIN") !== -1) return; // not configured yet — no-op
