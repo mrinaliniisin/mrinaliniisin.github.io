@@ -17,10 +17,11 @@ push by itself.
 
 Moving parts:
 
-- `server.py` (section "YouTube likes") — the weekly timer (7 days from the
+- `server.py` (section "Feeds") — the weekly timer (7 days from the
   last run, checked hourly, first run ~30 s after the server starts), plus
-  `GET /api/youtube-likes` (status) and `POST /api/youtube-likes/sync` (run
-  now). The editor dashboard shows both as a **YouTube Likes** card under
+  `GET /api/feed/youtube-likes` (status) and
+  `POST /api/feed/youtube-likes/sync` (run now). The editor dashboard
+  shows both as a **YouTube Likes** card under
   *Feeds*, with a **Sync now** button.
 - `.github/scripts/sync_youtube_likes.py` — the fetch + render, imported by
   the server. Runnable on its own with the credentials in env.
@@ -75,7 +76,7 @@ workflow* whenever you want a sync without this machine.
 - **`auto_push`** in `auth.local.json` (default `false`): when a sync
   changes something, commit just `index.html` + `likes.json` from this
   folder and `git push`. Anything else uncommitted in the tree is left alone.
-- How often: `YT_EVERY` in `server.py` (default 7 days).
+- How often: the `youtube-likes` entry in `FEEDS` in `server.py` (default 7 days).
 - How many likes to mirror: `MAX_VIDEOS` in `sync_youtube_likes.py`
   (default 300, newest first; `YT_MAX_VIDEOS` env in script mode).
 - If the card shows **Last sync failed** with `invalid_grant`, the token was

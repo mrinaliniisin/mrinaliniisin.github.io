@@ -8,9 +8,10 @@ Serves the static site AND backs editor.html with two endpoints:
                                                       and updates blog/index.html
   GET  /api/load?p=<slug>                          -> {title, date, markdown, tags, layout}
   GET  /api/tags                                   -> every tag in use, most-used first
-  GET  /api/youtube-likes                          -> sync status for /youtube-likes
-  POST /api/youtube-likes/sync                     -> mirror liked videos now
-                                                      (also runs weekly on its own)
+  GET  /api/feed/<name>                            -> sync status of a feed
+  POST /api/feed/<name>/sync                       -> sync that feed now (each also
+                                                      runs weekly on its own); names:
+                                                      youtube-likes, commonplace
 
 Posts are pre-rendered: editor.html renders markdown -> HTML with marked.js at
 save time and POSTs both; this server just writes files. The markdown source is
@@ -1214,137 +1215,150 @@ def delete_card(href):
 
 
 # ---------------------------------------------------------------------------
-# YouTube likes: a weekly mirror of the account's liked videos onto
-# /youtube-likes. The fetch + render lives in
-# .github/scripts/sync_youtube_likes.py (shared with the manual GitHub
-# Action, so it's loaded from that path rather than duplicated); this server
-# owns *when* it runs — a timer thread every YT_EVERY, plus the dashboard's
-# "Sync now" — and where the credentials come from: youtube-likes/
-# auth.local.json (git-ignored; youtube_auth.py writes it). With no auth file
-# the feature is dormant and the dashboard says so. The timer's bookkeeping
-# (last run, last result) is a second git-ignored file next to it, so a
-# restart of the runit service doesn't reset the week.
+# Feeds: pages this server keeps in sync with an outside source on a timer.
+#
+#   youtube-likes  weekly mirror of the account's liked videos onto
+#                  /youtube-likes (.github/scripts/sync_youtube_likes.py,
+#                  shared with the manual GitHub Action).
+#   commonplace    weekly mirror of the Anytype "My Commonplace Book"
+#                  collection onto /commonplace
+#                  (.github/scripts/sync_commonplace.py; Anytype's API is
+#                  local-only, so this one has no Action fallback).
+#
+# Each fetch + render lives in its script, loaded from that path rather than
+# duplicated; this server owns *when* it runs — a timer thread per feed, plus
+# the dashboard's "Sync now" — and where the settings come from: the feed's
+# auth.local.json (git-ignored). With no auth file a feed is dormant and the
+# dashboard says so. The timer's bookkeeping (last run, last result) is a
+# second git-ignored file next to it, so a restart of the runit service
+# doesn't reset the week.
 #
 # By default a sync only writes files — publishing stays "a normal git push",
-# same as every other edit. Set "auto_push": true in auth.local.json to have
-# a changed sync commit just the two youtube-likes files and push.
-YT_DIR = os.path.join(ROOT, "youtube-likes")
-YT_AUTH = os.path.join(YT_DIR, "auth.local.json")
-YT_STATE = os.path.join(YT_DIR, "sync-state.local.json")
-YT_SCRIPT = os.path.join(ROOT, ".github", "scripts", "sync_youtube_likes.py")
-YT_EVERY = timedelta(days=7)
-YT_STARTUP_DELAY = 30          # seconds; don't hammer YouTube in a restart loop
-YT_POLL = 3600                 # how often the timer re-checks whether it's due
-_yt_lock = threading.Lock()
-
-
-def _yt_module():
-    spec = importlib.util.spec_from_file_location("sync_youtube_likes", YT_SCRIPT)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
-
-
-def yt_auth():
-    try:
-        with open(YT_AUTH, encoding="utf-8") as f:
-            return json.load(f)
-    except (FileNotFoundError, ValueError):
-        return None
-
-
-def _yt_state():
-    try:
-        with open(YT_STATE, encoding="utf-8") as f:
-            return json.load(f)
-    except (FileNotFoundError, ValueError):
-        return {}
-
-
-def _yt_save_state(st):
-    with open(YT_STATE, "w", encoding="utf-8") as f:
-        json.dump(st, f, indent=1)
+# same as every other edit. Set "auto_push": true in a feed's auth.local.json
+# to have a changed sync commit just that feed's files and push.
+FEED_STARTUP_DELAY = 30        # seconds; don't hammer anyone in a restart loop
+FEED_POLL = 3600               # how often a timer re-checks whether it's due
 
 
 def _now():
     return datetime.now().replace(microsecond=0)
 
 
-def yt_status():
-    st, auth = _yt_state(), yt_auth()
-    last = st.get("last_run")
-    due = (datetime.fromisoformat(last) + YT_EVERY) if last else _now()
-    try:
-        with open(os.path.join(YT_DIR, "likes.json"), encoding="utf-8") as f:
-            data = json.load(f)
-    except (FileNotFoundError, ValueError):
-        data = {}
-    return {
-        "configured": bool(auth),
-        "auto_push": bool(auth and auth.get("auto_push")),
-        "running": _yt_lock.locked(),
-        "last_run": last,
-        "last_trigger": st.get("last_trigger"),
-        "last_result": st.get("last_result"),
-        "last_error": st.get("last_error"),
-        "next_due": due.isoformat(),
-        "count": len(data.get("videos", [])),
-        "updated": data.get("updated"),
-    }
+class Feed:
+    def __init__(self, name, folder, script, data_file, data_key, commit_msg,
+                 push_paths, every=timedelta(days=7), retry=None):
+        self.name, self.dir = name, os.path.join(ROOT, folder)
+        self.auth_path = os.path.join(self.dir, "auth.local.json")
+        self.state_path = os.path.join(self.dir, "sync-state.local.json")
+        self.script = os.path.join(ROOT, ".github", "scripts", script)
+        self.data_file, self.data_key = data_file, data_key
+        self.commit_msg, self.push_paths = commit_msg, push_paths
+        # After a failed run, wait `retry` instead of the full `every` — for
+        # sources that are often just switched off (Anytype's desktop app).
+        self.every, self.retry = every, retry or every
+        self.lock = threading.Lock()
 
+    def module(self):
+        spec = importlib.util.spec_from_file_location(self.name.replace("-", "_"), self.script)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
 
-def _yt_push():
-    """Commit only the two sync outputs and push. Anything else left
-    uncommitted in the tree stays that way."""
-    files = ["youtube-likes/index.html", "youtube-likes/likes.json"]
-    steps = (["git", "add", "--"] + files,
-             ["git", "commit", "-q", "-m", "Sync YouTube likes (%s)" % _now().date(), "--"] + files,
-             ["git", "push", "-q"])
-    for cmd in steps:
-        r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
-        if r.returncode:
-            raise RuntimeError("%s failed: %s" % (" ".join(cmd[:2]), (r.stderr or r.stdout).strip()))
-    return True
-
-
-def yt_sync(trigger):
-    """Run one sync now. Returns the module's summary plus `pushed`; raises
-    on any failure after recording it in the state file."""
-    auth = yt_auth()
-    if not auth:
-        raise RuntimeError("No youtube-likes/auth.local.json — run "
-                           ".github/scripts/youtube_auth.py first")
-    if not _yt_lock.acquire(blocking=False):
-        raise RuntimeError("A sync is already running")
-    st = _yt_state()
-    st.update(last_run=_now().isoformat(), last_trigger=trigger)
-    try:
-        mod = _yt_module()
+    def _read(self, path):
         try:
-            result = mod.sync(auth)
-            result["pushed"] = bool(result["changed"] and auth.get("auto_push") and _yt_push())
-        except mod.SyncError as e:
-            raise RuntimeError(str(e))
-        st.update(last_result=result, last_error=None)
-        return result
-    except Exception as e:
-        st.update(last_result=None, last_error=str(e))
-        raise
-    finally:
-        _yt_save_state(st)
-        _yt_lock.release()
+            with open(path, encoding="utf-8") as f:
+                return json.load(f)
+        except (FileNotFoundError, ValueError):
+            return None
 
+    def auth(self):
+        return self._read(self.auth_path)
 
-def _yt_timer():
-    time.sleep(YT_STARTUP_DELAY)
-    while True:
+    def _state(self):
+        return self._read(self.state_path) or {}
+
+    def _save_state(self, st):
+        with open(self.state_path, "w", encoding="utf-8") as f:
+            json.dump(st, f, indent=1)
+
+    def status(self):
+        st, auth = self._state(), self.auth()
+        last = st.get("last_run")
+        wait = self.retry if st.get("last_error") else self.every
+        due = (datetime.fromisoformat(last) + wait) if last else _now()
+        data = self._read(os.path.join(self.dir, self.data_file)) or {}
+        return {
+            "configured": bool(auth),
+            "auto_push": bool(auth and auth.get("auto_push")),
+            "running": self.lock.locked(),
+            "last_run": last,
+            "last_trigger": st.get("last_trigger"),
+            "last_result": st.get("last_result"),
+            "last_error": st.get("last_error"),
+            "next_due": due.isoformat(),
+            "count": len(data.get(self.data_key) or []),
+            "updated": data.get("updated"),
+        }
+
+    def _push(self):
+        """Commit only this feed's outputs and push. Anything else left
+        uncommitted in the tree stays that way."""
+        steps = (["git", "add", "-A", "--"] + self.push_paths,
+                 ["git", "commit", "-q", "-m", self.commit_msg % _now().date(), "--"] + self.push_paths,
+                 ["git", "push", "-q"])
+        for cmd in steps:
+            r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+            if r.returncode:
+                raise RuntimeError("%s failed: %s" % (" ".join(cmd[:2]), (r.stderr or r.stdout).strip()))
+        return True
+
+    def sync(self, trigger):
+        """Run one sync now. Returns the module's summary plus `pushed`;
+        raises on any failure after recording it in the state file."""
+        auth = self.auth()
+        if not auth:
+            raise RuntimeError("No %s — see %s/README.md" % (
+                os.path.relpath(self.auth_path, ROOT), os.path.relpath(self.dir, ROOT)))
+        if not self.lock.acquire(blocking=False):
+            raise RuntimeError("A sync is already running")
+        st = self._state()
+        st.update(last_run=_now().isoformat(), last_trigger=trigger)
         try:
-            s = yt_status()
-            if s["configured"] and not s["running"] and datetime.fromisoformat(s["next_due"]) <= _now():
-                yt_sync("timer")
-        except Exception as e:  # recorded in the state file; keep the timer alive
-            print("youtube-likes sync failed: %s" % e)
-        time.sleep(YT_POLL)
+            mod = self.module()
+            try:
+                result = mod.sync(auth)
+                result["pushed"] = bool(result["changed"] and auth.get("auto_push") and self._push())
+            except mod.SyncError as e:
+                raise RuntimeError(str(e))
+            st.update(last_result=result, last_error=None)
+            return result
+        except Exception as e:
+            st.update(last_result=None, last_error=str(e))
+            raise
+        finally:
+            self._save_state(st)
+            self.lock.release()
+
+    def timer(self):
+        time.sleep(FEED_STARTUP_DELAY)
+        while True:
+            try:
+                s = self.status()
+                if s["configured"] and not s["running"] and datetime.fromisoformat(s["next_due"]) <= _now():
+                    self.sync("timer")
+            except Exception as e:  # recorded in the state file; keep the timer alive
+                print("%s sync failed: %s" % (self.name, e))
+            time.sleep(FEED_POLL)
+
+
+FEEDS = {
+    "youtube-likes": Feed("youtube-likes", "youtube-likes", "sync_youtube_likes.py",
+                          "likes.json", "videos", "Sync YouTube likes (%s)",
+                          ["youtube-likes/index.html", "youtube-likes/likes.json"]),
+    "commonplace": Feed("commonplace", "commonplace", "sync_commonplace.py",
+                        "factoids.json", "factoids", "Commonplace Book: sync from Anytype (%s)",
+                        ["commonplace"], retry=timedelta(hours=6)),
+}
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -1396,8 +1410,9 @@ class Handler(SimpleHTTPRequestHandler):
             rel = parse_qs(urlparse(self.path).query).get("p", [""])[0]
             page = load_page(rel)
             return self._json(200 if page else 404, page or {"error": "not found"})
-        if self.path == "/api/youtube-likes":
-            return self._json(200, yt_status())
+        feed = FEEDS.get(self.path[len("/api/feed/"):]) if self.path.startswith("/api/feed/") else None
+        if feed:
+            return self._json(200, feed.status())
         return super().do_GET()
 
     def do_POST(self):
@@ -1492,8 +1507,11 @@ class Handler(SimpleHTTPRequestHandler):
                 if not key_ok(d.get("key")):
                     return self._json(403, {"error": "bad key"})
                 return self._json(200, {"ok": True, **delete_card(d.get("href") or "")})
-            if self.path == "/api/youtube-likes/sync":
-                return self._json(200, {"ok": True, **yt_sync("manual"), **yt_status()})
+            if self.path.startswith("/api/feed/") and self.path.endswith("/sync"):
+                feed = FEEDS.get(self.path[len("/api/feed/"):-len("/sync")])
+                if not feed:
+                    return self._json(404, {"error": "unknown feed"})
+                return self._json(200, {"ok": True, **feed.sync("manual"), **feed.status()})
             if self.path == "/api/page/save":
                 d = self._body()
                 return self._json(200, {"ok": True,
@@ -1512,5 +1530,6 @@ if __name__ == "__main__":
     print("  editor:  http://localhost:%d/editor.html" % port)
     print("  gallery: http://localhost:%d/gallery.html" % port)
     print("  blog:    http://localhost:%d/blog/" % port)
-    threading.Thread(target=_yt_timer, name="youtube-likes", daemon=True).start()
+    for feed in FEEDS.values():
+        threading.Thread(target=feed.timer, name=feed.name, daemon=True).start()
     ThreadingHTTPServer(("", port), Handler).serve_forever()
