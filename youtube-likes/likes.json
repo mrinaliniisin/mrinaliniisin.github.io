@@ -1,6 +1,38 @@
 {
- "updated": "2026-09-18",
+ "updated": "2026-09-25",
  "videos": [
+  {
+   "id": "hBhUOLu5-uw",
+   "title": "REVIEW: Neo M1+ Smartpen, Saves & Digitizes Notes! (Pressure Sensitive)",
+   "channel": "OSReviews",
+   "published": "2020-03-09",
+   "url": "https://www.youtube.com/watch?v=hBhUOLu5-uw",
+   "first_seen": "2026-09-25"
+  },
+  {
+   "id": "TbkUKCm3CHQ",
+   "title": "An ex-OpenAI researcher just deleted language from the LLM...",
+   "channel": "Fireship",
+   "published": "2026-09-21",
+   "url": "https://www.youtube.com/watch?v=TbkUKCm3CHQ",
+   "first_seen": "2026-09-25"
+  },
+  {
+   "id": "ijU9S4CaZ2Y",
+   "title": "They Paid For Perfect Microblading. Now They're Paying To Erase It",
+   "channel": "Laura Jane Atelier",
+   "published": "2026-09-19",
+   "url": "https://www.youtube.com/watch?v=ijU9S4CaZ2Y",
+   "first_seen": "2026-09-25"
+  },
+  {
+   "id": "O6hu8XaX-v0",
+   "title": "Who Invented Kevlar?",
+   "channel": "History of Simple Things",
+   "published": "2024-09-05",
+   "url": "https://www.youtube.com/watch?v=O6hu8XaX-v0",
+   "first_seen": "2026-09-25"
+  },
   {
    "id": "SMYbr93rsCE",
    "title": "What Pros Know About Screws That Beginners Don't.",
@@ -194,14 +226,6 @@
    "first_seen": ""
   },
   {
-   "id": "xuGRECL7vig",
-   "title": "All 11 Levels of Intelligence - Where Do You Fall?",
-   "channel": "The Chill Historian",
-   "published": "2026-07-31",
-   "url": "https://www.youtube.com/watch?v=xuGRECL7vig",
-   "first_seen": ""
-  },
-  {
    "id": "Ukt2gVz25PQ",
    "title": "10 open source tools that feel illegal...",
    "channel": "Fireship",
@@ -295,14 +319,6 @@
    "channel": "Chill Dude Explains",
    "published": "2026-06-24",
    "url": "https://www.youtube.com/watch?v=w90kRGe0KBw",
-   "first_seen": ""
-  },
-  {
-   "id": "r7-INGmcLEI",
-   "title": "12 Thinking Patterns That Will Instantly Make You Smarter",
-   "channel": "The Chill Historian",
-   "published": "2026-07-26",
-   "url": "https://www.youtube.com/watch?v=r7-INGmcLEI",
    "first_seen": ""
   },
   {
@@ -631,14 +647,6 @@
    "channel": "Awesome",
    "published": "2026-07-13",
    "url": "https://www.youtube.com/watch?v=z_GpYtSbgts",
-   "first_seen": ""
-  },
-  {
-   "id": "sS2GS_n_pyA",
-   "title": "12 Useful Psychology Theories You Wish You Learned Earlier",
-   "channel": "The Chill Historian",
-   "published": "2026-06-12",
-   "url": "https://www.youtube.com/watch?v=sS2GS_n_pyA",
    "first_seen": ""
   },
   {
@@ -1842,14 +1850,6 @@
    "first_seen": ""
   },
   {
-   "id": "ZvnorGFzOQY",
-   "title": "🍀❤️🍀 SAGITTARIUS - \"BONUS: ALL ABOUT YOU!!!\" 🍀❤️🍀",
-   "channel": "Baba Jolie Guided Messages",
-   "published": "2026-02-20",
-   "url": "https://www.youtube.com/watch?v=ZvnorGFzOQY",
-   "first_seen": ""
-  },
-  {
    "id": "fhErhFyyCno",
    "title": "How Economics Has Changed Dating",
    "channel": "Economics Explained",
@@ -2051,7 +2051,7 @@
   },
   {
    "id": "pUF5esTscZI",
-   "title": "A4 Paper Should Be Impossible",
+   "title": "A4 Paper Is Too Perfect",
    "channel": "CGP Grey",
    "published": "2021-03-26",
    "url": "https://www.youtube.com/watch?v=pUF5esTscZI",
