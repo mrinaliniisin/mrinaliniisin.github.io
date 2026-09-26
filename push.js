@@ -1,6 +1,6 @@
 // Subscribe/unsubscribe UI for push notifications on the homepage.
 // Subscribes under the "index" topic — only cards added to index.html notify
-// this subscriber. See secret-push.js for the secret.html topic.
+// this subscriber. The per-section bells use bell.js instead.
 (() => {
   // ▼ After deploying the Worker, set this to its URL (also set in sw.js).
   const WORKER = "https://mrinaliniisin-push.mustardseed.workers.dev";

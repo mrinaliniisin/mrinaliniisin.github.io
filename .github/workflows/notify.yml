@@ -3,15 +3,16 @@ name: Notify subscribers of new cards
 # Fires when any tracked page changes on main (see PAGES in
 # notify_new_cards.py). The script diffs each page's items against the
 # previous commit and pushes a notification for any new one, scoped to that
-# page's own topic. secret.html itself isn't tracked — its old page-wide bell
-# was retired in favor of per-card bells pointing at each destination's own
-# topic (blog, commonplace, listicles, tvplotmaps).
+# page's own topic. secret.html isn't tracked: its blog posts no longer
+# notify, and its other cards carry per-card bells pointing at each
+# destination's own topic (listicles, tvplotmaps). /writings has its own
+# page bell (topic writings).
 on:
   push:
     branches: [main]
     paths:
       - "index.html"
-      - "blog/index.html"
+      - "writings/index.html"
       - "commonplace/index.html"
       - "theo/listicles/index.html"
       - "tv-plot-maps/index.html"

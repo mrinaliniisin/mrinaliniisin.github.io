@@ -1,7 +1,7 @@
 // Service worker for the index.html "index" notification topic on
 // mrinaliniisin.github.io. Pushes arrive payload-less (the broadcaster only
 // signs, doesn't encrypt), so on each push we fetch the latest card info
-// from the push Worker's /latest. See secret-sw.js for the secret.html topic.
+// from the push Worker's /latest. The per-section bells use bell-sw.js.
 
 // ▼ After deploying the Worker, set this to its URL (also set in push.js).
 const WORKER = "https://mrinaliniisin-push.mustardseed.workers.dev";

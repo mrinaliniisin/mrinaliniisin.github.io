@@ -70,8 +70,8 @@
     .credit { position: relative; z-index: 2; margin-top: 12px;
               font-size: 12px; color: #6b6560; }
     .credit a { color: #2d5a27; text-decoration: underline; }
-    /* Ported from secret.html with the cards that use them: the FOSS
-       Internships list and the per-card notify bell. */
+    /* Used by the cards that need them: the FOSS Internships list and the
+       per-card notify bell. */
     .items { list-style: none; margin-top: 10px; font-size: 14px; color: #4a4540; }
     .items li { margin-top: 6px; }
     .items a { color: #2d5a27; text-decoration: underline;
@@ -312,9 +312,8 @@
        doesn't already point at: (1) the cards themselves — title, description,
        tags, list items — and (2) the entries of any same-origin section a card
        links to (a folder such as /commonplace/ or /tv-plot-maps/), read from
-       that section's own index page, fetched once on first use. secret.html and
-       everything reachable only from it never enter the index because no card
-       links there. No build step: the index is whatever the homepage links to
+       that section's own index page, fetched once on first use. Pages no card
+       links to never enter the index. No build step: the index is whatever the homepage links to
        at the moment someone searches. -->
   <script>
     (function () {

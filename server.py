@@ -5,7 +5,7 @@ Serves the static site AND backs editor.html with two endpoints:
 
   POST /api/save   {title, date, markdown, html, tags, layout}
                                                    -> writes blog/<slug>.html
-                                                      and updates blog/index.html
+                                                      and updates its card on secret.html
   GET  /api/load?p=<slug>                          -> {title, date, markdown, tags, layout}
   GET  /api/tags                                   -> every tag in use, most-used first
   GET  /api/feed/<name>                            -> sync status of a feed
@@ -41,7 +41,12 @@ from urllib.parse import urlparse, parse_qs
 
 ROOT = os.getcwd()
 BLOG = os.path.join(ROOT, "blog")
-INDEX = os.path.join(BLOG, "index.html")
+# The post listing lives on /secret, between the <!--POSTS--> and <!--/POSTS-->
+# markers; the rest of that page is hand-made cards this server never touches.
+# (blog/index.html is now just a redirect to /secret.)
+LISTING_REL = "secret.html"
+INDEX = os.path.join(ROOT, LISTING_REL)
+POSTS_START, POSTS_END = "<!--POSTS-->", "<!--/POSTS-->"
 IMAGES = os.path.join(BLOG, "images")
 INDEX_HTML = os.path.join(ROOT, "index.html")
 
@@ -80,7 +85,7 @@ POST_TEMPLATE = """<!DOCTYPE html>
 </head>
 <body>
   <main class="wrap{wrap_class}">
-    <a class="back" href="/blog/">← All posts</a>
+    <a class="back" href="/">← Home</a>
     <article>
       <h1 class="post-title">{title_html}</h1>
       <p class="post-meta">{date_human}</p>
@@ -374,8 +379,8 @@ def write_post(title, date_iso, markdown, body_html, slug=None, draft=False,
 
     `draft` still gives the post a card — it just renders as the "coming soon"
     state (see update_index), the same one assets/blog-availability.js paints
-    onto a post that isn't pushed yet. So a draft is announced on the blog page
-    and can be subscribed to with the bell; it just isn't readable yet. The
+    onto a post that isn't pushed yet. So a draft is announced in the listing;
+    it just isn't readable yet. The
     state is stamped into the file as DRAFT_META so the next save can read it
     back rather than publishing by default.
 
@@ -439,8 +444,8 @@ BLOG_CARD_RE = re.compile(
 # The one line a "coming soon" card shows instead of its date. Kept identical
 # to the string assets/blog-availability.js writes when it repaints a card for
 # an unpushed post, so a draft and a not-yet-pushed post read the same on the
-# blog page — both mean "written down, not readable yet, hit the bell".
-COMING_SOON = "Coming soon, to be notified hit the \N{BELL}"
+# listing — both mean "written down, not readable yet".
+COMING_SOON = "Coming soon"
 
 
 # The rule that splits published cards from coming-soon ones. Deliberately
@@ -478,11 +483,29 @@ def _regroup(text):
     return text.replace("<!--POSTS-->\n", "<!--POSTS-->\n" + block, 1)
 
 
+def _read_listing():
+    """(before, posts, after) of the listing page, where `posts` is the
+    <!--POSTS--> marker line plus every card up to <!--/POSTS-->. Every card
+    operation below works on `posts` alone — BLOG_CARD_RE would happily match
+    the hand-made cards elsewhere on secret.html too."""
+    with open(INDEX, encoding="utf-8") as f:
+        text = f.read()
+    i, j = text.find(POSTS_START), text.find(POSTS_END)
+    if i < 0 or j < i:
+        raise RuntimeError("%s has lost its %s / %s markers" % (LISTING_REL, POSTS_START, POSTS_END))
+    return text[:i], text[i:j], text[j:]
+
+
+def _write_listing(before, posts, after):
+    with open(INDEX, "w", encoding="utf-8") as f:
+        f.write(before + posts + after)
+
+
 def update_index(slug, title, date_iso, draft=False, tags=()):
     """Give this post a card in the blog listing, replacing any it already had.
 
     A draft gets the same card in its "coming soon" form: dashed, unclickable,
-    and showing the bell prompt in place of the date. It's rendered that way
+    and showing "Coming soon" in place of the date. It's rendered that way
     HERE rather than left to blog-availability.js, because that script only
     knows how to spot a post whose *file* is missing — a draft's file is right
     there. Baking it into the markup also means the state survives with
@@ -499,8 +522,7 @@ def update_index(slug, title, date_iso, draft=False, tags=()):
     """
     tags = parse_tags(tags)
     ribbons = render_tags(tags, "        ")
-    with open(INDEX, encoding="utf-8") as f:
-        text = f.read()
+    before, text, after = _read_listing()
 
     href = '/blog/%s.html' % slug
     # Drop any existing card for this slug and the "no posts yet" placeholder.
@@ -534,8 +556,7 @@ def update_index(slug, title, date_iso, draft=False, tags=()):
     # newest first, right under the marker — then _regroup moves it below the
     # divider if it's a draft, and drops the divider if it's no longer needed.
     text = text.replace("<!--POSTS-->\n", "<!--POSTS-->\n" + card, 1)
-    with open(INDEX, "w", encoding="utf-8") as f:
-        f.write(_regroup(text))
+    _write_listing(before, _regroup(text), after)
 
 
 def is_draft(src):
@@ -562,9 +583,9 @@ def _prune_cards(text):
     delete_post — removed by hand, dropped by a git checkout, or left behind by
     a retitle that re-slugged the filename — strands its card here. A stranded
     card is worse than merely wrong: it's a dead link, and dead links are
-    exactly what assets/blog-availability.js repaints as "Coming soon, to be
-    notified hit the 🔔", so an orphan is indistinguishable from an unpublished
-    post and sits on the blog page forever. Nothing on disk can revive it, so
+    exactly what assets/blog-availability.js repaints as "Coming soon", so an
+    orphan is indistinguishable from an unpublished post and sits in the
+    listing forever. Nothing on disk can revive it, so
     the card is always the thing to remove.
 
     Returns (text, removed); `removed` describes each dropped card. Cards
@@ -588,25 +609,21 @@ def _prune_cards(text):
 
 def prune_index():
     """Remove orphaned cards from the blog listing; returns the ones removed."""
-    with open(INDEX, encoding="utf-8") as f:
-        text = f.read()
+    before, text, after = _read_listing()
     text, removed = _prune_cards(text)
     if removed:
-        with open(INDEX, "w", encoding="utf-8") as f:
-            f.write(_regroup(text))
+        _write_listing(before, _regroup(text), after)
     return removed
 
 
 def orphan_cards():
     """A dry run of prune_index: listing cards with no post file behind them."""
-    with open(INDEX, encoding="utf-8") as f:
-        return _prune_cards(f.read())[1]
+    return _prune_cards(_read_listing()[1])[1]
 
 
 def _card_count(slug):
     """How many listing cards point at this post."""
-    with open(INDEX, encoding="utf-8") as f:
-        text = f.read()
+    text = _read_listing()[1]
     return sum(1 for m in BLOG_CARD_RE.finditer(text)
                if not m.group(1) and _card_slug(m.group(0)) == slug)
 
@@ -616,7 +633,7 @@ def delete_post_plan(slug):
     slug = slugify(slug)
     rel = "blog/%s.html" % slug
     # "index" slugifies like any other title, but blog/index.html is the
-    # listing itself, never a deletable post.
+    # /blog redirect, never a deletable post.
     is_post = slug != "index"
     return {"slug": slug, "target": rel,
             "exists": is_post and os.path.isfile(os.path.join(ROOT, rel)),
@@ -625,8 +642,8 @@ def delete_post_plan(slug):
             # removing the card is precisely the point of deleting it.
             "cards": _card_count(slug) if is_post else 0,
             # The listing's own card IS what delete_post removes, so don't
-            # report blog/index.html as a link that would be left dangling.
-            "inbound": [f for f in inbound_links(rel) if f != "blog/index.html"]}
+            # report the listing as a link that would be left dangling.
+            "inbound": [f for f in inbound_links(rel) if f != LISTING_REL]}
 
 
 def delete_post(slug):
@@ -653,7 +670,7 @@ def delete_post(slug):
     if slug == "index" or not (exists or _card_count(slug)):
         raise ValueError("no post named %r" % slug)
 
-    inbound = [f for f in inbound_links(rel) if f != "blog/index.html"]
+    inbound = [f for f in inbound_links(rel) if f != LISTING_REL]
     if exists:
         os.remove(path)
     # With the file gone, this post's own card is an orphan like any other, so a
@@ -825,8 +842,8 @@ def in_head(rel):
 def uncommitted_posts():
     """Root-relative hrefs of blog posts that exist on disk but aren't in the
     current HEAD commit. GitHub Pages only ever serves what's been pushed, so
-    these are exactly the posts whose blog/index.html card would 404 live —
-    blog/index.html itself is generated together with the post file (see
+    these are exactly the posts whose secret.html card would 404 live —
+    their card there is written together with the post file (see
     update_index), so this only diverges when a post got committed/pushed
     without also committing its file, or hasn't been committed at all yet.
     Used so the local editor can preview the "coming soon" fallback
@@ -1529,7 +1546,7 @@ if __name__ == "__main__":
     print("Blog save server on http://localhost:%d" % port)
     print("  editor:  http://localhost:%d/editor.html" % port)
     print("  gallery: http://localhost:%d/gallery.html" % port)
-    print("  blog:    http://localhost:%d/blog/" % port)
+    print("  posts:   http://localhost:%d/secret.html" % port)
     for feed in FEEDS.values():
         threading.Thread(target=feed.timer, name=feed.name, daemon=True).start()
     ThreadingHTTPServer(("", port), Handler).serve_forever()

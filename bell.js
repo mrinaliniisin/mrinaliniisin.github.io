@@ -2,7 +2,7 @@
 // matching [data-bell-topic] is wired up independently: its own service
 // worker registration (bell-sw.js, parameterized by topic via query string),
 // its own scope, its own subscribers — so several bells can live on one page
-// (e.g. secret.html's per-card bells) without cross-notifying each other.
+// (e.g. several per-card bells) without cross-notifying each other.
 //
 // Required:
 //   data-bell-topic   e.g. "commonplace"

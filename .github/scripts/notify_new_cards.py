@@ -7,12 +7,11 @@ page, compares its items against the previous commit (HEAD~1); for every
 item whose href is new, POSTs {title, body, url, topic} to the push Worker's
 /broadcast, tagged with that page's topic. Bells live on secret.html (one per
 card — see secret.html's card-bell buttons and bell.js) except for "index"
-(index.html's own bell) and "blog" (blog/index.html's own bell, which is also
-mirrored as a card-bell on secret.html so the two share one subscription).
+(index.html's own bell) and "writings" (the bell at the top of
+writings/index.html).
 
-secret.html itself carries no cards worth diffing anymore — its own page-wide
-bell was retired in favor of these per-destination topics — so it's not in
-PAGES.
+Blog posts don't notify: their bell (and the "blog" topic) was retired along
+with /blog. Their cards on secret.html aren't tracked.
 
 Each page's cards use different markup (hand-rolled per section), so each
 entry below carries its own extraction regex instead of one shared pattern.
@@ -39,7 +38,7 @@ import urllib.request
 
 # href, title, desc — robust to whatever follows inside the card, and to
 # extra classes alongside "desc" (blog cards keep just "desc", but this
-# tolerates either). Shared by index.html and blog/index.html, whose cards
+# tolerates either). Used by index.html and writings/index.html, whose cards
 # both follow the same card-link/h2/desc convention.
 CARD_RE = re.compile(
     r'<a class="card-link" href="([^"]+)"[^>]*></a>\s*'
@@ -68,7 +67,7 @@ TVPLOTMAPS_RE = re.compile(
 
 PAGES = [
     {"path": "index.html", "topic": "index", "regex": CARD_RE},
-    {"path": "blog/index.html", "topic": "blog", "regex": CARD_RE},
+    {"path": "writings/index.html", "topic": "writings", "regex": CARD_RE},
     {"path": "commonplace/index.html", "topic": "commonplace", "regex": COMMONPLACE_RE,
      "default_body": "New entry in the Commonplace Book"},
     {"path": "theo/listicles/index.html", "topic": "listicles", "regex": LISTICLES_RE,

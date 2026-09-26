@@ -1,4 +1,4 @@
-// Blog index: a card's post is sometimes committed to blog/index.html before
+// Post listing cards: a card is sometimes committed before
 // the post file itself is pushed (or it's still sitting locally, untracked).
 // Rather than ship a dead link, fall back to a "coming soon" state for those.
 //
@@ -39,6 +39,6 @@
     link.removeAttribute("href");
     link.setAttribute("aria-disabled", "true");
     const meta = card.querySelector(".desc");
-    if (meta) meta.textContent = "Coming soon, to be notified hit the 🔔";
+    if (meta) meta.textContent = "Coming soon";
   }
 })();
