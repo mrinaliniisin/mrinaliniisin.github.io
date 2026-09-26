@@ -1061,6 +1061,10 @@ def _weave_divider(blocks, chains):
         if href in pins:
             out.append(GRID_DIVIDER % pins.pop(href))
         out.append(b)
+    # A rule that never had a card below it (the linked Writings rule at the
+    # foot of the grid) has no card to pin to; it belongs to the end of the
+    # grid, so keep it there rather than letting the rebuild drop it.
+    out.extend(GRID_DIVIDER % label for label, chain in chains if not chain)
     return "\n".join(out)
 
 

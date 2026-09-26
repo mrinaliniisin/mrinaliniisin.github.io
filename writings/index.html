@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Writings · Mrinalini S</title>
+  <!-- Directory index like /refund so the URL is a bare /writings. -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+           background: #f4f3f0; color: #1a1a1a; line-height: 1.5; padding: 64px 16px; }
+    .wrap { max-width: 880px; margin: 0 auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px; }
+    .card { display: block; background: white; border: 1px solid #d9d6cf;
+            border-radius: 12px; padding: 24px; text-decoration: none; color: inherit;
+            position: relative; overflow: hidden; min-height: 168px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+                  border-color: #2d5a27; }
+    .card h2 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+    .card:hover h2 { color: #2d5a27; }
+    .card .desc { font-size: 14px; color: #4a4540; }
+
+    /* Stretched-link pattern: overlay makes the whole card clickable while
+       letting the credit line and source link keep their own independent links. */
+    .card-link { position: absolute; inset: 0; z-index: 1; }
+    .credit { position: relative; z-index: 2; margin-top: 12px;
+              font-size: 12px; color: #6b6560; }
+    .credit a { color: #2d5a27; text-decoration: underline; }
+
+    .back { display: inline-block; margin-bottom: 24px; font-size: 14px;
+            color: #2d5a27; text-decoration: none; }
+    .back:hover { text-decoration: underline; }
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 20px; }
+    footer { margin-top: 48px; font-size: 12px; color: #a8a29e; text-align: center; }
+    footer a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="/">&larr; Home</a>
+    <h1>Writings</h1>
+    <div class="grid">
+      <div class="card">
+        <a class="card-link" href="/impossible-refund.html" aria-label="The Impossible Refund"></a>
+        <h2>The Impossible Refund</h2>
+        <div class="desc">A twenty-day standoff between a marketplace, a brand and a courier over one ill-fitting top, and the one move that got every rupee back.</div>
+      </div>
+      <div class="card">
+        <a class="card-link" href="/last-time-i-emailed-a-ceo.html" aria-label="The Last Time I Emailed a CEO, They Shipped a Feature"></a>
+        <h2>The Last Time I Emailed a CEO, They Shipped a Feature</h2>
+        <div class="desc">How I got Amazon software teams to push two separate user impacting software features</div>
+      </div>
+      <div class="card">
+        <a class="card-link" href="https://thelifeofscience.com/2018/05/17/poonkuzhalis-cabinet-pharmacology-mysteries/" target="_blank" rel="noopener" aria-label="Into Poonkuzhali&rsquo;s cabinet of pharmacology mysteries"></a>
+        <h2>Into Poonkuzhali&rsquo;s cabinet of pharmacology mysteries</h2>
+        <div class="desc">My one and only paid writing gig, eons ago.</div>
+      </div>
+    </div>
+
+    <footer>&copy; 2026 <a href="/about">Mrinalini S</a> &middot; like something? <a href="/pay">chip in here</a> or via <a href="upi://pay?pa=mrinalinis@upi&amp;pn=Mrinalini%20S&amp;cu=INR" title="Pay via UPI (opens a payment app on mobile)"><code>mrinalinis@upi</code></a> &middot; Code licensed under MIT &middot; <a href="/privacy">Privacy</a> &middot; <a href="/tos">Terms</a> &middot; <a href="/refund">Refunds</a> &middot; <a href="/contact">Contact</a></footer>
+  </div>
+  <script src="/assets/analytics.js" defer></script>
+</body>
+</html>
