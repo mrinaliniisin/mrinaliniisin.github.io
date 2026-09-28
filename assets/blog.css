@@ -123,6 +123,14 @@ article .post-tags { margin: -24px 0 32px; }
 .post-body pre { background: #ebe9e4; padding: 16px; border-radius: 8px; overflow-x: auto; }
 .post-body pre code { background: none; padding: 0; }
 .post-body img { max-width: 100%; height: auto; border-radius: 8px; }
+/* Standalone pages (assets/zoom.js): images show as a smaller preview that
+   opens full-size in the .lightbox overlay below. */
+.post-body .zoom-link { display: block; width: fit-content; margin: 0 auto; cursor: zoom-in; }
+.post-body img.zoomable { display: block; max-height: 420px; width: auto;
+                          border: 1px solid #d9d6cf;
+                          transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.post-body .zoom-link:hover img.zoomable { transform: translateY(-2px);
+                                           box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
 /* Responsive video embeds (e.g. a pasted YouTube link). */
 .post-body .video-embed { position: relative; aspect-ratio: 16 / 9; }
 .post-body .video-embed iframe { position: absolute; inset: 0;
