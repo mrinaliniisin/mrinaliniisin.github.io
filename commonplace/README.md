@@ -16,6 +16,7 @@ Action fallback, for the same reason.
 |-------------------------|----------------------------------------------------------------------|
 | `index.html`            | The page. Only the cards between `<!-- factoids:start -->` / `<!-- factoids:end -->` and the "Search N factoids…" count are machine-written; edit the rest freely. |
 | `<slug>.html`           | One page per factoid.                                                |
+| `another.js`            | "Another from the book": a random other factoid (with ↻ shuffle) under each page, read from `factoids.json`. |
 | `images/`               | Screenshots copied out of Anytype for factoid pages.                 |
 | `factoids.json`         | Which Anytype object owns which page, in the collection's order. A factoid keeps its URL when retitled. |
 | `auth.local.json`       | `api_key`, `space_id`, `list_id`, `auto_push`. **Git-ignored.** Without it the feed is dormant. |

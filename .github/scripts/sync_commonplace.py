@@ -237,6 +237,7 @@ PAGE = """<!DOCTYPE html>
     </article>
   </main>
 {footer}
+  <script src="/commonplace/another.js" defer></script>
   <script src="/assets/analytics.js" defer></script>
 </body>
 </html>
