@@ -1,6 +1,15 @@
 {
- "updated": "2026-09-26",
+ "updated": "2026-10-06",
  "factoids": [
+  {
+   "id": "bafyreif5go3q424did77o67d53mobyv7j4nd4ezipnidqsgqdhowiwa4ua",
+   "slug": "alliesthesia",
+   "managed": true,
+   "name": "alliesthesia",
+   "modified": "2026-10-06T12:35:56Z",
+   "created": "2026-10-06T12:35:40Z",
+   "text": "alliesthesia "
+  },
   {
    "id": "bafyreifzpqbz6ox73gxbsf64ovny6jk7le4kcmzswtufmfd4tygigzfl5u",
    "slug": "unbidden-is-something-you-show-restraint-on",
