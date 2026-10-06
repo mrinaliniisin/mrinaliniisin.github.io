@@ -123,6 +123,13 @@ article .post-tags { margin: -24px 0 32px; }
 .post-body pre { background: #ebe9e4; padding: 16px; border-radius: 8px; overflow-x: auto; }
 .post-body pre code { background: none; padding: 0; }
 .post-body img { max-width: 100%; height: auto; border-radius: 8px; }
+/* Tables sit in a .table-scroll wrapper so a wide one scrolls sideways on a
+   phone instead of pushing the whole page wider. */
+.post-body .table-scroll { overflow-x: auto; }
+.post-body table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.post-body th, .post-body td { text-align: left; vertical-align: top;
+                               padding: 8px 10px; border-bottom: 1px solid #d9d6cf; }
+.post-body th { font-weight: 600; border-bottom-width: 2px; }
 /* Standalone pages (assets/zoom.js): images show as a smaller preview that
    opens full-size in the .lightbox overlay below. */
 .post-body .zoom-link { display: block; width: fit-content; margin: 0 auto; cursor: zoom-in; }
