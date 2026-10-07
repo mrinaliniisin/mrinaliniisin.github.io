@@ -28,10 +28,13 @@ Action fallback, for the same reason.
   a page. Text, lists and links are rendered from Anytype's Markdown;
   screenshots are copied in as images; a title with no body gets "just the
   title"; a *Reference* property becomes a "Source ↗" link.
-- **Edited factoid** → its page is re-rendered — *only* for factoids the sync
-  added. The original 62 (June 2026 import) were tidied by hand, so their pages
-  are frozen (`"managed": false` in `factoids.json`). To let the sync take one
-  over, set its `managed` to `true` and run with `--rerender`.
+- **Edited factoid** → its page and card are re-rendered. Anytype is the
+  source of truth: make every change there, then sync. (Until October 2026 the
+  62 June-import pages were hand-tidied and frozen; their site-only bits were
+  copied back into Anytype and they now follow it like the rest. A row with
+  `"managed": false` in `factoids.json` would still be left alone.)
+- A closing paragraph starting `Source:` is shown small, like the *Reference*
+  link. Tables, `##`/`###` headings, lists and quotes are rendered too.
 - **Removed from the collection** → card and page are deleted. A sync that
   would remove more than 5 at once is refused, in case Anytype is mid-sync
   or the list id is wrong.

@@ -22,12 +22,11 @@ What gets written in commonplace/:
   <slug>.html    — one page per factoid.
   images/        — screenshots copied out of Anytype for factoid pages.
 
-The first 62 factoids were imported by hand in June 2026: screenshots were
-transcribed to text and links tidied, which a plain re-render would undo. Those
-rows are "managed": false and their pages are never rewritten (their cards keep
-their stored search text). Everything the sync adds is "managed": true and
-follows later edits in Anytype. Removing a factoid from the collection removes
-its card and page, whichever kind it is.
+Anytype is the source of truth: every row is "managed": true and follows
+later edits there. (The 62 June 2026 imports were hand-tidied and frozen as
+"managed": false until October 2026, when their site-only content was copied
+back into Anytype.) A "managed": false row is still never rewritten. Removing
+a factoid from the collection removes its card and page.
 
 Script mode:
   python3 .github/scripts/sync_commonplace.py            sync now
@@ -168,35 +167,83 @@ def _inline(text, alt):
 
 
 def _unescape(s):
-    return re.sub(r"\\([\\`*_{}\[\]()#+\-.!>])", r"\1", s)
+    return re.sub(r"\\([\\`*_{}\[\]()#+\-.!>|&~])", r"\1", s)
+
+
+def _kind(line):
+    s = line.strip()
+    if s.startswith("\x01"):
+        return "img"
+    if re.match(r"#{1,6} ", s):
+        return "h"
+    if re.match(r"[-*+] ", s):
+        return "ul"
+    if re.match(r"\d+[.)] ", s):
+        return "ol"
+    if s.startswith(">"):
+        return "quote"
+    if s.startswith("|"):
+        return "table"
+    return "p"
+
+
+def _cells(line):
+    return [re.sub(r"\s*<br>\s*$", "", c).strip() for c in line.strip().strip("|").split("|")]
+
+
+def _table(lines, title):
+    rows = [_cells(l) for l in lines if not re.fullmatch(r"\|?[\s:|-]+\|?", l.strip())]
+    head, body = rows[0], rows[1:]
+    th = "".join("<th>%s</th>" % _inline(c, title) for c in head)
+    trs = "".join("<tr>%s</tr>" % "".join("<td>%s</td>" % _inline(c, title) for c in r)
+                  for r in body)
+    return ('<div class="table-scroll"><table><thead><tr>%s</tr></thead>'
+            '<tbody>%s</tbody></table></div>' % (th, trs))
 
 
 def md_to_html(md, title):
+    """Anytype's export puts each block on its own line (blank lines are just
+    empty blocks), so this works line by line: runs of list items, quote lines
+    or table rows group together, and every other line is its own paragraph.
+    A closing "Source: …" paragraph is set small, like the Reference link."""
     md = re.sub(r"</?details>", "", md)
-    md = re.sub(r"<summary>(.*?)</summary>", r"\1\n\n", md, flags=re.S)
-    md = IMG_RE.sub(lambda m: "\n\n\x01%s\x01\n\n" % fetch_image(m.group(2), m.group(3)), md)
-    out = []
-    for block in re.split(r"\n\s*\n", md):
-        lines = [l.rstrip() for l in block.strip("\n").split("\n") if l.strip()]
-        if not lines:
+    md = re.sub(r"<summary>(.*?)</summary>", r"\1\n", md, flags=re.S)
+    md = IMG_RE.sub(lambda m: "\n\x01%s\x01\n" % fetch_image(m.group(2), m.group(3)), md)
+    groups = []  # [kind, [lines]]
+    for line in md.split("\n"):
+        if not line.strip():
+            groups.append(["blank", []])
             continue
-        if len(lines) == 1 and lines[0].strip().startswith("\x01"):
-            src = lines[0].strip().strip("\x01")
+        kind = _kind(line)
+        if groups and groups[-1][0] == kind and kind in ("ul", "ol", "quote", "table"):
+            groups[-1][1].append(line.strip())
+        else:
+            groups.append([kind, [line.strip()]])
+    out = []
+    for kind, lines in groups:
+        if kind == "blank":
+            continue
+        if kind == "img":
+            src = lines[0].strip("\x01")
             out.append('<p><img src="%s" alt="%s" loading="lazy" style="max-width:100%%;'
                        'height:auto;border-radius:8px"></p>' % (src, html.escape(title)))
-        elif all(re.match(r"\s*[-*+] ", l) for l in lines):
-            out.append("<ul>%s</ul>" % "".join(
-                "<li>%s</li>" % _inline(re.sub(r"^\s*[-*+] ", "", l), title) for l in lines))
-        elif all(re.match(r"\s*\d+[.)] ", l) for l in lines):
-            out.append("<ol>%s</ol>" % "".join(
-                "<li>%s</li>" % _inline(re.sub(r"^\s*\d+[.)] ", "", l), title) for l in lines))
-        elif re.match(r"#{1,6} ", lines[0]) and len(lines) == 1:
-            out.append("<h3>%s</h3>" % _inline(lines[0].lstrip("#").strip(), title))
-        elif all(l.lstrip().startswith(">") for l in lines):
+        elif kind == "h":
+            level = 2 if len(lines[0]) - len(lines[0].lstrip("#")) <= 2 else 3
+            out.append("<h%d>%s</h%d>" % (level, _inline(lines[0].lstrip("#").strip(), title), level))
+        elif kind in ("ul", "ol"):
+            out.append("<%s>%s</%s>" % (kind, "".join(
+                "<li>%s</li>" % _inline(re.sub(r"^([-*+]|\d+[.)]) ", "", l), title)
+                for l in lines), kind))
+        elif kind == "quote":
             out.append("<blockquote><p>%s</p></blockquote>" % "<br>".join(
-                _inline(l.lstrip()[1:].strip(), title) for l in lines))
+                _inline(l[1:].strip(), title) for l in lines))
+        elif kind == "table":
+            out.append(_table(lines, title))
         else:
-            out.append("<p>%s</p>" % "<br>".join(_inline(l.strip(), title) for l in lines))
+            out.append("<p>%s</p>" % _inline(lines[0], title))
+    if out and groups and [g for g in groups if g[0] != "blank"][-1][0] == "p" \
+            and out[-1].startswith("<p>Source:"):
+        out[-1] = '<p class="post-meta" style="margin-top:28px">' + out[-1][3:]
     return out
 
 
@@ -204,6 +251,12 @@ def search_text(title, md):
     """The card's data-text: title + body as plain lowercase text."""
     body = IMG_RE.sub("", md)
     body = re.sub(r"</?(details|summary)>", "", body)
+    body = re.sub(r"\[([^\]]+)\]\((https?://[^)\s]+)\)", r"\1", body)
+    body = re.sub(r"(?<!\\)(\*\*|\*|`)", "", body)
+    body = re.sub(r"(?m)^\s*(#{1,6}|>|[-+]|\d+[.)])\s+", "", body)
+    body = re.sub(r"(?m)^\|?[\s:|-]+\|?$", "", body)  # table separator rows
+    body = re.sub(r"\s*<br>\s*|\s*\|\s*", " ", body)
+    body = re.sub(r"\\([\\`*_{}\[\]()#+\-.!>|&~])", r"\1", body)
     body = re.sub(r"[ \t]+\n", "\n", body)
     body = re.sub(r"\n{3,}", "\n\n", body).strip()
     return ("%s %s" % (title, _unescape(body))).lower()

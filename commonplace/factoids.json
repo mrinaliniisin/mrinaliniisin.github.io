@@ -1,32 +1,32 @@
 {
- "updated": "2026-10-06",
+ "updated": "2026-10-07",
  "factoids": [
   {
    "id": "bafyreif5go3q424did77o67d53mobyv7j4nd4ezipnidqsgqdhowiwa4ua",
    "slug": "alliesthesia",
    "managed": true,
    "name": "alliesthesia",
-   "modified": "2026-10-06T12:35:56Z",
+   "modified": "2026-10-07T03:40:21Z",
    "created": "2026-10-06T12:35:40Z",
-   "text": "alliesthesia "
+   "text": "alliesthesia pleasure depends on need. this is called alliesthesia: the same stimulus feels better when your body needs it. a warm room feels great after you come in from the cold and stuffy otherwise. when you're hot or dehydrated, cold water gives a bigger dopamine hit because it fixes a real problem."
   },
   {
    "id": "bafyreifzpqbz6ox73gxbsf64ovny6jk7le4kcmzswtufmfd4tygigzfl5u",
    "slug": "unbidden-is-something-you-show-restraint-on",
    "managed": true,
    "name": "Unbidden is something you show restraint on",
-   "modified": "2026-09-25T08:48:18Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2026-09-25T08:47:12Z",
-   "text": "unbidden is something you show restraint on "
+   "text": "unbidden is something you show restraint on what's a better word for unrequested?\n\nunsolicited is the usual choice. others, depending on tone:\nunprompted: done without being asked\nuninvited: implies intrusion\nunbidden: literary; often thoughts or feelings (\"memories came unbidden\")\ngratuitous: unnecessary and unwelcome\n\n\"unsolicited advice\" is the classic pairing.\nsource: claude"
   },
   {
    "id": "bafyreigazvfqxra6bprk6jz7d2eonrcrnnpo5qu3wq6okcalgl4ormyxoe",
    "slug": "the-past-is-in-front-of-us",
    "managed": true,
    "name": "The past is in front of us",
-   "modified": "2026-09-25T08:47:45Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2026-09-24T10:22:05Z",
-   "text": "the past is in front of us "
+   "text": "the past is in front of us the aymara people, an indigenous group living in the andes mountains of south america, visualize the past in front of them and the future behind them.\nthe reason: they believe we can \"see\" the past because it has already happened and is known, while the future is unknown and unseen (literally behind our backs).\nthe language: in the aymara language, the word for past or front is nayra, which also translates to \"eye\" or \"sight.\" the word for future or behind is q'ipa.\nthe gestures: when aymara speakers talk about past events, they gesture forward. when they talk about the future, they point or wave backward over their shoulders.\n\nsource: google ai overview (citing reddit, indianz.com, the guardian, phys.org)"
   },
   {
    "id": "bafyreia7sqeq6kfggiv3ypv5gx3bvrky3oxz4dtxxxusg6xrs7x4lvc7hi",
@@ -49,88 +49,88 @@
   {
    "id": "bafyreieln55su7loqhgknklp2xdykx36iru5jgs6t2rfkqbus74teqxyrm",
    "slug": "earth-s-terminator-line",
-   "managed": false,
+   "managed": true,
    "name": "Earth's Terminator Line",
-   "modified": "2026-06-29T13:52:31Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2026-06-29T09:01:40Z",
-   "text": "earth's terminator line the earth's terminator line (also called the \"grey line\" or \"twilight zone\") is the moving boundary that separates the illuminated day side from the dark night side of the planet. as the earth rotates eastward, this line sweeps across the globe, bringing sunrise to one side and sunset to the exact opposite. it is not a sharp line: because the atmosphere bends (refracts) sunlight, the terminator is a fuzzy band about 37 miles (60 km) wide.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/terminator_(solar))"
+   "text": "earth's terminator line the earth's terminator line (also called the \"grey line\" or \"twilight zone\") is the moving boundary that separates the illuminated day side from the dark night side of the planet. as the earth rotates eastward, this line sweeps across the globe, bringing sunrise to one side and sunset to the exact opposite. it is not a sharp line: because the atmosphere bends (refracts) sunlight, the terminator is a fuzzy band about 37 miles (60 km) wide.\nread more on wikipedia)\nsource: google ai overview (citing science on a sphere / wikipedia)"
   },
   {
    "id": "bafyreiepg7g4yae53lvlyt4smiectfm5ceri3ws7nf4smj6oepjcwmvzwa",
    "slug": "the-origin-of-the-word-gentleman",
-   "managed": false,
+   "managed": true,
    "name": "The origin of the word \"gentleman\"",
-   "modified": "2026-06-29T13:52:34Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2026-03-20T16:46:03Z",
-   "text": "the origin of the word \"gentleman\" \"gentleman\" originates from the middle english gentilman and old french gentilhomme, tracing back to latin gentilis (\"of the same family/clan\") and homo (\"man\"). dating to the 13th century, it originally meant a man of noble birth, high social standing, or one entitled to bear arms, evolving over time to denote polite, well-bred behaviour. the focus shifted from birthright to character, and today it rarely refers to inherited status. the word \"gentle\" here does not mean \"mild\" but rather \"well-born\" (from gentil).\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/gentleman)"
+   "text": "the origin of the word \"gentleman\" \"gentleman\" originates from the middle english gentilman and old french gentilhomme, tracing back to latin gentilis (\"of the same family/clan\") and homo (\"man\"). dating to the 13th century, it originally meant a man of noble birth, high social standing, or one entitled to bear arms, evolving over time to denote polite, well-bred behaviour. the focus shifted from birthright to character, and today it rarely refers to inherited status. the word \"gentle\" here does not mean \"mild\" but rather \"well-born\" (from gentil).\nread more on wikipedia\nsource: google ai overview (citing online etymology dictionary)"
   },
   {
    "id": "bafyreif7a2p24yxfkzf6krl3vjxvh3cmqymovsxvpvfpneasi4pmodig4m",
    "slug": "the-great-ambition-of-women-is-to-inspire-love",
-   "managed": false,
+   "managed": true,
    "name": "The great ambition of women is to inspire love",
-   "modified": "2026-06-29T13:52:38Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2026-03-09T13:12:48Z",
-   "text": "the great ambition of women is to inspire love \"the great ambition of women is to inspire love\" is a famous quote by the french playwright moliere (jean-baptiste poquelin). the original french line, \"la grande ambition des femmes est d'inspirer l'amour,\" is often cited to reflect 17th-century views on gender, romance, and societal roles. it is famously used by the character hercule poirot in the 1978 film adaptation of agatha christie's death on the nile.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/moli%c3%a8re)"
+   "text": "the great ambition of women is to inspire love \"the great ambition of women is to inspire love\" is a famous quote by the french playwright moliere (jean-baptiste poquelin). the original french line, \"la grande ambition des femmes est d'inspirer l'amour,\" is often cited to reflect 17th-century views on gender, romance, and societal roles. it is famously used by the character hercule poirot in the 1978 film adaptation of agatha christie's death on the nile.\nread more on wikipedia\nsource: google ai overview; quote attributed to moliere"
   },
   {
    "id": "bafyreigry4tar6q22rhmi6f6u2uh4yt3npkvtz36kty4ucukwhpttmeyo4",
    "slug": "raconteur",
-   "managed": false,
+   "managed": true,
    "name": "Raconteur",
-   "modified": "2026-06-29T13:52:41Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2026-03-09T13:31:59Z",
-   "text": "raconteur a humorist is an intellectual who uses humor, or wit, in writing or public speaking. a raconteur is one who tells anecdotes in a skillful and amusing way. henri bergson writes that a humorist's work grows from viewing the morals of society.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/humorist)"
+   "text": "raconteur a humorist is an intellectual who uses humor, or wit, in writing or public speaking. a raconteur is one who tells anecdotes in a skillful and amusing way. henri bergson writes that a humorist's work grows from viewing the morals of society.\nread more on wikipedia\nsource: wikipedia (\"humorist\")"
   },
   {
    "id": "bafyreiesgnav44huu2mpnaehzlmpfrqxusivzglxk3fyxra5f6fdsiyd5e",
    "slug": "ave-caesar-nos-morituri-te-salutamus",
-   "managed": false,
+   "managed": true,
    "name": "Ave caesar nos morituri te salutamus",
-   "modified": "2026-06-29T13:52:46Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2026-03-06T10:25:52Z",
-   "text": "ave caesar nos morituri te salutamus \"ave caesar, morituri te salutamus\" is a latin phrase translating to \"hail, caesar, we who are about to die salute you.\" historically, this phrase, or its variation morituri te salutant, was reported by suetonius as spoken by condemned prisoners to emperor claudius in 52 ad during a naumachia (a staged naval battle) on lake fucinus, not typically by professional gladiators. suetonius reports claudius replied \"aut non\" (\"or maybe not\"). the phrase was popularized by the 1859 painting \"ave caesar! morituri te salutant\" by jean-leon gerome.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/ave_imperator,_morituri_te_salutant)"
+   "text": "ave caesar nos morituri te salutamus \"ave caesar, morituri te salutamus\" is a latin phrase translating to \"hail, caesar, we who are about to die salute you.\" historically, this phrase, or its variation morituri te salutant, was reported by suetonius as spoken by condemned prisoners to emperor claudius in 52 ad during a naumachia (a staged naval battle) on lake fucinus, not typically by professional gladiators. suetonius reports claudius replied \"aut non\" (\"or maybe not\"). the phrase was popularized by the 1859 painting \"ave caesar! morituri te salutant\" by jean-leon gerome.\nread more on wikipedia\nsource: google ai overview (citing wikipedia / suetonius)"
   },
   {
    "id": "bafyreid7thliqzoibh7a2dpmdcpiqbin3mgzz5e6wmggt3tpo5brphz2na",
    "slug": "residuary-legatee",
-   "managed": false,
+   "managed": true,
    "name": "Residuary legatee",
-   "modified": "2026-06-29T13:52:54Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2026-03-01T09:39:04Z",
-   "text": "residuary legatee residuary legatee (noun, law): a beneficiary of the residue of an estate.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/residuary_estate)"
+   "text": "residuary legatee residuary legatee (noun, law): a beneficiary of the residue of an estate.\nread more on wikipedia\nsource: oxford languages (google dictionary)"
   },
   {
    "id": "bafyreidlz7vppobuattoxeib7rura6i6d7riruaeeydhbpyavtljeeqscu",
    "slug": "beggars-belief",
-   "managed": false,
+   "managed": true,
    "name": "beggars belief",
-   "modified": "2026-06-29T13:52:56Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2026-03-01T13:09:30Z",
-   "text": "beggars belief beggar belief (phrase of beggar): be too extraordinary to be believed or described. example: \"a disregard for common sense which beggars belief.\""
+   "text": "beggars belief beggar belief (phrase of beggar): be too extraordinary to be believed or described. example: \"a disregard for common sense which beggars belief.\"\nsource: oxford languages (google dictionary)"
   },
   {
    "id": "bafyreihven2ehu654jhu54z2cg3mw5y6gr3lagantfgmds4pwkytreic7u",
    "slug": "what-are-orchids-anyway",
-   "managed": false,
+   "managed": true,
    "name": "What are orchids anyway?",
-   "modified": "2026-06-29T13:53:05Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2026-03-01T15:57:51Z",
-   "text": "what are orchids anyway? yes, orchids are flowers. specifically, they are a vast and diverse family of flowering plants known as orchidaceae, comprising over 25,000 to 30,000 species worldwide. orchids are highly specialized, often colorful, and are considered angiosperms, meaning they produce seeds. they are found on every continent except antarctica. orchid flowers have a highly specialized, bilaterally symmetrical structure, often featuring a modified petal called a labellum or lip. unlike most flowers, orchids have a central column where the male (stamen) and female (pistil) reproductive parts are fused together. they are not just flowers in the general sense but are technically classified as one of the most advanced and diverse groups of flowering plants.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/orchid)"
+   "text": "what are orchids anyway? yes, orchids are flowers. specifically, they are a vast and diverse family of flowering plants known as orchidaceae, comprising over 25,000 to 30,000 species worldwide. orchids are highly specialized, often colorful, and are considered angiosperms, meaning they produce seeds. they are found on every continent except antarctica. orchid flowers have a highly specialized, bilaterally symmetrical structure, often featuring a modified petal called a labellum or lip. unlike most flowers, orchids have a central column where the male (stamen) and female (pistil) reproductive parts are fused together. they are not just flowers in the general sense but are technically classified as one of the most advanced and diverse groups of flowering plants.\nread more on wikipedia\nsource: google ai overview (citing wikipedia)"
   },
   {
    "id": "bafyreiggglmvjx45gp3xl5hdu6kqppgyc7p26rhqzlvrwsvcrddhxeggwu",
    "slug": "glowing-pyrosomes",
-   "managed": false,
+   "managed": true,
    "name": "Glowing Pyrosomes",
-   "modified": "2026-06-29T13:53:08Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2026-02-28T04:15:14Z",
-   "text": "glowing pyrosomes pyrosomes are free-floating colonial tunicates in the family pyrosomatidae. pyrosomes consist of colonies of small zooids. there are three genera. (they are bioluminescent, hence \"glowing.\")\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/pyrosome)"
+   "text": "glowing pyrosomes pyrosomes are free-floating colonial tunicates in the family pyrosomatidae. pyrosomes consist of colonies of small zooids. there are three genera. (they are bioluminescent, hence \"glowing.\")\nread more on wikipedia\nsource: wikipedia (\"pyrosome\")"
   },
   {
    "id": "bafyreigrhn2uensqvi6hn2xerxnnbm33nad476qihmsf66bntaceuivhlm",
    "slug": "the-term-making-love",
-   "managed": false,
+   "managed": true,
    "name": "The term \"making love\"",
    "modified": "2026-02-27T07:26:16Z",
    "created": "2026-02-27T07:25:41Z",
@@ -139,25 +139,25 @@
   {
    "id": "bafyreibnlej6xqe6kuf35ul4y3fuyolmfnkuivwvsdibsafdvp2cjsddou",
    "slug": "when-was-the-first-jigsaw-invented",
-   "managed": false,
+   "managed": true,
    "name": "When was the first jigsaw invented?",
-   "modified": "2026-06-29T13:53:11Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2026-02-06T03:52:47Z",
-   "text": "when was the first jigsaw invented? the first jigsaw puzzle was invented around 1760-1767 by john spilsbury, a london cartographer and engraver. he created it by mounting a map onto wood and cutting along the country borders to create an educational tool for teaching geography to children. they were initially called \"dissected maps\" or \"dissections\" and were designed to teach children geography, featuring maps of europe and the world. the first puzzles were made of mahogany or other hardwood. in the 1880s, the invention of the fretsaw allowed more precise, intricate cuts, leading to the term \"jigsaw\" puzzle. cardboard puzzles were introduced in the late 1800s but did not become widespread until the 1930s, when they became popular as an affordable, calming activity during the great depression.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/jigsaw_puzzle)"
+   "text": "when was the first jigsaw invented? the first jigsaw puzzle was invented around 1760-1767 by john spilsbury, a london cartographer and engraver. he created it by mounting a map onto wood and cutting along the country borders to create an educational tool for teaching geography to children. they were initially called \"dissected maps\" or \"dissections\" and were designed to teach children geography, featuring maps of europe and the world. the first puzzles were made of mahogany or other hardwood. in the 1880s, the invention of the fretsaw allowed more precise, intricate cuts, leading to the term \"jigsaw\" puzzle. cardboard puzzles were introduced in the late 1800s but did not become widespread until the 1930s, when they became popular as an affordable, calming activity during the great depression.\nread more on wikipedia\nsource: google ai overview"
   },
   {
    "id": "bafyreibgoducbcanrkghtyoijwgmh3bsvgvgcc5l7xr3fuwikpfqs226vy",
    "slug": "bast-fibres",
-   "managed": false,
+   "managed": true,
    "name": "Bast fibres",
-   "modified": "2026-01-30T19:39:47Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2026-01-30T19:38:38Z",
-   "text": "bast fibres https://en.wikipedia.org/wiki/bast_fibre"
+   "text": "bast fibres "
   },
   {
    "id": "bafyreif7nabu72bhdy7oqinh5fenfvz25tiexgxb5xyenqxssep7evl6t4",
    "slug": "arboreal",
-   "managed": false,
+   "managed": true,
    "name": "Arboreal",
    "modified": "2026-01-30T19:39:47Z",
    "created": "2026-01-21T21:11:50Z",
@@ -166,16 +166,16 @@
   {
    "id": "bafyreihluorzh6x76jqpvt5svx6imy7ui4b6gvocvg4hd6snrgk3kuwjke",
    "slug": "apex-predator",
-   "managed": false,
+   "managed": true,
    "name": "Apex predator",
-   "modified": "2026-06-29T13:53:14Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2026-01-21T21:13:40Z",
-   "text": "apex predator an apex predator is a carnivore at the top of its food chain, with no natural predators as an adult, that controls prey populations and plays a crucial role in maintaining ecosystem balance. they occupy the highest trophic level, with examples like lions, orcas, great white sharks, and polar bears. by regulating prey numbers, they prevent overgrazing and maintain the health of other species, preventing ecosystem collapse. a classic example: when wolves (apex predators) were removed from yellowstone, elk populations exploded, leading to overgrazing of willow and aspen trees; reintroducing wolves helped restore balance by controlling elk numbers.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/apex_predator)"
+   "text": "apex predator an apex predator is a carnivore at the top of its food chain, with no natural predators as an adult, that controls prey populations and plays a crucial role in maintaining ecosystem balance. they occupy the highest trophic level, with examples like lions, orcas, great white sharks, and polar bears. by regulating prey numbers, they prevent overgrazing and maintain the health of other species, preventing ecosystem collapse. a classic example: when wolves (apex predators) were removed from yellowstone, elk populations exploded, leading to overgrazing of willow and aspen trees; reintroducing wolves helped restore balance by controlling elk numbers.\nread more on wikipedia\nsource: google ai overview"
   },
   {
    "id": "bafyreidhbeqcykvy2fzjkyjl2knz36pg35izgqn3n77jkbda5emlggna5m",
    "slug": "water-seeks-its-own-level",
-   "managed": false,
+   "managed": true,
    "name": "Water seeks its own level",
    "modified": "2026-01-30T19:39:47Z",
    "created": "2026-01-16T02:35:44Z",
@@ -184,7 +184,7 @@
   {
    "id": "bafyreidt6de7k4plrx6pxka6y22lrcyfloasdvvbn56adhvb2rhlmcbcvu",
    "slug": "grain-quicksand",
-   "managed": false,
+   "managed": true,
    "name": "Grain quicksand",
    "modified": "2026-01-21T18:54:16Z",
    "created": "2026-01-16T18:03:39Z",
@@ -193,7 +193,7 @@
   {
    "id": "bafyreig3e5blfacugkx7dywj74hxhkq27uf4ksst46gpjr65brlcfwp53e",
    "slug": "my-favourite-mondegreens",
-   "managed": false,
+   "managed": true,
    "name": "My favourite mondêgreens",
    "modified": "2026-01-30T19:39:47Z",
    "created": "2026-01-16T02:21:05Z",
@@ -202,16 +202,16 @@
   {
    "id": "bafyreic25ewdzhmwlzhkwu424ynvzn7qws2qc4zazx7zepmrppnrbp2pku",
    "slug": "sashiko-embroidery-technique",
-   "managed": false,
+   "managed": true,
    "name": "Sashiko embroidery technique",
-   "modified": "2026-06-29T13:53:20Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2026-01-12T20:18:19Z",
-   "text": "sashiko embroidery technique a google image-search gallery of sashiko, the japanese decorative/reinforcement running-stitch embroidery technique. images show indigo denim and fabric mended with rows of small white cross- and grid-pattern stitches (visible mending). caption from one result: \"sashiko: what visible mending means to crafters | vox.\" related search chips: embroidery, pattern, visible mending, boro, jeans, stitching, flower, traditional, japanese, repair, patchwork.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/sashiko)"
+   "text": "sashiko embroidery technique a google image-search gallery of sashiko, the japanese decorative/reinforcement running-stitch embroidery technique. images show indigo denim and fabric mended with rows of small white cross- and grid-pattern stitches (visible mending). caption from one result: \"sashiko: what visible mending means to crafters \\ vox.\" related search chips: embroidery, pattern, visible mending, boro, jeans, stitching, flower, traditional, japanese, repair, patchwork.\nread more on wikipedia\nsource: google images (results include wikipedia, vox, harper's bazaar india, the craft atlas)"
   },
   {
    "id": "bafyreig6cuy2sd6olz2kidxwh63xm4t33wgxpbc3wtkcsrtldhfqis4tyu",
    "slug": "brodie-knob",
-   "managed": false,
+   "managed": true,
    "name": "Brodie knob",
    "modified": "2026-01-30T19:39:47Z",
    "created": "2026-01-12T04:39:56Z",
@@ -220,25 +220,25 @@
   {
    "id": "bafyreicwvhhjvtehu7jrnrnppgmodfzd7bsv6r23uc7anqfqep77ivrvb4",
    "slug": "first-dibs",
-   "managed": false,
+   "managed": true,
    "name": "First Dibs",
-   "modified": "2026-06-29T13:53:23Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2026-01-02T00:25:47Z",
-   "text": "first dibs \"first dibs\" means to claim the first right or choice to something before anyone else, originating from a 17th-century english children's game called \"dibstones,\" where players used sheep knuckle-bones (dibs) to call a share; the term evolved into american slang for claiming priority, becoming popular in the 1900s. \"dibs\" as a share: in the early 1800s, \"dibs\" also meant a portion or share, possibly related to the game, as seen in old poems where people would \"make nunky surrender his dibs\" (money/share). the phrase \"calling dibs\" became common in the u.s. by the early 20th century."
+   "text": "first dibs \"first dibs\" means to claim the first right or choice to something before anyone else, originating from a 17th-century english children's game called \"dibstones,\" where players used sheep knuckle-bones (dibs) to call a share; the term evolved into american slang for claiming priority, becoming popular in the 1900s. \"dibs\" as a share: in the early 1800s, \"dibs\" also meant a portion or share, possibly related to the game, as seen in old poems where people would \"make nunky surrender his dibs\" (money/share). the phrase \"calling dibs\" became common in the u.s. by the early 20th century.\nsource: google ai overview"
   },
   {
    "id": "bafyreid3v2557v34wjxyxu5e7zwz2c5s7aothd2dkocounm3ih5icz3bhm",
    "slug": "stochastic-parrot",
-   "managed": false,
+   "managed": true,
    "name": "Stochastic parrot",
-   "modified": "2026-01-30T19:39:47Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2025-12-23T19:17:31Z",
-   "text": "stochastic parrot in machine learning, the term **stochastic parrot** is a metaphor, introduced by emily m. bender and colleagues in a 2021 paper, that frames large language models as systems that statistically mimic text without real understanding. the term carries a negative connotation.\n\nhttps://en.wikipedia.org/wiki/stochastic_parrot"
+   "text": "stochastic parrot in  machine learning, the term stochastic parrot is a metaphor, introduced by  emily m. bender  and colleagues in a 2021 paper, that frames  large language models  as systems that statistically mimic text without real understanding. the term carries a negative connotation."
   },
   {
    "id": "bafyreidv226dyexzsonocnoz6q7wrdqvte7zfv3kx2r7npwx5mlkiqkaje",
    "slug": "relate-vs-resonate",
-   "managed": false,
+   "managed": true,
    "name": "Relate Vs Resonate",
    "modified": "2025-12-19T18:53:32Z",
    "created": "2025-12-19T18:53:17Z",
@@ -247,70 +247,70 @@
   {
    "id": "bafyreiarnkrgrpsjr6djrspmmtbi5gzpb2fto4ezlvi2rjmudu54qmrzfq",
    "slug": "gavoette",
-   "managed": false,
+   "managed": true,
    "name": "Gavoette",
-   "modified": "2026-06-29T13:53:31Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2025-12-18T21:27:00Z",
-   "text": "gavoette gavotte (noun): a medium-paced french dance, popular in the 18th century; also a piece of music accompanying or in the rhythm of a gavotte, composed in common time beginning on the third beat of the bar. origin: french, from provencal gavoto 'dance of the mountain people', from gavot 'native of the alps'.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/gavotte)"
+   "text": "gavoette gavotte (noun): a medium-paced french dance, popular in the 18th century; also a piece of music accompanying or in the rhythm of a gavotte, composed in common time beginning on the third beat of the bar. origin: french, from provencal gavoto 'dance of the mountain people', from gavot 'native of the alps'.\nread more on wikipedia\nsource: oxford dictionary (apple dictionary)"
   },
   {
    "id": "bafyreiar7pcy25vm7huk23g4prksr6ujg7nfkngoiogfew64yoanzemlme",
    "slug": "be-hooves",
-   "managed": false,
+   "managed": true,
    "name": "Be-hooves",
-   "modified": "2026-06-29T13:53:38Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2025-12-17T00:31:33Z",
-   "text": "be-hooves behoove (british english behove) verb [with object], formal: it is a duty or responsibility for someone to do something; it is incumbent on -- \"it behooves any coach to study his predecessors.\" [with negative] it is appropriate or suitable; it befits -- \"it ill behooves the opposition constantly to decry the sale of arms to friendly countries.\" origin: old english behofian, from behof (see behoof)."
+   "text": "be-hooves behoove (british english behove) verb [with object], formal: it is a duty or responsibility for someone to do something; it is incumbent on -- \"it behooves any coach to study his predecessors.\" [with negative] it is appropriate or suitable; it befits -- \"it ill behooves the opposition constantly to decry the sale of arms to friendly countries.\" origin: old english behofian, from behof (see behoof).\nsource: oxford dictionary (apple dictionary)"
   },
   {
    "id": "bafyreiazfqskhw3wxmvewyzxud24a5if2tynqemclp2czfdytfm3ll2d54",
    "slug": "stultifying",
-   "managed": false,
+   "managed": true,
    "name": "Stultifying",
-   "modified": "2026-06-29T13:53:40Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2025-12-16T19:25:19Z",
-   "text": "stultifying stultifying (adjective): tending to stifle enthusiasm, initiative, or freedom of action -- \"the corporate environment, with its relentless emphasis on results, has a stultifying effect.\" thesaurus (stultify, verb): \"free market forces had been stultified by the welfare state\" -- hamper, impede, obstruct, thwart, frustrate, foil. example usage: \"it can be stultifying to sit around.\""
+   "text": "stultifying stultifying (adjective): tending to stifle enthusiasm, initiative, or freedom of action -- \"the corporate environment, with its relentless emphasis on results, has a stultifying effect.\" thesaurus (stultify, verb): \"free market forces had been stultified by the welfare state\" -- hamper, impede, obstruct, thwart, frustrate, foil. example usage: \"it can be stultifying to sit around.\"\nsource: apple dictionary / thesaurus"
   },
   {
    "id": "bafyreickjybcxozoutyduhhytqv7rdfwm4gmqnivzlgwmue2r6il75e2hy",
    "slug": "shotgun-wedding",
-   "managed": false,
+   "managed": true,
    "name": "Shotgun wedding ",
-   "modified": "2026-06-29T13:53:43Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2025-12-16T23:27:04Z",
-   "text": "shotgun wedding  shotgun marriage (noun, informal; also shotgun wedding): an enforced or hurried wedding, especially because the bride is pregnant.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/shotgun_wedding)"
+   "text": "shotgun wedding  shotgun marriage (noun, informal; also shotgun wedding): an enforced or hurried wedding, especially because the bride is pregnant.\nread more on wikipedia\nsource: oxford languages (google dictionary)"
   },
   {
    "id": "bafyreicpyxasx32yzmkyjklkzy7ma3stl2rokfaxqq4tysfjznsfw2e2ge",
    "slug": "leitmotif",
-   "managed": false,
+   "managed": true,
    "name": "Leitmotif",
-   "modified": "2026-06-29T13:53:47Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2025-12-17T00:05:17Z",
-   "text": "leitmotif leitmotif (noun; also leitmotiv): a recurrent theme throughout a musical or literary composition, associated with a particular person, idea, or situation -- \"there are two leitmotifs in his score marking the heroine and her fairy godmother.\" origin: late 19th century, from german leitmotiv, from leit- 'leading' (from leiten 'to lead') + motiv 'motive'.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/leitmotif)"
+   "text": "leitmotif leitmotif (noun; also leitmotiv): a recurrent theme throughout a musical or literary composition, associated with a particular person, idea, or situation -- \"there are two leitmotifs in his score marking the heroine and her fairy godmother.\" origin: late 19th century, from german leitmotiv, from leit- 'leading' (from leiten 'to lead') + motiv 'motive'.\nread more on wikipedia\nsource: oxford dictionary (apple dictionary)"
   },
   {
    "id": "bafyreidwiqd433pns6lcngzl2ziqd6ac2tn3xnan53m47amie5a27nqmci",
    "slug": "ministration",
-   "managed": false,
+   "managed": true,
    "name": "Ministration",
-   "modified": "2026-06-29T13:53:50Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2025-12-16T21:55:44Z",
-   "text": "ministration ministration (usually ministrations) noun: (1) formal, or humorous, the provision of assistance or care -- \"the kitchen was made spotless by the ministrations of a cleaning lady.\" (2) the services of a minister of religion or of a religious institution -- \"the ministrations of father martin\"; the action of administering the sacrament -- \"the celebration and ministration of the sacraments.\" origin: late middle english, from latin ministratio(n-), from ministrare 'wait upon', from minister."
+   "text": "ministration ministration (usually ministrations) noun: (1) formal, or humorous, the provision of assistance or care -- \"the kitchen was made spotless by the ministrations of a cleaning lady.\" (2) the services of a minister of religion or of a religious institution -- \"the ministrations of father martin\"; the action of administering the sacrament -- \"the celebration and ministration of the sacraments.\" origin: late middle english, from latin ministratio(n-), from ministrare 'wait upon', from minister.\nsource: oxford dictionary (apple dictionary)"
   },
   {
    "id": "bafyreiht2vkpsfo6rua2xmxxacquzwdfxljkzj7eqfnxg6anewuhvhk6qa",
    "slug": "pas-de-deux",
-   "managed": false,
+   "managed": true,
    "name": "Pas de deux",
-   "modified": "2026-06-29T13:53:54Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2025-12-16T23:10:35Z",
-   "text": "pas de deux pas de deux (noun): a dance for two people, especially as part of a ballet. example: \"the emotional core of the piece is the pas de deux.\"\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/pas_de_deux)"
+   "text": "pas de deux pas de deux (noun): a dance for two people, especially as part of a ballet. example: \"the emotional core of the piece is the pas de deux.\"\nread more on wikipedia\nsource: oxford languages (google dictionary)"
   },
   {
    "id": "bafyreicgpegeurbyijghdem2gvrrnu2fb535caulf7mkbzjmapvzna65li",
    "slug": "i-don-t-begrudge-you-why-do-you-act-as-if-do-this-is-called",
-   "managed": false,
+   "managed": true,
    "name": "“I don’t begrudge you why do you act as if do?” - This is called acting indignant",
    "modified": "2025-12-11T00:03:43Z",
    "created": "2025-12-11T00:03:42Z",
@@ -319,25 +319,25 @@
   {
    "id": "bafyreif4yh5oabxywpzltsznwwepb7ar3d46yk6stzahvogh74y7moueue",
    "slug": "tying-shoelaces-is-a-complex-task-for-humanoid-robot",
-   "managed": false,
+   "managed": true,
    "name": "Tying shoelaces is a complex task for humanoid robot",
-   "modified": "2026-06-29T13:53:59Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2025-12-10T05:07:03Z",
-   "text": "tying shoelaces is a complex task for humanoid robot yes, tying shoelaces has traditionally been an extremely complex and challenging task for robots. while humans learn this fine motor skill as children, the task breaks many assumptions of traditional robotics and has served as a benchmark challenge in ai and dexterous manipulation. the difficulty stems from: deformable objects (shoelaces are soft, dynamic, and flexible, hard to model with traditional rigid-body methods); dexterity and finesse (tying a knot requires fine finger dexterity, tactile sensing, and gentle tension control); complex dynamics (a slight imprecision may require restarting the whole long-horizon, multi-step process); and variability (laces and shoes vary greatly). recent breakthroughs by companies like google deepmind, using advanced ai systems such as aloha unleashed and demostart, have allowed robots to learn this task from human demonstrations via imitation learning, large-scale data collection, and diffusion models enabling bimanual (two-armed) manipulation.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/moravec%27s_paradox)"
+   "text": "tying shoelaces is a complex task for humanoid robot yes, tying shoelaces has traditionally been an extremely complex and challenging task for robots. while humans learn this fine motor skill as children, the task breaks many assumptions of traditional robotics and has served as a benchmark challenge in ai and dexterous manipulation. the difficulty stems from: deformable objects (shoelaces are soft, dynamic, and flexible, hard to model with traditional rigid-body methods); dexterity and finesse (tying a knot requires fine finger dexterity, tactile sensing, and gentle tension control); complex dynamics (a slight imprecision may require restarting the whole long-horizon, multi-step process); and variability (laces and shoes vary greatly). recent breakthroughs by companies like google deepmind, using advanced ai systems such as aloha unleashed and demostart, have allowed robots to learn this task from human demonstrations via imitation learning, large-scale data collection, and diffusion models enabling bimanual (two-armed) manipulation.\nread more on wikipedia\nsource: google ai overview"
   },
   {
    "id": "bafyreiciat2ctagb53zdaa76hkjf2pwontx52wumh5jpyc4jwhngovpk4i",
    "slug": "kings-then-would-have-as-many-mistresses-as-many-pocket-watc",
-   "managed": false,
+   "managed": true,
    "name": "Kings then would have as many mistresses as many pocket watches\" - Lindsay from History Tea Time",
-   "modified": "2025-12-11T00:05:31Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2025-12-09T16:54:48Z",
-   "text": "kings then would have as many mistresses as many pocket watches\" - lindsay from history tea time "
+   "text": "kings then would have as many mistresses as many pocket watches\" - lindsay from history tea time source: lindsay from history tea time"
   },
   {
    "id": "bafyreiewg53muts6nforxg57buspqo6ufpvquqrduqx2m3clm5duk3d7xi",
    "slug": "the-food-bought-from-supermarket-will-not-make-more-food",
-   "managed": false,
+   "managed": true,
    "name": "The food bought from supermarket will not make more food",
    "modified": "2025-12-08T23:50:09Z",
    "created": "2025-12-08T23:45:21Z",
@@ -346,97 +346,97 @@
   {
    "id": "bafyreifnvm3nk6gf7pdtq5q6es22gflvxseuluzu2q74ym6h5kqcfn6lpa",
    "slug": "marketplace-displacement",
-   "managed": false,
+   "managed": true,
    "name": "Marketplace displacement",
    "modified": "2026-01-17T16:04:16Z",
    "created": "2025-12-09T05:44:53Z",
-   "text": "marketplace displacement **market observation:** uber vs pornhub power dynamics…uber took business from individuals hand and built a platform for themselves. pornhub took power from middleman/casting agents/production houses and put that power into individual content creators."
+   "text": "marketplace displacement market observation: uber vs pornhub power dynamics…uber took business from individuals hand and built a platform for themselves. pornhub took power from middleman/casting agents/production houses and put that power into individual content creators."
   },
   {
    "id": "bafyreiejl3hxwoqiuypdujz33gqmc3z44ka6sqpgyce57maypnqtmpa4di",
    "slug": "lei",
-   "managed": false,
+   "managed": true,
    "name": "Lei",
-   "modified": "2026-06-29T13:54:08Z",
+   "modified": "2026-10-07T03:46:50Z",
    "created": "2025-12-05T23:02:42Z",
-   "text": "lei lei (noun): a polynesian garland of flowers.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/lei_(garland))"
+   "text": "lei lei (noun): a polynesian garland of flowers.\nread more on wikipedia)\nsource: oxford dictionary (apple dictionary)"
   },
   {
    "id": "bafyreihjcd767hugsyekx6g2jgzba626ccm3oppkp2lltgxa66xtx7x7ey",
    "slug": "shadow-library",
-   "managed": false,
+   "managed": true,
    "name": "Shadow library",
-   "modified": "2025-12-08T21:11:46Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2025-12-05T23:03:16Z",
-   "text": "shadow library > shadow libraries (also pirate libraries or black open access) are online repositories of freely available digital media that are normally paywalled, access-controlled, or otherwise not readily accessible. shadow libraries usually contain textual works like academic papers and ebooks, and may include other digital media like software, music, or films.\n\nhttps://en.wikipedia.org/wiki/shadow_library"
+   "text": "shadow library shadow libraries (also pirate libraries or black open access) are online repositories of freely available  digital media  that are normally  paywalled,  access-controlled, or otherwise not readily accessible. shadow libraries usually contain textual works like  academic papers  and  ebooks, and may include other digital media like software, music, or films."
   },
   {
    "id": "bafyreia4ze4nkwoq6ojfpoinvwdd2x5q7qer6yak27prx2p6ujawu2yaxa",
    "slug": "why-logarithms",
-   "managed": false,
+   "managed": true,
    "name": "Why Logarithms?",
    "modified": "2026-06-29T14:01:07Z",
    "created": "2025-11-24T19:09:35Z",
-   "text": "why logarithms? logarithms are used to solve exponential equations, calculate compound interest, and measure quantities that span a very large range of values on a logarithmic scale — like sound intensity (decibels) or the strength of an earthquake (richter scale). they're also useful across computer science, finance, chemistry, and physics for analysing growth rates, data compression, and radioactive decay. a few uses: solving exponential equations (logs are the inverse of exponents, so they find unknown exponents — e.g. how long an investment takes to reach a certain value); compressing wide ranges (on the decibel scale a 10 db increase is 10× louder and 20 db is 100×; the richter scale measures earthquake magnitude); modelling growth and decay (population growth, radiocarbon dating); and in computing, data compression and information theory (the number of bits needed to store a value).\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/logarithm)"
+   "text": "why logarithms? logarithms are used to solve exponential equations, calculate compound interest, and measure quantities that span a very large range of values on a logarithmic scale — like sound intensity (decibels) or the strength of an earthquake (richter scale). they're also useful across computer science, finance, chemistry, and physics for analysing growth rates, data compression, and radioactive decay. a few uses: solving exponential equations (logs are the inverse of exponents, so they find unknown exponents — e.g. how long an investment takes to reach a certain value); compressing wide ranges (on the decibel scale a 10 db increase is 10× louder and 20 db is 100×; the richter scale measures earthquake magnitude); modelling growth and decay (population growth, radiocarbon dating); and in computing, data compression and information theory (the number of bits needed to store a value).\nread more on wikipedia"
   },
   {
    "id": "bafyreicnzddu325mi3evjaqzqvtok6vrgpcn3jnmp5nkv6z7ywvsgrtatm",
    "slug": "sequela",
-   "managed": false,
+   "managed": true,
    "name": "Sequela",
-   "modified": "2025-12-17T00:37:13Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2025-11-15T23:51:56Z",
-   "text": "sequela https://en.wikipedia.org/wiki/sequela"
+   "text": "sequela "
   },
   {
    "id": "bafyreifwqvpo6idycnpqm4vem6hfxnxp5id47o7i5snt5q7l5uahc6vegq",
    "slug": "hynic-myoclonus-jerk",
-   "managed": false,
+   "managed": true,
    "name": "Hynic Myoclonus Jerk",
-   "modified": "2025-12-08T21:12:31Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2025-11-15T23:45:18Z",
-   "text": "hynic myoclonus jerk harmless muscle jerk/twitch that happens as you fall asleep\nhttps://en.wikipedia.org/wiki/hypnic_jerk"
+   "text": "hynic myoclonus jerk harmless muscle jerk/twitch that happens as you fall asleep"
   },
   {
    "id": "bafyreih44svnb3e372q5yiykogvwoqnjfzotqs7xh7e47dviqvcymsiz3q",
    "slug": "head-shop",
-   "managed": false,
+   "managed": true,
    "name": "Head Shop",
    "modified": "2025-12-17T00:37:13Z",
    "created": "2025-11-15T23:53:10Z",
-   "text": "head shop a **head shop** is a store that sells drug-related paraphernalia. they emerged from the hippie counterculture in the late 1960s, and at that time, many of them had close ties to the anti-vietnam war movement as well as groups in the marijuana legalization movement like lemar, amorphia, and the national organization for the reform of marijuana laws"
+   "text": "head shop a head shop is a store that sells drug-related paraphernalia. they emerged from the hippie counterculture in the late 1960s, and at that time, many of them had close ties to the anti-vietnam war movement as well as groups in the marijuana legalization movement like lemar, amorphia, and the national organization for the reform of marijuana laws"
   },
   {
    "id": "bafyreibiprvyqp3nnm5frimhzzdd7ufk34frh5ja2zjarwbv2z5pccszpm",
    "slug": "schadenfreude",
-   "managed": false,
+   "managed": true,
    "name": "Schadenfreude",
-   "modified": "2025-12-17T00:37:13Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2025-11-13T03:47:48Z",
    "text": "schadenfreude pleasure derived by someone from another person's misfortune."
   },
   {
    "id": "bafyreigzpt7ijak3tkwxk6jin3mtmm5nl4uencztrvm2nb4jr26ps6mu7i",
    "slug": "types-of-map-projections",
-   "managed": false,
+   "managed": true,
    "name": "Types of map projections ",
    "modified": "2025-12-08T21:11:46Z",
    "created": "2025-11-13T14:36:39Z",
-   "text": "types of map projections  - mercator projection\n- gall peters projection"
+   "text": "types of map projections  mercator projection\ngall peters projection"
   },
   {
    "id": "bafyreidvasdpkm54tqyrq5azdsc2siruahrn4a4zjqqty43ghcpxtd3xoi",
    "slug": "priest-cannot-testify-against-parishioner-even-if-they-confe",
-   "managed": false,
+   "managed": true,
    "name": "Priest cannot testify against parishioner even if they confessed to a crime such as homicide in USA and India",
-   "modified": "2026-06-29T14:01:18Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2025-11-11T07:59:09Z",
-   "text": "priest cannot testify against parishioner even if they confessed to a crime such as homicide in usa and india in the usa, a confession of murder made to a priest during the sacrament of reconciliation is generally not admissible in court, under the “priest–penitent privilege” recognised in all 50 states (and many other countries) to protect the confidentiality of communications between clergy and those seeking spiritual counsel. under canon law the “seal of confession” is absolute and inviolable — a priest who reveals anything from a confession faces automatic excommunication, and priests are expected to go to prison rather than break it. the privilege applies only to communication meant to be confidential for spiritual guidance; some jurisdictions carve out exceptions (e.g. mandatory reporting of child abuse), and a statement made informally outside the sacrament is generally not protected.\n\nin india, such a confession is also generally inadmissible, but for a different reason: it is treated as an extra-judicial confession — considered weak evidence that requires independent corroboration. under the indian evidence act a confession is admissible only if voluntary, and courts regard extra-judicial confessions as unreliable, requiring corroborating evidence before relying on one.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/priest%e2%80%93penitent_privilege)"
+   "text": "priest cannot testify against parishioner even if they confessed to a crime such as homicide in usa and india in the usa, a confession of murder made to a priest during the sacrament of reconciliation is generally not admissible in court, under the “priest–penitent privilege” recognised in all 50 states (and many other countries) to protect the confidentiality of communications between clergy and those seeking spiritual counsel. under canon law the “seal of confession” is absolute and inviolable — a priest who reveals anything from a confession faces automatic excommunication, and priests are expected to go to prison rather than break it. the privilege applies only to communication meant to be confidential for spiritual guidance; some jurisdictions carve out exceptions (e.g. mandatory reporting of child abuse), and a statement made informally outside the sacrament is generally not protected.\nin india, such a confession is also generally inadmissible, but for a different reason: it is treated as an extra-judicial confession — considered weak evidence that requires independent corroboration. under the indian evidence act a confession is admissible only if voluntary, and courts regard extra-judicial confessions as unreliable, requiring corroborating evidence before relying on one.\nread more on wikipedia\nsource: google ai overview"
   },
   {
    "id": "bafyreiaffqwkhtkweuwn3vqudg4slkrnxucnspfkzkgzirbgydnt33qhjq",
    "slug": "saccades",
-   "managed": false,
+   "managed": true,
    "name": "Saccades",
    "modified": "2025-12-17T00:37:13Z",
    "created": "2025-11-08T05:35:31Z",
@@ -445,25 +445,25 @@
   {
    "id": "bafyreia6tgugvtaetnulry5b3lkf6mkvkcvsehwvnhse5da3gqipibj3bi",
    "slug": "deus-ex-machina",
-   "managed": false,
+   "managed": true,
    "name": "Deus Ex Machina",
-   "modified": "2025-12-17T00:37:13Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2025-11-06T08:03:40Z",
-   "text": "deus ex machina latin for “god from machine”.\n\n***deus ex machina*** is a plot device, a type of denouement in which a seemingly unsolvable problem in a story is suddenly or abruptly resolved by an unexpected and unlikely occurrence. its function is generally to resolve an otherwise irresolvable plot situation, to surprise the audience, to bring the tale to a happy ending, or act as a comedic device.\n\nhttps://en.wikipedia.org/wiki/deus_ex_machina"
+   "text": "deus ex machina latin for “god from machine”.\n\ndeus ex machina (/ˈdeɪəs ɛks ˈmækɪnə,ˈmɑːk-/  day-əs ex-ma(h)k-in-ə; latin:[[ˈdɛ.ʊs ɛks ˈmaːkʰɪnaː]](https://en.wikipedia.org/wiki/help:ipa/latin); plural: dei ex machina; 'god from the machine') is a plot device, a type of denouement in which a seemingly unsolvable problem in a story is suddenly or abruptly resolved by an unexpected and unlikely occurrence. its function is generally to resolve an otherwise irresolvable plot situation, to surprise the audience, to bring the tale to a happy ending, or act as a comedic device."
   },
   {
    "id": "bafyreierjqaddztsnqtqmgef4xcmul566i5gboq4liiz7hlldud5km36o4",
    "slug": "language-related-shortcuts",
-   "managed": false,
+   "managed": true,
    "name": "Language related shortcuts",
-   "modified": "2025-12-08T21:12:43Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2025-11-06T04:25:19Z",
-   "text": "language related shortcuts - maxim - a general truth or rule of conduct, usually formal or philosophical (“know thyself”)\n- proverb - a short, traditional saying stating a general truth or advice (“a bird in the hand is worth two in the bush”)\n- allegory - an extended story where characters/events symbolize deeper meanings (animal farm representing the russian revolution)\n- parallel - a comparison showing similarity between two things to clarify or prove a point (“this situation parallels the 2008 financial crisis”)\n- analogy - explaining something unfamiliar by comparing it to something familiar (“the heart pumps blood like a water pump moves water through pipes”)\n- metaphor - direct comparison (“time is money”)\n- simile - comparison using “like” or “as” (“brave as a lion”)\n- parable - short story teaching a moral lesson\n- fable - fictional tale, often with animals, conveying a lesson\n- adage - old, well-known saying expressing common experience\n- aphorism - concise statement of truth or principle\n- idiom - phrase whose meaning isn’t literal (“kick the bucket”)\n- trope - recurring theme or device\n- archetype - universal character type or situation (the hero’s journey)\n- exemplum - illustrative example or anecdote proving a point\n- denouement - an element in the structure of a story, in which all plot lines typically come to a resolution, events are explained, etc. it usually follows the climax. the term is borrowed from the french word dénouement derived from old french desnouer, 'to untie', which is from latin: nodus, 'knot'."
+   "text": "language related shortcuts maxim - a general truth or rule of conduct, usually formal or philosophical (“know thyself”)\nproverb - a short, traditional saying stating a general truth or advice (“a bird in the hand is worth two in the bush”)\nallegory - an extended story where characters/events symbolize deeper meanings (animal farm representing the russian revolution)\nparallel - a comparison showing similarity between two things to clarify or prove a point (“this situation parallels the 2008 financial crisis”)\nanalogy - explaining something unfamiliar by comparing it to something familiar (“the heart pumps blood like a water pump moves water through pipes”)\nmetaphor - direct comparison (“time is money”)\nsimile - comparison using “like” or “as” (“brave as a lion”)\nparable - short story teaching a moral lesson\nfable - fictional tale, often with animals, conveying a lesson\nadage - old, well-known saying expressing common experience\naphorism - concise statement of truth or principle\nidiom - phrase whose meaning isn’t literal (“kick the bucket”)\ntrope - recurring theme or device\narchetype - universal character type or situation (the hero’s journey)\nexemplum - illustrative example or anecdote proving a point\ndenouement - denouement (uk: /deɪˈnuːmɒ̃, dɪ-/, us: /ˌdeɪnuːˈmɒ̃/) is an element in the  structure of a story, in which all plot lines typically come to a resolution, events are explained, etc. it usually follows the climax). the term is borrowed from the french word dénouement (french: [[denumɑ̃]](https://en.wikipedia.org/wiki/help:ipa/french)) derived from old french  desnouer, 'to untie', which is from latin: nodus, 'knot'."
   },
   {
    "id": "bafyreignwduv2ccio5hzexf6yfu67cb27e4lk4ftcyo3j6maexe4ugv3ai",
    "slug": "polymath",
-   "managed": false,
+   "managed": true,
    "name": "Polymath",
    "modified": "2025-12-08T21:13:33Z",
    "created": "2025-11-06T02:58:52Z",
@@ -472,43 +472,43 @@
   {
    "id": "bafyreihgs3uk5m4woxqfayfqtlnh3ts4c5jmjjntcfrij3sksdxd7ds434",
    "slug": "literary-canon",
-   "managed": false,
+   "managed": true,
    "name": "Literary Canon",
-   "modified": "2025-12-08T21:13:33Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2025-11-06T08:16:06Z",
-   "text": "literary canon literary canon is a collection of works, such as books, poems, and plays, that are considered the most significant and influential within a culture. these texts are recognized for their enduring stylistic quality, social or intellectual value, and impact on later works and writers. the canon serves as a benchmark for literary excellence but is also a subject of debate, as it has historically faced criticism for being narrow and has been broadened over time to include more diverse voices.\n\nkey characteristics\n- **significance**: works in the canon are seen as masterpieces that have shaped literature and thought.\n- **influence**: they have influenced subsequent writers and genres, and can shape a culture's understanding of itself.\n- **timelessness**: canonical works are often those that remain relevant across centuries.\n- **consensus**: inclusion is based on a consensus among scholars, critics, and educators regarding the work's quality and importance.\n- **dynamic**: the canon is not static and changes over time to reflect evolving societal values, leading to the inclusion of works from more diverse backgrounds.\n\nexamples\n- **the western canon**: often associated with works by authors like william shakespeare, jane austen, and homer.\n- **expanded canon**: contemporary movements have expanded the canon to include writers like toni morrison and gabriel garcia marquez."
+   "text": "literary canon literary canon is a collection of works, such as books, poems, and plays, that are considered the most significant and influential within a culture. these texts are recognized for their enduring stylistic quality, social or intellectual value, and impact on later works and writers. the canon serves as a benchmark for literary excellence but is also a subject of debate, as it has historically faced criticism for being narrow and has been broadened over time to include more diverse voices.\nkey characteristics\nsignificance: works in the canon are seen as masterpieces that have shaped literature and thought.\ninfluence: they have influenced subsequent writers and genres, and can shape a culture's understanding of itself.\ntimelessness: canonical works are often those that remain relevant across centuries.\nconsensus: inclusion is based on a consensus among scholars, critics, and educators regarding the work's quality and importance.\ndynamic: the canon is not static and changes over time to reflect evolving societal values, leading to the inclusion of works from more diverse backgrounds.\n\nexamples\nthe western canon: often associated with works by authors like william shakespeare, jane austen, and homer.\nexpanded canon: contemporary movements have expanded the canon to include writers like toni morrison and gabriel garcia marquez."
   },
   {
    "id": "bafyreibrqna2werpl3vngbb3kxfaa7pq4cftoszfjazhb7ab6kqtwayg6m",
    "slug": "why-is-rape-seed-called-so",
-   "managed": false,
+   "managed": true,
    "name": "Why is rape seed called so?",
-   "modified": "2026-06-30T11:28:37Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2025-10-31T14:43:59Z",
-   "text": "why is rape seed called so? rapeseed is named after the latin word \"rapum,\" meaning turnip, because it belongs to the same plant family as turnips and cabbage. the name is also related to the greek word for turnip, rhaphe. the \"rape\" part of the name comes from rapum (turnip) and rapa, the latin words for turnip. the plant belongs to the brassica genus, which includes cabbage, broccoli, and mustard. its name was solidified as \"rapeseed\" because of its relationship to these root and cruciferous vegetables, with its oil used for industrial purposes (like lamps) for centuries before edible varieties were developed for human consumption.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/rapeseed)"
+   "text": "why is rape seed called so? rapeseed is named after the latin word \"rapum,\" meaning turnip, because it belongs to the same plant family as turnips and cabbage. the name is also related to the greek word for turnip, rhaphe. the \"rape\" part of the name comes from rapum (turnip) and rapa, the latin words for turnip. the plant belongs to the brassica genus, which includes cabbage, broccoli, and mustard. its name was solidified as \"rapeseed\" because of its relationship to these root and cruciferous vegetables, with its oil used for industrial purposes (like lamps) for centuries before edible varieties were developed for human consumption.\n\nread more on wikipedia\nsource: google ai overview"
   },
   {
    "id": "bafyreifdvg6dprs4yve76kyom7nhlc3l6lvoen7zugben36dovtoxqa2te",
    "slug": "facetious",
-   "managed": false,
+   "managed": true,
    "name": "Facetious ",
-   "modified": "2026-06-29T13:54:26Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2025-10-25T13:16:13Z",
-   "text": "facetious  facetious (adjective): treating serious issues with deliberately inappropriate humour; flippant -- \"a facetious remark.\" derivatives: facetiously (adverb), facetiousness (noun). origin: mid 16th century (in facetiousness in the general sense 'wittiness'): from french facetieux, from facetie, from latin facetia 'jest', from facetus 'witty'."
+   "text": "facetious  facetious (adjective): treating serious issues with deliberately inappropriate humour; flippant -- \"a facetious remark.\" derivatives: facetiously (adverb), facetiousness (noun). origin: mid 16th century (in facetiousness in the general sense 'wittiness'): from french facetieux, from facetie, from latin facetia 'jest', from facetus 'witty'.\nsource: oxford dictionary (apple dictionary)"
   },
   {
    "id": "bafyreia4vbj3x7qxzrgs2t37qgjrzdzneoymuaxet3jd7vtm4h7hlntphm",
    "slug": "latibule",
-   "managed": false,
+   "managed": true,
    "name": "Latibule",
-   "modified": "2025-12-17T00:37:13Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2025-10-23T03:32:50Z",
-   "text": "latibule a hiding place for safety\nvs panic room?"
+   "text": "latibule a hiding place for safety\nvs panic room?\n\nalso - vestibule\nvestibule (noun)\nan antechamber, hall, or lobby next to the outer door of a building; also, an enclosed entrance compartment in a railroad car.\nanatomy: a chamber or channel opening into another: the central cavity of the labyrinth of the inner ear; the part of the mouth outside the teeth; the space in the vulva into which both the urethra and vagina open.\n\norigin: early 17th century (denoting the space in front of the main entrance of a classical roman or greek building): from french, or from latin vestibulum 'entrance court'.\nsource: oxford dictionary (apple dictionary)"
   },
   {
    "id": "bafyreialtdcx5kmzoishxcx2psapsu4a43exkbdh2budzujk3473vkilmy",
    "slug": "plenum",
-   "managed": false,
+   "managed": true,
    "name": "Plenum",
    "modified": "2025-12-17T00:37:13Z",
    "created": "2025-10-17T09:21:37Z",
@@ -517,16 +517,16 @@
   {
    "id": "bafyreie5aybgoqjmfhsvddk5qdwnbhhlbzrj2x3ryf4uyxnkdhqquxwp4y",
    "slug": "does-a-passenger-aeroplane-have-a-morgue",
-   "managed": false,
+   "managed": true,
    "name": "Does a passenger aeroplane have a morgue?",
-   "modified": "2026-06-29T14:01:11Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2025-10-17T16:14:01Z",
-   "text": "does a passenger aeroplane have a morgue? no — commercial passenger flights don't have a dedicated morgue. if someone dies in flight, the body is typically moved to an empty seat or row when available and covered with a blanket; otherwise it stays in the person's own seat, handled as dignifiedly as space allows. one historical exception: some long-haul aircraft, such as the singapore airlines airbus a340-500, had a special body compartment — sometimes nicknamed a “corpse cupboard” — fitted with straps and used only when no other suitable space was available. but that was a rare feature, not a standard morgue.\n\n[read more on wikipedia](https://en.wikipedia.org/wiki/crew_rest_compartment)"
+   "text": "does a passenger aeroplane have a morgue? no — commercial passenger flights don't have a dedicated morgue. if someone dies in flight, the body is typically moved to an empty seat or row when available and covered with a blanket; otherwise it stays in the person's own seat, handled as dignifiedly as space allows. one historical exception: some long-haul aircraft, such as the singapore airlines airbus a340-500, had a special body compartment — sometimes nicknamed a “corpse cupboard” — fitted with straps and used only when no other suitable space was available. but that was a rare feature, not a standard morgue.\nread more on wikipedia\nwon't the body start to decay before landing?\nnot in any way you'd notice. decay starts at the cellular level straight away, but the visible, smelly part, when gut bacteria fill the body with gas and it bloats, takes about two to four days at room temperature. even the longest flights are under 20 hours. when  what happens  does it matter on a flight?   right away  primary flaccidity. every muscle relaxes, including the bladder and bowel.  yes. urine, and sometimes faeces, can leak. that's why crew put absorbent pads or blankets underneath.   minutes to hours  autolysis. cells start breaking themselves down.  no. nothing you can see or smell yet.   from the start, about 1 °c an hour  algor mortis. the body cools toward the cabin temperature of about 22–24 °c.  helps. a cool cabin slows bacteria down.   20 minutes to 3 hours, set by 8–12 hours  livor mortis. blood settles in the lowest parts of the body.  only how it looks. one reason crew lay the body flat or recline it.   starts at 2–6 hours, peaks around 12, eases by 24–48  rigor mortis. muscles stiffen as they run out of energy.  only for moving the body. it doesn't squeeze out gas or fluids, but it's why crew position the body early.   about 2–4 days at room temperature  bloat. gut bacteria fill the body with gas, then push out fluid.  no. this starts long after the plane has landed.  moving the body can push air left in the lungs past the vocal cords, making a sigh or groan. it's unsettling but means nothing.\ncabin pressure makes any gas already in the gut expand by about a quarter, the same thing that bloats living passengers. that isn't enough to cause a release.\nif you end up sitting next to them\ncall the crew first. if you aren't sure the person has died, press the call bell right away. if you know cpr, offer to help. only a doctor can confirm a death, so crew may keep going until one does.\nyou can ask to move. ask quietly and politely. on a full flight there may be nowhere to go, and the crew may move the body instead. either way, asking is fine.\ndon't touch the body or their things. leave that to the crew. the body may be part of an investigation when you land.\ndon't photograph or post. somebody's family hasn't been told yet.\ntwitches and sounds are normal. air escaping and small muscle movements happen after death. if one really makes you doubt it, tell the crew rather than staying quiet.\nask for what helps. a blanket over the body, a fresh blanket for yourself, water, or a few minutes in the galley. crew would rather you ask.\nexpect a short wait at landing. passengers are often held on board while police or medical staff come on. you may be asked a few questions as a witness.\nafterwards, it's normal to feel shaken, even days later. talk to someone about it. if the airline handled it badly, you can write to them; some offer an apology or compensation.\nif you were travelling with them, the crew will let you stay close and will help you with the airline and the authorities on arrival."
   },
   {
    "id": "bafyreiellumg3ocgrqu65khh3daxc7s77q4ojvrblyrdwzeuhba3e6mi7a",
    "slug": "kalighat-painting",
-   "managed": false,
+   "managed": true,
    "name": "Kalighat Painting",
    "modified": "2025-12-08T21:12:09Z",
    "created": "2025-10-13T14:35:05Z",
@@ -535,16 +535,16 @@
   {
    "id": "bafyreic6ybzqbuj6osysplthajumbpv5tkwids3vbmq3r227bmzelpuyfa",
    "slug": "l-esprit-de-l-escalier",
-   "managed": false,
+   "managed": true,
    "name": "l'Esprit de l'Escalier",
-   "modified": "2025-12-17T00:37:13Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2025-10-11T12:35:51Z",
-   "text": "l'esprit de l'escalier this french term literally translates to \"staircase wit\". it is used in english for the predicament of thinking of the perfect reply too late. see [wiki](https://en.wikipedia.org/wiki/l%27esprit_de_l%27escalier)"
+   "text": "l'esprit de l'escalier this french term literally translates to \"staircase wit\". it is used in english for the predicament of thinking of the perfect reply too late. see wiki"
   },
   {
    "id": "bafyreifwkkjg57un65vgy4ilztejr6pnfzgncrk7wfvcvjfwige34dg5ay",
    "slug": "water-seeks-its-own-level-2",
-   "managed": false,
+   "managed": true,
    "name": "Water seeks its own level",
    "modified": "2025-12-08T21:11:46Z",
    "created": "2025-10-11T09:59:27Z",
@@ -553,16 +553,16 @@
   {
    "id": "bafyreie4uccuajcce3fkrkpg6dftyxnzyvqzqjehyoigqboizdm472hm74",
    "slug": "timestones-a-literary-common-theme",
-   "managed": false,
+   "managed": true,
    "name": "Timestones, a literary common theme?",
-   "modified": "2025-12-08T21:11:46Z",
+   "modified": "2026-10-07T03:46:51Z",
    "created": "2025-10-10T13:34:05Z",
-   "text": "timestones, a literary common theme? first came to know about it in outlander and now in this \"how to talk to a goddess\" + \"thinking woman's guide to real magtic\""
+   "text": "timestones, a literary common theme? first came to know about it in outlander and now in this \"how to talk to a goddess\" + \"thinking woman's guide to real magtic\"\n\nwhile the term \"timestone\" is most famously associated with the marvel cinematic universe (mcu), where it is the eye of agamotto, several literary works have used a \"time stone\" or a similar artifact as a plot device for time travel. the general literary tradition of time travel predates the mcu by centuries, employing various mechanisms from magical artifacts to mechanical devices.\nexamples of \"time stone\" in literature\nthe time stone by jeffrey estrella: this sci-fi fantasy novel centers on a mysterious alien artifact that allows four characters to travel through time. their journey leads them to uncover an ancient mystery and potentially prevent a future disaster.\nthe time stone by rachel bridge: an adventure book for younger readers, this story follows three friends—ben, jake, and poppy—who find a time stone and are accidentally transported to 1976.\ndinosaur dimi time-traveling explorer: the magic time stone: in this children's book, a young dinosaur named dimi discovers a magical time stone that allows him to travel to different prehistoric periods and have new adventures.\nthe time stone: christmas legend iv: another novel by jeffrey estrella, this installment of a series features a team who must recover a stolen time stone to save history from an evil elf.\nclassic and influential time travel literature\nthe motif of a time-altering artifact or a journey through time is a cornerstone of the time travel genre. a few key examples:\nthe time machine by h.g. wells (1895): arguably the most famous and influential time travel novel. it popularized the concept of using a mechanical device—the time machine—to deliberately travel through time.\na christmas carol by charles dickens (1843): an early example of using supernatural means for time travel. the ghosts of christmas past, present, and yet to come transport ebenezer scrooge through time to teach him a lesson.\na connecticut yankee in king arthur's court by mark twain (1889): a 19th-century american man is knocked unconscious and wakes up in 6th-century england during the time of king arthur. one of the earliest novels to feature a character physically displaced in time.\nthe time traveler's wife by audrey niffenegger (2003): the time travel is an involuntary genetic disorder. the story explores the romantic and emotional complexities that arise from a man who randomly and uncontrollably travels through time.\nkindred by octavia e. butler (1979): uses time travel to explore historical trauma and the institution of slavery. the protagonist, a black woman living in 1970s california, is repeatedly and involuntarily pulled back in time to an early 19th-century plantation.\n\nsource: google ai overview (search: \"timestone literary time travel\")"
   },
   {
    "id": "bafyreie5spt22dabaiz6wghtcnsk3amwd65d6twxxpnvtpez65gwsgocre",
    "slug": "chaeffuer-knowledge",
-   "managed": false,
+   "managed": true,
    "name": "Chaeffuer knowledge",
    "modified": "2025-12-08T21:10:52Z",
    "created": "2025-09-30T15:38:31Z",
@@ -571,16 +571,16 @@
   {
    "id": "bafyreiga4c4loikqfardd7nilr2x6ingqrxa5p4tzglb3z7ssgka5kkl34",
    "slug": "annus-horribilis",
-   "managed": false,
+   "managed": true,
    "name": "Annus horribilis",
    "modified": "2025-12-17T00:37:13Z",
    "created": "2025-09-30T12:42:10Z",
-   "text": "annus horribilis ***annus horribilis*** (pl. ***anni horribiles***) is a latin phrase that means \"horrible year\". it is complementary to *annus mirabilis*, which means \"wonderful year\"."
+   "text": "annus horribilis annus horribilis (pl. anni horribiles) is a  latin  phrase that means \"horrible year\". it is complementary to annus mirabilis, which means \"wonderful year\"."
   },
   {
    "id": "bafyreihp4ty3sn7qakxbmuj2otjv6jquwz4b633q4htakjskoxi6xwztti",
    "slug": "morgantic-marriage",
-   "managed": false,
+   "managed": true,
    "name": "Morgantic Marriage",
    "modified": "2025-12-08T21:13:33Z",
    "created": "2025-09-30T12:56:28Z",
@@ -589,7 +589,7 @@
   {
    "id": "bafyreidlixfdzbvxhqsvmfm4ywg4vf7n7xnmcwvf6drjei7dwuevwuggi4",
    "slug": "why-is-left-wing-called-left-wing",
-   "managed": false,
+   "managed": true,
    "name": "Why is left wing called left wing?",
    "modified": "2025-12-08T21:11:46Z",
    "created": "2025-09-21T12:26:17Z",
@@ -598,11 +598,11 @@
   {
    "id": "bafyreigmucujhxcw7dud3vbx2q34pltbpxyjpuyp5wwff2ke7zvqlrtxea",
    "slug": "window-valence",
-   "managed": false,
+   "managed": true,
    "name": "Window valence",
-   "modified": "2025-12-08T21:11:46Z",
+   "modified": "2026-10-07T03:48:28Z",
    "created": "2025-09-04T13:03:08Z",
-   "text": "window valence types of window valances:\n- baloon valence\n- swag valence\n- ascot valence\n- box pleat\n- cascade\n- cornice\n- jabot\n- pelmet\n- rosette\n- scarf\n- swag & tail"
+   "text": "window valence types of window valances:\nbaloon valence\nswag valence\nascot valence\nbox pleat\ncascade\ncornice\njabot\npelmet\nrosette\nscarf\nswag & tail"
   }
  ]
 }
