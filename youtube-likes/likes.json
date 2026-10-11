@@ -1,6 +1,70 @@
 {
- "updated": "2026-10-06",
+ "updated": "2026-10-11",
  "videos": [
+  {
+   "id": "FBZ1dG7rJb8",
+   "title": "We Need More Villains like The Fairy Godmother",
+   "channel": "Bornok",
+   "published": "2026-09-18",
+   "url": "https://www.youtube.com/watch?v=FBZ1dG7rJb8",
+   "first_seen": "2026-10-11"
+  },
+  {
+   "id": "g5bTgU9EHhs",
+   "title": "The Unhinged Ladies Who Terrorized Greedy Merchants",
+   "channel": "PBS Origins ",
+   "published": "2026-10-07",
+   "url": "https://www.youtube.com/watch?v=g5bTgU9EHhs",
+   "first_seen": "2026-10-11"
+  },
+  {
+   "id": "7p3Gri76cjc",
+   "title": "Progress so far with Mechanix OS on the Comet",
+   "channel": "Mecha",
+   "published": "2026-01-30",
+   "url": "https://www.youtube.com/watch?v=7p3Gri76cjc",
+   "first_seen": "2026-10-11"
+  },
+  {
+   "id": "0PeFawkbeEI",
+   "title": "Ways to Get Paid for Things You Already Do",
+   "channel": "Chill Dude Explains",
+   "published": "2026-10-08",
+   "url": "https://www.youtube.com/watch?v=0PeFawkbeEI",
+   "first_seen": "2026-10-11"
+  },
+  {
+   "id": "AwaVPJJEjAQ",
+   "title": "Everything You’ll Learn in Mechanical Engineering",
+   "channel": "Becoming an Engineer",
+   "published": "2023-02-21",
+   "url": "https://www.youtube.com/watch?v=AwaVPJJEjAQ",
+   "first_seen": "2026-10-11"
+  },
+  {
+   "id": "qHlCpQWQiXU",
+   "title": "Spy Skills That Are Weirdly Useful In Everyday Life",
+   "channel": "Chill Dude Explains",
+   "published": "2026-09-13",
+   "url": "https://www.youtube.com/watch?v=qHlCpQWQiXU",
+   "first_seen": "2026-10-11"
+  },
+  {
+   "id": "o0YxpukWRrU",
+   "title": "BORIS ARTZYBASHEFF   HD 1080p",
+   "channel": "pete beard",
+   "published": "2022-10-08",
+   "url": "https://www.youtube.com/watch?v=o0YxpukWRrU",
+   "first_seen": "2026-10-11"
+  },
+  {
+   "id": "05t2QJcoYUg",
+   "title": "Old Skills Nobody Teaches Anymore That Are Suddenly Valuable",
+   "channel": "Chill Dude Explains",
+   "published": "2026-08-01",
+   "url": "https://www.youtube.com/watch?v=05t2QJcoYUg",
+   "first_seen": "2026-10-11"
+  },
   {
    "id": "AvNZfUjYYOk",
    "title": "Why Are We So Bad at Executing People?",
@@ -378,14 +442,6 @@
    "first_seen": ""
   },
   {
-   "id": "xuGRECL7vig",
-   "title": "All 11 Levels of Intelligence - Where Do You Fall?",
-   "channel": "The Chill Historian",
-   "published": "2026-07-31",
-   "url": "https://www.youtube.com/watch?v=xuGRECL7vig",
-   "first_seen": "2026-10-06"
-  },
-  {
    "id": "Ukt2gVz25PQ",
    "title": "10 open source tools that feel illegal...",
    "channel": "Fireship",
@@ -480,14 +536,6 @@
    "published": "2026-06-24",
    "url": "https://www.youtube.com/watch?v=w90kRGe0KBw",
    "first_seen": ""
-  },
-  {
-   "id": "r7-INGmcLEI",
-   "title": "12 Thinking Patterns That Will Instantly Make You Smarter",
-   "channel": "The Chill Historian",
-   "published": "2026-07-26",
-   "url": "https://www.youtube.com/watch?v=r7-INGmcLEI",
-   "first_seen": "2026-10-06"
   },
   {
    "id": "9r6THCHvc9w",
@@ -808,14 +856,6 @@
    "published": "2026-07-13",
    "url": "https://www.youtube.com/watch?v=z_GpYtSbgts",
    "first_seen": ""
-  },
-  {
-   "id": "sS2GS_n_pyA",
-   "title": "12 Useful Psychology Theories You Wish You Learned Earlier",
-   "channel": "The Chill Historian",
-   "published": "2026-06-12",
-   "url": "https://www.youtube.com/watch?v=sS2GS_n_pyA",
-   "first_seen": "2026-10-06"
   },
   {
    "id": "rxpV97A5I90",
@@ -1383,14 +1423,6 @@
    "channel": "EverythingProfessor",
    "published": "2026-05-01",
    "url": "https://www.youtube.com/watch?v=x4nhGuaMfYc",
-   "first_seen": ""
-  },
-  {
-   "id": "ldElivqfpVo",
-   "title": "How Pearls Are Made – Inside The World’s Most Luxurious Pearl Jewelry Factory",
-   "channel": "The Factoran",
-   "published": "2026-05-06",
-   "url": "https://www.youtube.com/watch?v=ldElivqfpVo",
    "first_seen": ""
   },
   {
@@ -2367,38 +2399,6 @@
    "channel": "Henry Vo",
    "published": "2021-04-08",
    "url": "https://www.youtube.com/watch?v=E9mM2StxkCo",
-   "first_seen": ""
-  },
-  {
-   "id": "aWU2iJzU3AA",
-   "title": "The Printing Press: How This 15th Century Invention Changed The World",
-   "channel": "Progress - Science Documentaries",
-   "published": "2022-04-15",
-   "url": "https://www.youtube.com/watch?v=aWU2iJzU3AA",
-   "first_seen": ""
-  },
-  {
-   "id": "OPAtdgty0n4",
-   "title": "what’s in my bag 01",
-   "channel": "Mina Le",
-   "published": "2025-12-10",
-   "url": "https://www.youtube.com/watch?v=OPAtdgty0n4",
-   "first_seen": ""
-  },
-  {
-   "id": "jO2FAE5aLeA",
-   "title": "Wilford The Bear Makes A Bed And Takes A Nap In The Angeles National Forest",
-   "channel": "Parliament Of Owls",
-   "published": "2022-07-11",
-   "url": "https://www.youtube.com/watch?v=jO2FAE5aLeA",
-   "first_seen": ""
-  },
-  {
-   "id": "OrJ_6fnzlSc",
-   "title": "A History of Holidays & Festivals - December, January, February",
-   "channel": "History Tea Time with Lindsay Holiday",
-   "published": "2025-12-02",
-   "url": "https://www.youtube.com/watch?v=OrJ_6fnzlSc",
    "first_seen": ""
   }
  ]
