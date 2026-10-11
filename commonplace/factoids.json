@@ -1,6 +1,24 @@
 {
- "updated": "2026-10-07",
+ "updated": "2026-10-11",
  "factoids": [
+  {
+   "id": "bafyreidl3ezgdfeoshwltenn3bf4cp2kksxix7bdvyueq6epdvwz26hqbq",
+   "slug": "ministrations",
+   "managed": true,
+   "name": "Ministrations",
+   "modified": "2026-10-09T06:25:04Z",
+   "created": "2026-10-09T06:24:42Z",
+   "text": "ministrations "
+  },
+  {
+   "id": "bafyreigzsso7dezmxow6haoicoqms3y6qayfb66fze3bjh4htba654btym",
+   "slug": "gordian-knot",
+   "managed": true,
+   "name": "Gordian Knot",
+   "modified": "2026-10-09T06:28:34Z",
+   "created": "2026-10-09T06:28:24Z",
+   "text": "gordian knot "
+  },
   {
    "id": "bafyreif5go3q424did77o67d53mobyv7j4nd4ezipnidqsgqdhowiwa4ua",
    "slug": "alliesthesia",
