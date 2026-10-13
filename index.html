@@ -81,6 +81,14 @@
     .card .card-bell svg { width: 16px; height: 16px; }
     .card:has(.card-bell) h2 { padding-right: 40px; }
 
+    /* Corner ribbon naming a project's latest release. Purely decorative:
+       clicks fall through to the stretched card link. */
+    .ribbon { position: absolute; top: 16px; right: -34px; width: 124px;
+              transform: rotate(45deg); text-align: center; pointer-events: none;
+              background: #2d5a27; color: white; font-size: 11px; font-weight: 600;
+              letter-spacing: 0.3px; padding: 3px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+    .card:has(.ribbon) h2 { padding-right: 44px; }
+
     /* "View source on GitHub" icon-button: sits after the description and
        layers above the stretched card link so it stays independently clickable. */
     .gh { position: relative; z-index: 2; display: inline-flex;
@@ -205,6 +213,7 @@
       </div>
       <div class="card">
         <a class="card-link" href="https://github.com/mrinaliniisin/nayantara_icloud_monitor" target="_blank" rel="noopener" aria-label="Nayantara - the iCloud Monitor"></a>
+        <span class="ribbon" aria-label="Latest release: version 1.4">v1.4</span>
         <h2>Nayantara - the iCloud Monitor</h2>
         <div class="desc">A macOS menu bar app that shows what iCloud Drive is uploading and downloading, how fast, how long it will take, and whether it will fit on your disk.</div>
         <div class="tags">
